@@ -289,3 +289,17 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery):active { transform: translateY(1px) scale(.99); box-shadow: var(--home-shadow-pressed); }
 @media (max-width: 639px) { .home-banner-content { padding: 22px 18px; } .home-content .home-match { padding: 14px 16px; } }
 @media (prefers-reduced-motion: reduce) { .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery) { transition: none; } .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery):active { transform: none; } }
+
+/* Illustrative player portrait inside the homepage Information panel */
+.player-portrait {
+  height: 11rem;
+  width: auto;
+  object-fit: contain;
+  align-self: flex-end;
+  margin: -1.5rem -1.5rem -1.5rem auto;
+  pointer-events: none;
+  user-select: none;
+}
+@media (max-width: 480px) {
+  .player-portrait { height: 8rem; }
+}
