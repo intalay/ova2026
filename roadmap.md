@@ -1,4 +1,7 @@
 # OVA modular build
+- [ ] Collect coach name, certification number, account email and team; show these to staff before approval.
+- [ ] Send coach application notifications to the staff QQ email (requires a verified sender domain).
+- [ ] Replace top-left OVA Companion text with official logo and full association name.
 - [x] Make Shop cards compact and shadowed with uniform images and reduced-motion-safe click effects; all three categories, images, product detail and mobile layout verified.
 - [x] Add coach Account player approvals and player Account family/friend approvals with pending access enforcement; 20 rule/routing tests pass.
 - [x] Make verified player/coach Account open the appropriate code generator without a separate key icon; 15 account/module/routing tests pass.
