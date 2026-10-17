@@ -33,7 +33,7 @@ export const PRODUCTS = [
     "price": "20.00",
     "available": true,
     "category": "Game Day",
-    "image": image1.url,
+    "image": image1,
     "description": "6v6 Volleyball Scoresheets - Book of 30",
     "url": "https://ontario-volleyball-association.myshopify.com/products/6v6-volleyball-scoresheets"
   },
@@ -43,7 +43,7 @@ export const PRODUCTS = [
     "price": "20.00",
     "available": true,
     "category": "Game Day",
-    "image": image2.url,
+    "image": image2,
     "description": "4v4 Scoresheets - Book of 30",
     "url": "https://ontario-volleyball-association.myshopify.com/products/4v4-scoresheets-book-of-30"
   },
