@@ -23,6 +23,7 @@ export type Database = {
           id: string
           location_name: string | null
           media_urls: Json
+          pinned: boolean
           published_at: string | null
           status: string
           team_id: string | null
@@ -36,6 +37,7 @@ export type Database = {
           id?: string
           location_name?: string | null
           media_urls?: Json
+          pinned?: boolean
           published_at?: string | null
           status?: string
           team_id?: string | null
@@ -49,6 +51,7 @@ export type Database = {
           id?: string
           location_name?: string | null
           media_urls?: Json
+          pinned?: boolean
           published_at?: string | null
           status?: string
           team_id?: string | null
