@@ -30,14 +30,14 @@ export function MatchCard({ m, data, focusTeam, compact = false }: { m: Match; d
   return (
     <Card>
       <p className="text-base text-muted-foreground">{event}</p>
-      <p className="mt-1 text-xl font-bold">
+      <p className="mt-1 text-xl font-semibold">
         {name(m.team_a_id)} <span className="font-normal text-muted-foreground">vs</span>{" "}
         {m.team_b_id ? name(m.team_b_id) : <Tbd>{teamLabel(null)}</Tbd>}
       </p>
       {final ? (
         <p className="mt-1 text-lg">
-          <span className="font-bold">{m.score_a}–{m.score_b}</span> sets
-          {won !== null && <span className={`ml-2 rounded px-2 py-0.5 font-bold ${won ? "bg-success text-success-foreground" : "bg-secondary text-secondary-foreground"}`}>{won ? "Won" : "Lost"}</span>}
+          <span className="font-semibold">{m.score_a}–{m.score_b}</span> sets
+          {won !== null && <span className={`ml-2 rounded px-2 py-0.5 font-semibold ${won ? "bg-success text-success-foreground" : "bg-secondary text-secondary-foreground"}`}>{won ? "Won" : "Lost"}</span>}
           {m.sets && <span className="ml-2 text-muted-foreground">({m.sets.map((s) => `${s.a}-${s.b}`).join(", ")})</span>}
         </p>
       ) : (
@@ -47,7 +47,7 @@ export function MatchCard({ m, data, focusTeam, compact = false }: { m: Match; d
         <p className="mt-1 flex items-center gap-1.5 text-base">
           <MapPin aria-hidden className="size-5" />
           {venue ? (
-            <Link to="/venue/$id" params={{ id: venue.id }} className="font-bold text-primary underline underline-offset-4">
+            <Link to="/venue/$id" params={{ id: venue.id }} className="font-semibold text-primary underline underline-offset-4">
               {venue.name}{m.court ? ` · ${m.court}` : ""}
             </Link>
           ) : <Tbd>Venue {TBD.toLowerCase()}</Tbd>}

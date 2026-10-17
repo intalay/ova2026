@@ -16,33 +16,33 @@ function Lottery(){
   <section aria-labelledby="draw" className="lotto-stage px-4 py-10 text-center sm:px-8">
    <div className="relative space-y-3">
     <img src={logo.url} alt="OVA 50/50" width={200} height={70} className="mx-auto h-14 w-44 object-contain"/>
-    <h2 id="draw" className="text-lg font-bold uppercase tracking-[0.3em]">Last Fall Classic winner took home</h2>
-    <p className="jackpot font-display text-7xl font-bold leading-none sm:text-9xl">$14,835</p>
-    <p className="text-sm font-bold">18+ · Must be in Ontario to purchase</p>
+    <h2 id="draw" className="text-lg font-semibold uppercase tracking-[0.3em]">Last Fall Classic winner took home</h2>
+    <p className="jackpot font-display text-7xl font-semibold leading-none sm:text-9xl">$14,835</p>
+    <p className="text-sm font-semibold">18+ · Must be in Ontario to purchase</p>
    </div>
    <div className="relative mt-10">
-    <p id="pick" className="mb-4 text-lg font-bold">Pick your tickets</p>
+    <p id="pick" className="mb-4 text-lg font-semibold">Pick your tickets</p>
     <ul aria-labelledby="pick" className="mx-auto grid max-w-4xl grid-cols-5 gap-2 pb-4 pt-4 sm:gap-4">
      {tiers.map(t=>{const s=STYLE[t.tickets]??{cls:'silver'};return <li key={t.tickets}>
       <Button type="button" variant="ghost" aria-pressed={sel===t.tickets} onClick={()=>setSel(t.tickets)} aria-label={`${t.tickets} tickets for $${t.price} CAD${s.label?`, ${s.label}`:''}`} className="ticket-btn block h-auto w-full whitespace-normal rounded-lg p-0 hover:bg-transparent hover:text-inherit">
        <div className={`golden-ticket ${s.cls} flex h-52 w-full flex-col items-center justify-between rounded-md px-1 py-4 sm:h-60 sm:px-3`}>
-        <span className="min-h-8 text-center text-[0.6rem] leading-tight sm:text-[0.7rem] font-bold uppercase">{s.label??'OVA 50/50'}</span>
+        <span className="min-h-8 text-center text-[0.6rem] leading-tight sm:text-[0.7rem] font-semibold uppercase">{s.label??'OVA 50/50'}</span>
         <div className="flex w-full flex-col items-center border-y-2 border-dashed border-current/40 py-3">
          <span className="flex gap-0.5" aria-hidden>{[0,1,2].map(i=><Star key={i} className="size-3 fill-current"/>)}</span>
-         <span className="font-display text-3xl font-bold leading-none sm:text-5xl">{t.tickets}</span>
-         <span className="text-[0.6rem] font-bold uppercase sm:text-xs sm:tracking-[0.3em]">Tickets</span>
+         <span className="font-display text-3xl font-semibold leading-none sm:text-5xl">{t.tickets}</span>
+         <span className="text-[0.6rem] font-semibold uppercase sm:text-xs sm:tracking-[0.3em]">Tickets</span>
         </div>
-        <span className="font-display text-2xl font-bold sm:text-3xl">${t.price}</span>
+        <span className="font-display text-2xl font-semibold sm:text-3xl">${t.price}</span>
        </div>
       </Button></li>;})}
     </ul>
-    <p role="status" className="mb-4 font-bold">Selected: {chosen.tickets} tickets · ${chosen.price} CAD</p>
-    <Button asChild size="lg" className="min-h-14 bg-gold px-10 text-xl font-bold uppercase text-gold-foreground hover:brightness-110">
+    <p role="status" className="mb-4 font-semibold">Selected: {chosen.tickets} tickets · ${chosen.price} CAD</p>
+    <Button asChild size="lg" className="min-h-14 bg-gold px-10 text-xl font-semibold uppercase text-gold-foreground hover:brightness-110">
      <a href={LOTTERY_URL} target="_blank" rel="noopener noreferrer">Buy now<ExternalLink aria-hidden/></a>
     </Button>
     <p className="mt-3 text-sm">Opens the official OVA 50/50 site; choose the same bundle there to complete checkout.</p>
    </div>
   </section>
-  <Section title="Additional information"><ul className="list-disc space-y-2 pl-6"><li>You must be 18 or older and physically in Ontario when purchasing.</li><li>Licence RAF1499817 · Verify current draw details on the official site.</li><li>Responsible gambling: <a href="https://www.connexontario.ca" target="_blank" rel="noopener noreferrer" className="font-bold text-primary underline">ConnexOntario</a> · <a href="tel:18665312600" className="underline">1-866-531-2600</a></li></ul><Button asChild variant="outline"><a href={RULES_URL} target="_blank" rel="noopener noreferrer"><FileText aria-hidden/>Electronic 50/50 Rules of Play</a></Button></Section>
+  <Section title="Additional information"><ul className="list-disc space-y-2 pl-6"><li>You must be 18 or older and physically in Ontario when purchasing.</li><li>Licence RAF1499817 · Verify current draw details on the official site.</li><li>Responsible gambling: <a href="https://www.connexontario.ca" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline">ConnexOntario</a> · <a href="tel:18665312600" className="underline">1-866-531-2600</a></li></ul><Button asChild variant="outline"><a href={RULES_URL} target="_blank" rel="noopener noreferrer"><FileText aria-hidden/>Electronic 50/50 Rules of Play</a></Button></Section>
  </AppShell>;
 }

@@ -39,7 +39,7 @@ function Staff() {
 
   if (!ready || hh.isLoading) return <AppShell title="Staff"><p>Loading…</p></AppShell>;
   if (!user || (!staff && !hh.data?.managedTeams.length))
-    return <AppShell title="Staff">{!user?<StaffSignIn/>:<Card><p className="text-xl font-bold">OVA Staff channel</p><p className="mt-2">Staff access has not been granted to this account.</p><Button className="mt-4" variant="outline" onClick={async()=>{await qc.cancelQueries();qc.clear();await supabase.auth.signOut();}}>Sign out</Button></Card>}</AppShell>;
+    return <AppShell title="Staff">{!user?<StaffSignIn/>:<Card><p className="text-xl font-semibold">OVA Staff channel</p><p className="mt-2">Staff access has not been granted to this account.</p><Button className="mt-4" variant="outline" onClick={async()=>{await qc.cancelQueries();qc.clear();await supabase.auth.signOut();}}>Sign out</Button></Card>}</AppShell>;
 
   const pending = (hh.data?.visiblePlayers ?? []).filter((p) => p.status === "pending");
   const teamName = (id: string | null) => comp.teams.find((t) => t.id === id)?.name ?? "—";
@@ -66,11 +66,11 @@ function Staff() {
 
   return (
     <AppShell title="Staff tools">
-      {staff && <Section title="Coach applications">{coachRequests.isPending?<p role="status">Loading coach applications…</p>:coachRequests.isError?<><p role="alert">Could not load coach applications.</p><Button variant="outline" onClick={()=>coachRequests.refetch()}>Try again</Button></>:coachRequests.data?.length ? coachRequests.data.map(r=><Card key={r.id}><p className="text-xl font-bold">{r.coach_name??'Coach name to be determined'}</p><dl className="mt-3 space-y-2"><div><dt className="text-sm text-muted-foreground">Team</dt><dd className="font-bold">{r.team_name??teamName(r.team_id)}</dd></div><div><dt className="text-sm text-muted-foreground">Certification number</dt><dd>{r.certification_number??'to be determined'}</dd></div><div><dt className="text-sm text-muted-foreground">Account email</dt><dd className="break-all">{r.contact_email??'to be determined'}</dd></div></dl>{!hasCoachApplicationDetails(r)&&<p className="mt-3 text-sm text-destructive">Incomplete application — coach must resubmit before approval.</p>}<p className="text-sm">Submitted {new Date(r.created_at).toLocaleDateString()}</p><div className="mt-3 flex gap-2">{[true,false].map(approve=><Button key={String(approve)} variant={approve?"default":"outline"} disabled={approve&&!hasCoachApplicationDetails(r)} onClick={async()=>{const {error}=await supabase.rpc("review_coach_request",{_request:r.id,_approve:approve});if(error)toast.error(error.message);else{toast.success(approve?"Coach approved":"Application rejected");qc.invalidateQueries({queryKey:["staff-coach-requests"]});}}}>{approve?"Approve coach":"Reject"}</Button>)}</div></Card>):<p>No pending coach applications.</p>}</Section>}
+      {staff && <Section title="Coach applications">{coachRequests.isPending?<p role="status">Loading coach applications…</p>:coachRequests.isError?<><p role="alert">Could not load coach applications.</p><Button variant="outline" onClick={()=>coachRequests.refetch()}>Try again</Button></>:coachRequests.data?.length ? coachRequests.data.map(r=><Card key={r.id}><p className="text-xl font-semibold">{r.coach_name??'Coach name to be determined'}</p><dl className="mt-3 space-y-2"><div><dt className="text-sm text-muted-foreground">Team</dt><dd className="font-semibold">{r.team_name??teamName(r.team_id)}</dd></div><div><dt className="text-sm text-muted-foreground">Certification number</dt><dd>{r.certification_number??'to be determined'}</dd></div><div><dt className="text-sm text-muted-foreground">Account email</dt><dd className="break-all">{r.contact_email??'to be determined'}</dd></div></dl>{!hasCoachApplicationDetails(r)&&<p className="mt-3 text-sm text-destructive">Incomplete application — coach must resubmit before approval.</p>}<p className="text-sm">Submitted {new Date(r.created_at).toLocaleDateString()}</p><div className="mt-3 flex gap-2">{[true,false].map(approve=><Button key={String(approve)} variant={approve?"default":"outline"} disabled={approve&&!hasCoachApplicationDetails(r)} onClick={async()=>{const {error}=await supabase.rpc("review_coach_request",{_request:r.id,_approve:approve});if(error)toast.error(error.message);else{toast.success(approve?"Coach approved":"Application rejected");qc.invalidateQueries({queryKey:["staff-coach-requests"]});}}}>{approve?"Approve coach":"Reject"}</Button>)}</div></Card>):<p>No pending coach applications.</p>}</Section>}
       <Section title="Verify player requests">
         {pending.length ? pending.map((p) => (
           <Card key={p.id}>
-            <p className="text-xl font-bold">{p.display_name}</p><p>{teamName(p.team_id)}</p>
+            <p className="text-xl font-semibold">{p.display_name}</p><p>{teamName(p.team_id)}</p>
             <div className="mt-2 flex gap-2">
               <Button onClick={() => verify(p.id, "verified")} className={btn.primary}>Verify</Button>
               <Button onClick={async () => { const note=window.prompt("What should this player modify?"); if (!note) return; const { error }=await supabase.rpc("request_player_changes", { _player:p.id,_note:note }); if(error)toast.error(error.message); else qc.invalidateQueries({queryKey:["household"]}); }} className={btn.secondary}>Request changes</Button>
@@ -82,8 +82,8 @@ function Staff() {
         <>
           <Section title="Post announcement">
             <form onSubmit={publish} className="space-y-3">
-              <label className="block text-lg font-bold">Title<input required value={title} onChange={(e) => setTitle(e.target.value)} className={btn.input} /></label>
-              <label className="block text-lg font-bold">Message<textarea required value={body} onChange={(e) => setBody(e.target.value)} rows={4} className={`${btn.input} py-2`} /></label>
+              <label className="block text-lg font-semibold">Title<input required value={title} onChange={(e) => setTitle(e.target.value)} className={btn.input} /></label>
+              <label className="block text-lg font-semibold">Message<textarea required value={body} onChange={(e) => setBody(e.target.value)} rows={4} className={`${btn.input} py-2`} /></label>
               <Button className={btn.primary}>Publish</Button>
             </form>
           </Section>
