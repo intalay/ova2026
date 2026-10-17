@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Add coach Account player approvals and player Account family/friend approvals with pending access enforcement and tests.
 - [x] Make verified player/coach Account open the appropriate code generator without a separate key icon; 15 account/module/routing tests pass.
 - [ ] Verify code generation with an authenticated verified player and approved managing coach: available session does not expose either verified identity.
 - [x] Apply uploaded references, grey-white / light-green accessible design and official logos.
