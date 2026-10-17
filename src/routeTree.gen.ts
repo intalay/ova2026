@@ -10,14 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as ScheduleRouteImport } from './routes/schedule'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as VenueIdRouteImport } from './routes/venue.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -35,6 +42,11 @@ const ScheduleRoute = ScheduleRouteImport.update({
   path: '/schedule',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VenueIdRoute = VenueIdRouteImport.update({
   id: '/venue/$id',
   path: '/venue/$id',
@@ -43,39 +55,69 @@ const VenueIdRoute = VenueIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/explore': typeof ExploreRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
+  '/staff': typeof StaffRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/explore': typeof ExploreRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
+  '/staff': typeof StaffRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/explore': typeof ExploreRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
+  '/staff': typeof StaffRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explore' | '/results' | '/schedule' | '/venue/$id'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/explore'
+    | '/results'
+    | '/schedule'
+    | '/staff'
+    | '/venue/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explore' | '/results' | '/schedule' | '/venue/$id'
-  id: '__root__' | '/' | '/explore' | '/results' | '/schedule' | '/venue/$id'
+  to:
+    | '/'
+    | '/account'
+    | '/explore'
+    | '/results'
+    | '/schedule'
+    | '/staff'
+    | '/venue/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/explore'
+    | '/results'
+    | '/schedule'
+    | '/staff'
+    | '/venue/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   ExploreRoute: typeof ExploreRoute
   ResultsRoute: typeof ResultsRoute
   ScheduleRoute: typeof ScheduleRoute
+  StaffRoute: typeof StaffRoute
   VenueIdRoute: typeof VenueIdRoute
 }
 
@@ -86,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -109,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/venue/$id': {
       id: '/venue/$id'
       path: '/venue/$id'
@@ -121,9 +177,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   ExploreRoute: ExploreRoute,
   ResultsRoute: ResultsRoute,
   ScheduleRoute: ScheduleRoute,
+  StaffRoute: StaffRoute,
   VenueIdRoute: VenueIdRoute,
 }
 export const routeTree = rootRouteImport

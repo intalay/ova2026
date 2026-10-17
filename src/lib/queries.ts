@@ -39,10 +39,7 @@ export const venueQuery = (id: string) => queryOptions({
 });
 
 /** Private data: RLS only returns players the signed-in user may see. */
-export const myHouseholdQuery = (userId: string | undefined) => queryOptions({
-  queryKey: ["household", userId],
-  enabled: !!userId,
-  queryFn: async () => {
+async function fetchHousehold(userId: string | undefined) {
     const [players, links, roles, follows, profile, managed] = await Promise.all([
       supabase.from("players").select("*"),
       supabase.from("family_links").select("*").eq("family_user_id", userId!),
@@ -62,5 +59,7 @@ export const myHouseholdQuery = (userId: string | undefined) => queryOptions({
       profile: profile.data,
       managedTeams: (managed.data ?? []).map((m) => m.team_id),
     };
-  },
-});
+}
+export type Household = Awaited<ReturnType<typeof fetchHousehold>>;
+export const myHouseholdQuery = (userId: string | undefined) =>
+  queryOptions({ queryKey: ["household", userId], enabled: !!userId, queryFn: () => fetchHousehold(userId) });

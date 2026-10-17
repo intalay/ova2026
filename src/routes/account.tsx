@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { KeyRound, LogOut, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
-import { competitionQuery, myHouseholdQuery } from "@/lib/queries";
+import { competitionQuery, myHouseholdQuery, type Household } from "@/lib/queries";
 import { useSessionUser } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -123,7 +123,7 @@ function Profile({ userId, email }: { userId: string; email: string }) {
   );
 }
 
-type HH = ReturnType<typeof myHouseholdQuery> extends { queryFn?: unknown } ? Awaited<ReturnType<NonNullable<ReturnType<typeof myHouseholdQuery>["queryFn"]>>> : never;
+type HH = Household;
 
 function PairingDialog({ onClose, data, teams, roles }: { onClose: () => void; data: HH | undefined; teams: { id: string; name: string }[]; roles: string[] }) {
   const qc = useQueryClient();
