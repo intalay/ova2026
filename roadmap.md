@@ -1,5 +1,5 @@
 # OVA modular build
-- [ ] Match CBC Upcoming card format to Latest, use logo/Coming soon placeholders, show four latest events and hide past-dated Upcoming listings with a quiet empty state.
+- [x] Match CBC Upcoming card format to Latest, use official logo/Coming soon placeholders, show four latest events and hide past-dated Upcoming listings with a quiet empty state; five tests pass, live CBC read shows four cards with loaded images, desktop/mobile have no overflow or runtime errors. Future-event placeholder uses the shared card layout; CBC currently has no valid upcoming events to exercise it live.
 - [x] Separate Homepage venue/results blocks; implement database-enforced maximum-three pins, last-pinned-first display, upper-right management/edit pin controls and swipe carousel; 16 tests pass, desktop/mobile spacing checked with no overflow or runtime errors.
 - [ ] Verify pin/unpin, fourth-pin rejection and swipe ordering end-to-end as an approved coach: the injected account has no announcement publishing access; requires an approved coach/staff session.
 - [x] Remove duplicate player verification and roster tools from Homepage; retain Account entry and its approval tools.
