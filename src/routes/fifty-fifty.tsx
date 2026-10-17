@@ -10,7 +10,8 @@ const STYLE: Record<number,{label?:string;cls:string}>={400:{label:'Best value',
 function Lottery(){
  const tiers=[...TICKET_TIERS].sort((a,b)=>b.tickets-a.tickets);
  const [sel,setSel]=useState(400);
- const chosen=tiers.find(t=>t.tickets===sel)!;
+ const chosen=tiers.find(t=>t.tickets===sel);
+ if(!chosen) return null;
  return <AppShell title="50/50 Lottery">
   <section aria-labelledby="draw" className="lotto-stage px-4 py-10 text-center sm:px-8">
    <div className="relative space-y-3">
@@ -23,7 +24,7 @@ function Lottery(){
     <p id="pick" className="mb-4 text-lg font-bold">Pick your tickets</p>
     <ul aria-labelledby="pick" className="mx-auto grid max-w-4xl grid-cols-5 gap-2 pb-4 pt-4 sm:gap-4">
      {tiers.map(t=>{const s=STYLE[t.tickets]??{cls:'silver'};return <li key={t.tickets}>
-      <button type="button" aria-pressed={sel===t.tickets} onClick={()=>setSel(t.tickets)} aria-label={`${t.tickets} tickets for $${t.price} CAD${s.label?`, ${s.label}`:''}`} className="ticket-btn block w-full rounded-lg">
+      <Button type="button" variant="ghost" aria-pressed={sel===t.tickets} onClick={()=>setSel(t.tickets)} aria-label={`${t.tickets} tickets for $${t.price} CAD${s.label?`, ${s.label}`:''}`} className="ticket-btn block h-auto w-full whitespace-normal rounded-lg p-0 hover:bg-transparent hover:text-inherit">
        <div className={`golden-ticket ${s.cls} flex h-52 w-full flex-col items-center justify-between rounded-md px-1 py-4 sm:h-60 sm:px-3`}>
         <span className="min-h-8 text-center text-[0.6rem] leading-tight sm:text-[0.7rem] font-bold uppercase">{s.label??'OVA 50/50'}</span>
         <div className="flex w-full flex-col items-center border-y-2 border-dashed border-current/40 py-3">
@@ -33,7 +34,7 @@ function Lottery(){
         </div>
         <span className="font-display text-2xl font-bold sm:text-3xl">${t.price}</span>
        </div>
-      </button></li>;})}
+      </Button></li>;})}
     </ul>
     <p role="status" className="mb-4 font-bold">Selected: {chosen.tickets} tickets · ${chosen.price} CAD</p>
     <Button asChild size="lg" className="min-h-14 bg-gold px-10 text-xl font-bold uppercase text-gold-foreground hover:brightness-110">
