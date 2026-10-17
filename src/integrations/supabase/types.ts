@@ -172,6 +172,9 @@ export type Database = {
           id: string
           player_id: string
           relationship: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
         }
         Insert: {
           created_at?: string
@@ -179,6 +182,9 @@ export type Database = {
           id?: string
           player_id: string
           relationship?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
         }
         Update: {
           created_at?: string
@@ -186,6 +192,9 @@ export type Database = {
           id?: string
           player_id?: string
           relationship?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
         }
         Relationships: [
           {
@@ -659,9 +668,23 @@ export type Database = {
         Args: { _player: string; _user: string }
         Returns: boolean
       }
+      can_view_team: {
+        Args: { _team: string; _user: string }
+        Returns: boolean
+      }
       code_hash: { Args: { _code: string }; Returns: string }
       create_family_code: { Args: { _player: string }; Returns: Json }
       create_team_code: { Args: { _team: string }; Returns: Json }
+      family_approval_requests: {
+        Args: never
+        Returns: {
+          created_at: string
+          display_name: string
+          id: string
+          relationship: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -684,6 +707,10 @@ export type Database = {
       }
       review_coach_request: {
         Args: { _approve: boolean; _request: string }
+        Returns: undefined
+      }
+      review_family_request: {
+        Args: { _approve: boolean; _link: string }
         Returns: undefined
       }
       update_player_registration: {
