@@ -21,17 +21,17 @@ function Lottery(){
    </div>
    <div className="relative mt-10">
     <p id="pick" className="mb-4 text-lg font-bold">Pick your tickets</p>
-    <ul aria-labelledby="pick" className="mx-auto flex max-w-4xl snap-x gap-3 overflow-x-auto px-1 pb-4 pt-4 sm:justify-center sm:gap-4">
-     {tiers.map(t=>{const s=STYLE[t.tickets]??{cls:'silver'};return <li key={t.tickets} className="snap-center">
-      <button type="button" aria-pressed={sel===t.tickets} onClick={()=>setSel(t.tickets)} aria-label={`${t.tickets} tickets for $${t.price} CAD${s.label?`, ${s.label}`:''}`} className="ticket-btn block rounded-lg">
-       <div className={`golden-ticket ${s.cls} flex h-60 w-28 flex-col items-center justify-between rounded-md px-3 py-4 sm:w-36`}>
-        <span className="min-h-5 text-[0.7rem] font-bold uppercase">{s.label??'OVA 50/50'}</span>
+    <ul aria-labelledby="pick" className="mx-auto grid max-w-4xl grid-cols-5 gap-2 pb-4 pt-4 sm:gap-4">
+     {tiers.map(t=>{const s=STYLE[t.tickets]??{cls:'silver'};return <li key={t.tickets}>
+      <button type="button" aria-pressed={sel===t.tickets} onClick={()=>setSel(t.tickets)} aria-label={`${t.tickets} tickets for $${t.price} CAD${s.label?`, ${s.label}`:''}`} className="ticket-btn block w-full rounded-lg">
+       <div className={`golden-ticket ${s.cls} flex h-52 w-full flex-col items-center justify-between rounded-md px-1 py-4 sm:h-60 sm:px-3`}>
+        <span className="min-h-8 text-center text-[0.6rem] leading-tight sm:text-[0.7rem] font-bold uppercase">{s.label??'OVA 50/50'}</span>
         <div className="flex w-full flex-col items-center border-y-2 border-dashed border-current/40 py-3">
          <span className="flex gap-0.5" aria-hidden>{[0,1,2].map(i=><Star key={i} className="size-3 fill-current"/>)}</span>
-         <span className="font-display text-5xl font-bold leading-none">{t.tickets}</span>
-         <span className="text-xs font-bold uppercase tracking-[0.3em]">Tickets</span>
+         <span className="font-display text-3xl font-bold leading-none sm:text-5xl">{t.tickets}</span>
+         <span className="text-[0.6rem] font-bold uppercase sm:text-xs sm:tracking-[0.3em]">Tickets</span>
         </div>
-        <span className="font-display text-3xl font-bold">${t.price}</span>
+        <span className="font-display text-2xl font-bold sm:text-3xl">${t.price}</span>
        </div>
       </button></li>;})}
     </ul>
