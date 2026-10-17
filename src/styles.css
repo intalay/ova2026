@@ -126,7 +126,7 @@
 .home-lottery-content { text-align: center; }
 .home-prize { font-size: 5rem; line-height: 1.1; color: var(--primary); text-shadow: var(--home-prize-glow); margin-top: 8px; }
 @keyframes home-light { 50% { background-position: 100% 50%; } }
-@media (max-width: 639px) { .association-wordmark { font-size: .72rem; } .home-venue { grid-template-columns: 100px minmax(0,1fr); gap: 16px; padding: 18px; } .home-venue > svg { display: none; } .home-result { grid-template-columns: minmax(0,1fr) auto; gap: 14px; padding: 18px; } .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--home-glass-border); padding-top: 12px; } .home-result-score { font-size: 2.5rem; } .home-prize { font-size: 4rem; } }
+@media (max-width: 639px) { .association-wordmark { font-size: .85rem; } .home-venue { grid-template-columns: 100px minmax(0,1fr); gap: 16px; padding: 18px; } .home-venue > svg { display: none; } .home-result { grid-template-columns: minmax(0,1fr) auto; gap: 14px; padding: 18px; } .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--home-glass-border); padding-top: 12px; } .home-result-score { font-size: 2.5rem; } .home-prize { font-size: 4rem; } }
 .shop-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .shop-product { box-shadow: var(--shadow-shop); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
 .shop-product:hover, .shop-product:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-shop-active); border-color: var(--primary); }
