@@ -33,6 +33,8 @@
   --color-pending-foreground: var(--pending-foreground);
   --color-court: var(--court);
   --color-court-foreground: var(--court-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -69,6 +71,8 @@
   --pending-foreground: oklch(0.3 0.07 70);
   --court: oklch(0.29 0.055 155);
   --court-foreground: oklch(0.99 0 0);
+  --gold: oklch(0.72 0.1 80);
+  --gold-foreground: oklch(0.2 0.03 70);
   --border: oklch(0.86 0.01 145);
   --input: oklch(0.65 0.02 145);
   --ring: oklch(0.4 0.08 155);
