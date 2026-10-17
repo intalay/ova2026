@@ -10,7 +10,7 @@ export function AnnouncementCarousel({ items }: { items: CompetitionData['announ
  const drag = useRef<{x:number;left:number;moved:boolean}|null>(null);
  const suppressClick = useRef(false);
  const go = (index: number) => { const el=track.current; if(!el)return; el.scrollTo({left:index*el.clientWidth,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}); };
- return <div className="relative min-w-0" role="region" aria-label="Team announcements" aria-roledescription="carousel">
+ return <div className="announcement-carousel relative min-w-0" role="region" aria-label="Team announcements" aria-roledescription="carousel">
   <div ref={track} tabIndex={0} onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();go(Math.max(0,Math.min(items.length-1,active+(e.key==='ArrowRight'?1:-1))));}}}
    onDragStart={e=>e.preventDefault()}
    onPointerDown={e=>{suppressClick.current=false;if(e.pointerType!=='mouse'||e.button!==0)return;drag.current={x:e.clientX,left:e.currentTarget.scrollLeft,moved:false};}}
