@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Refine homepage only: flatter single-line match details, unboxed unknown labels, one-line banner, modern typography, same-colour gradients and shadow/press feedback; verify real public navigation and narrow layouts.
 - [x] Match accent green to the OVA logo and make page titles bold uppercase; desktop/mobile checked, no overflow/runtime errors and 22 existing tests pass.
 - [x] Restore direct access from verified Account to the personalized Player/Coach homepage; put player name and jersey ahead of team information. The code-generation branch previously hid the homepage action; current signed-in Coach flow passes.
 - [ ] Verify personalized Player homepage end-to-end: current signed-in account is a coach, not a verified player; requires a verified player session. No separate historical Customize editor was found; retained the original team-personalized homepage rather than inventing settings.
