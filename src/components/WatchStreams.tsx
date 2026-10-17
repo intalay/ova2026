@@ -2,7 +2,7 @@ import { ArrowUpRight, CalendarDays, LockKeyhole, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CBC_URL, type StreamEvent } from '@/lib/watch';
 
-export function WatchStreams({ upcoming, latest, error, checkedAt }: { upcoming: StreamEvent[]; latest: StreamEvent[]; error?: string; checkedAt?: string }) {
+export function WatchStreams({ upcoming, latest, error, checkedAt }: { upcoming: StreamEvent[]; latest: StreamEvent[]; error?: string | undefined; checkedAt?: string | undefined }) {
   return <section aria-labelledby="cbc-watch" className="space-y-6 border-t pt-8">
     <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-xs font-bold uppercase text-primary">CBC Sports · Pixellot</p><h3 id="cbc-watch" className="text-4xl font-bold">Streams</h3></div><Button variant="outline" asChild><a href={CBC_URL} target="_blank" rel="noopener noreferrer">CBC Watch<ArrowUpRight aria-hidden className="size-4" /></a></Button></div>
     {error && <p role="status" className="border-l-4 border-pending-foreground bg-pending p-4 text-sm text-pending-foreground">{error}</p>}
