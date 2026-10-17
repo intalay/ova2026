@@ -19,10 +19,14 @@ describe('OVA TV catalogue', () => {
     expect(videoPage(videos, 'nonexistent', 2).videos).toEqual([]);
   });
 });
-it('shows the next three and the latest three streams without fabricating missing events', () => {
+it('shows the next three and the latest four streams without fabricating missing events', () => {
   const events: StreamEvent[] = Array.from({length: 10}, (_,i) => ({id:String(i), title:String(i), url:'', thumbnail:null, memberOnly:true, startsAt:`2026-10-${String(i+10).padStart(2,'0')}T12:00:00Z`}));
   const result = streamPreviews(events, Date.parse('2026-10-15T18:00:00Z'));
   expect(result.upcoming.map(e => e.id)).toEqual(['6','7','8']);
-  expect(result.latest.map(e => e.id)).toEqual(['5','4','3']);
+  expect(result.latest.map(e => e.id)).toEqual(['5','4','3','2']);
   expect(streamPreviews([], Date.now())).toEqual({ upcoming: [], latest: [] });
+});
+it('excludes past-dated and unknown-date events from upcoming',()=>{
+ const events: StreamEvent[]=[{id:'past',title:'Past',url:'',thumbnail:null,memberOnly:false,startsAt:'2026-10-16T12:00:00Z'},{id:'unknown',title:'Unknown',url:'',thumbnail:null,memberOnly:false,startsAt:null}];
+ expect(streamPreviews(events,Date.parse('2026-10-17T22:43:00Z')).upcoming).toEqual([]);
 });
