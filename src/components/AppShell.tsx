@@ -7,7 +7,7 @@ import canuck from "@/assets/sponsor-canuckstuff.png";
 import ontario from "@/assets/sponsor-ontario.png";
 import toronto from "@/assets/sponsor-toronto.png";
 import mikasa from "@/assets/sponsor-mikasa.png";
-const SPONSORS = [{ name: "Canuckstuff", src: canuck, href: "https://canuckstuff.com/canuckstuff/shop/home" }, { name: "Government of Ontario", src: ontario, href: "https://www.ontario.ca/" }, { name: "City of Toronto", src: toronto, href: "https://www.toronto.ca/" }, { name: "Mikasa Canada", src: mikasa, href: "https://www.mikasasports.ca/en" }];
+export const SPONSORS = [{ name: "Canuckstuff", src: canuck, href: "https://canuckstuff.com/canuckstuff/shop/home" }, { name: "Government of Ontario", src: ontario, href: "https://www.ontario.ca/" }, { name: "City of Toronto", src: toronto, href: "https://www.toronto.ca/" }, { name: "Mikasa Canada", src: mikasa, href: "https://www.mikasasports.ca/en" }];
 const NAV = [
  { to: "/schedule", label: "Matches", icon: CalendarDays },
  { to: "/results", label: "Results", icon: Trophy },
