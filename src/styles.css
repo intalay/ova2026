@@ -303,3 +303,6 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 @media (max-width: 480px) {
   .player-portrait { height: 8rem; }
 }
+
+/* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
+body, body * { font-weight: 500 !important; }
