@@ -13,7 +13,7 @@ export function HomeLine({ children, className = '' }: { children: ReactNode; cl
       const size = parseFloat(getComputedStyle(line).fontSize);
       const width = line.getBoundingClientRect().width;
       if (width > box.clientWidth && box.clientWidth > 0) {
-        line.style.fontSize = `${size * box.clientWidth / width}px`;
+        line.style.fontSize = `${size * box.clientWidth / width * .98}px`;
       }
     };
     const observer = new ResizeObserver(fit);
