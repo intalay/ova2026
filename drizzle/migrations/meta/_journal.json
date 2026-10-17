@@ -57,6 +57,13 @@
       "when": 1792276858233,
       "tag": "0007_announcement_pins",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792276981057,
+      "tag": "0008_retire_legacy_announcement_pin_flag",
+      "breakpoints": true
     }
   ]
 }
