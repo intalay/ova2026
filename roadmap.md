@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Separate Homepage venue/results blocks and implement coach-controlled maximum-three pins, last-pinned-first display and swipe navigation; verify tests and browser flows.
 - [x] Remove duplicate player verification and roster tools from Homepage; retain Account entry and its approval tools.
 - [x] Rebuild Explore as separate OVA TV and CBC Watch sections; checked 533-video catalogue with six-video pages, keyword search, arrows and page jump; three upcoming and three latest public CBC listings. CBC upcoming dates are stale at source and explicitly flagged; videos link externally. Mobile and browser flows checked; 16 tests pass.
 - [x] Collect coach name, certification number, account email and team; show these to staff before approval; incomplete applications cannot be approved; 27 tests pass.
