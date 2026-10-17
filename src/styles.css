@@ -47,38 +47,38 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.972 0.003 145);
-  --foreground: oklch(0.24 0.018 155);
+  --background: oklch(0.972 0.003 131);
+  --foreground: oklch(0.24 0.018 131);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.24 0.018 155);
+  --card-foreground: oklch(0.24 0.018 131);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.24 0.018 155);
-  /* Deep court navy */
-  --primary: oklch(0.37 0.075 155);
+  --popover-foreground: oklch(0.24 0.018 131);
+  /* Deep tint of the OVA logo green #80B840 */
+  --primary: oklch(0.37 0.075 131);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0.033 145);
-  --secondary-foreground: oklch(0.29 0.045 155);
-  --muted: oklch(0.935 0.004 145);
-  --muted-foreground: oklch(0.45 0.015 155);
+  --secondary: oklch(0.94 0.033 131);
+  --secondary-foreground: oklch(0.29 0.045 131);
+  --muted: oklch(0.935 0.004 131);
+  --muted-foreground: oklch(0.45 0.015 131);
   /* Signal orange for the next action */
-  --accent: oklch(0.89 0.1 135);
-  --accent-foreground: oklch(0.24 0.045 155);
+  --accent: oklch(0.89 0.1 131);
+  --accent-foreground: oklch(0.24 0.045 131);
   --destructive: oklch(0.5 0.2 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.45 0.12 155);
+  --success: oklch(0.45 0.12 131);
   --success-foreground: oklch(0.99 0 0);
   --pending: oklch(0.9 0.09 90);
   --pending-foreground: oklch(0.3 0.07 70);
-  --court: oklch(0.29 0.055 155);
+  --court: oklch(0.29 0.055 131);
   --court-foreground: oklch(0.99 0 0);
   --gold: oklch(0.72 0.1 80);
   --gold-foreground: oklch(0.2 0.03 70);
-  --border: oklch(0.86 0.01 145);
-  --input: oklch(0.65 0.02 145);
-  --ring: oklch(0.4 0.08 155);
-  --chart-1: oklch(0.4 0.1 155);
-  --chart-2: oklch(0.55 0.09 155);
-  --chart-3: oklch(0.45 0.12 155);
+  --border: oklch(0.86 0.01 131);
+  --input: oklch(0.65 0.02 131);
+  --ring: oklch(0.4 0.08 131);
+  --chart-1: oklch(0.4 0.1 131);
+  --chart-2: oklch(0.55 0.09 131);
+  --chart-3: oklch(0.45 0.12 131);
   --chart-4: oklch(0.55 0.15 300);
   --chart-5: oklch(0.7 0.12 200);
   --shadow-shop: 0 3px 8px color-mix(in oklab, var(--foreground) 5%, transparent), 0 12px 24px color-mix(in oklab, var(--foreground) 7%, transparent);
@@ -87,7 +87,8 @@
   --home-glass: linear-gradient(115deg, color-mix(in oklab, var(--card) 83%, transparent), color-mix(in oklab, var(--secondary) 75%, transparent) 60%, color-mix(in oklab, var(--accent) 44%, var(--card)));
   --home-glass-border: color-mix(in oklab, var(--primary) 14%, var(--card));
   --home-shadow: 0 4px 6px color-mix(in oklab, var(--primary) 3%, transparent), 0 14px 36px color-mix(in oklab, var(--primary) 8%, transparent);
-  --brand-green: oklch(0.52 0.14 130);
+  --logo-green: oklch(0.72 0.16 131); /* exact OVA logo green #80B840 */
+  --brand-green: oklch(0.52 0.14 131); /* darkened tint of the same logo green */
   --brand-grey: oklch(0.44 0.005 285);
   --home-prize-glow: 0 0 32px color-mix(in oklab, var(--success) 20%, transparent);
 }
@@ -171,7 +172,7 @@
   transition: transform .3s ease, filter .3s ease; }
 .golden-ticket::after { content: ""; position: absolute; inset: -50%; background: linear-gradient(115deg, transparent 40%, color-mix(in oklab, white 55%, transparent) 50%, transparent 60%); transform: translateX(-60%); animation: shine 3.5s ease-in-out infinite; }
 @keyframes shine { 60%, 100% { transform: translateX(60%); } }
-.golden-ticket.silver { background: linear-gradient(160deg, oklch(0.95 0.01 150), oklch(0.8 0.02 150) 45%, oklch(0.62 0.02 150)); }
-.golden-ticket.green { background: linear-gradient(160deg, oklch(0.93 0.1 135), var(--accent) 45%, oklch(0.7 0.12 140)); }
+.golden-ticket.silver { background: linear-gradient(160deg, oklch(0.95 0.01 131), oklch(0.8 0.02 131) 45%, oklch(0.62 0.02 131)); }
+.golden-ticket.green { background: linear-gradient(160deg, oklch(0.93 0.1 131), var(--accent) 45%, oklch(0.7 0.12 131)); }
 .ticket-btn[aria-pressed="true"] .golden-ticket { transform: translateY(-10px) scale(1.04); filter: drop-shadow(0 0 18px color-mix(in oklab, var(--gold) 80%, transparent)); }
 .ticket-btn:hover .golden-ticket { transform: translateY(-6px); }
