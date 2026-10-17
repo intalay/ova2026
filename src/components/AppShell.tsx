@@ -18,14 +18,14 @@ const NAV = [
 export function AppShell({ children, title, action, sourceLabel = 'Synthetic competition data', contentClassName = '' }: { children: ReactNode; title: string; action?: ReactNode; sourceLabel?: string; contentClassName?: string }) {
  return <div className="min-h-dvh pb-28">
   <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-accent focus:px-4 focus:py-2">Skip to content</a>
-  <header className="border-b bg-card">
+  <header className="bg-background">
    <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-4 sm:px-8">
     <Link to="/" aria-label="Ontario Volleyball Association home" className="flex min-w-0 items-center gap-2"><img src={logo.url} alt="" width={60} height={60} className="size-9 shrink-0 object-contain sm:size-12" /><span className="association-wordmark"><span>Ontario</span> Volleyball Association</span></Link>
     <div className="flex shrink-0 items-center gap-2">{action}<Button asChild variant="secondary" size="icon"><Link to="/account" aria-label="Account and role selection" title="Account"><UserRound aria-hidden /></Link></Button></div>
    </div>
   </header>
   <main id="main" className={`mx-auto max-w-6xl space-y-7 px-5 py-6 sm:px-8 sm:py-8 ${contentClassName}`}>
-   <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="font-display text-4xl font-bold uppercase sm:text-5xl">{title}</h1><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><span className="size-2 rounded-full bg-pending-foreground"/>{sourceLabel}</span></div>
+   <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="font-display text-4xl font-medium sm:text-5xl">{title}</h1><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><span className="size-2 rounded-full bg-pending-foreground"/>{sourceLabel}</span></div>
    {children}
    <section aria-labelledby="sponsorship" className="border-t pt-2"><h2 id="sponsorship" className="text-center font-sans text-sm font-normal text-muted-foreground">Partner</h2><ul className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">{SPONSORS.map(s=><li key={s.name}><a href={s.href} target="_blank" rel="noopener noreferrer" className="sponsor-link inline-flex items-center justify-center rounded-md"><img src={s.src} alt={s.name} loading="lazy" className="h-5 w-auto max-w-[18vw] object-contain sm:h-8 sm:max-w-none" /><span className="sr-only"> opens in a new tab</span></a></li>)}</ul></section>
   </main>
