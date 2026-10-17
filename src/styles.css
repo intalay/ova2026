@@ -116,3 +116,20 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* 50/50 golden ticket */
+.lotto-stage { position: relative; overflow: hidden; border-radius: 1rem; background: radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--gold) 35%, var(--court)) 0%, var(--court) 60%); color: var(--court-foreground); }
+.lotto-stage::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(color-mix(in oklab, var(--gold) 14%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--gold) 14%, transparent) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%); animation: grid-drift 18s linear infinite; }
+@keyframes grid-drift { to { background-position: 32px 32px; } }
+.jackpot { background: linear-gradient(180deg, var(--court-foreground), var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 24px color-mix(in oklab, var(--gold) 60%, transparent)); animation: pulse-glow 2.6s ease-in-out infinite; }
+@keyframes pulse-glow { 50% { filter: drop-shadow(0 0 44px color-mix(in oklab, var(--gold) 90%, transparent)); } }
+.golden-ticket { position: relative; overflow: hidden; background: linear-gradient(160deg, oklch(0.88 0.13 90), var(--gold) 45%, oklch(0.62 0.12 70)); color: var(--gold-foreground);
+  -webkit-mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  transition: transform .3s ease, filter .3s ease; }
+.golden-ticket::after { content: ""; position: absolute; inset: -50%; background: linear-gradient(115deg, transparent 40%, color-mix(in oklab, white 55%, transparent) 50%, transparent 60%); transform: translateX(-60%); animation: shine 3.5s ease-in-out infinite; }
+@keyframes shine { 60%, 100% { transform: translateX(60%); } }
+.golden-ticket.silver { background: linear-gradient(160deg, oklch(0.95 0.01 150), oklch(0.8 0.02 150) 45%, oklch(0.62 0.02 150)); }
+.golden-ticket.green { background: linear-gradient(160deg, oklch(0.93 0.1 135), var(--accent) 45%, oklch(0.7 0.12 140)); }
+.ticket-btn[aria-pressed="true"] .golden-ticket { transform: translateY(-10px) scale(1.04); filter: drop-shadow(0 0 18px color-mix(in oklab, var(--gold) 80%, transparent)); }
+.ticket-btn:hover .golden-ticket { transform: translateY(-6px); }
