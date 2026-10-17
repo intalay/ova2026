@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -37,7 +37,7 @@ function Staff() {
 
   if (!ready || hh.isLoading) return <AppShell title="Staff"><p>Loading…</p></AppShell>;
   if (!user || (!staff && !hh.data?.managedTeams.length))
-    return <AppShell title="Staff"><Card>Staff tools are only available to OVA staff and approved coaches.</Card></AppShell>;
+    return <AppShell title="Staff"><Card><p className="text-xl font-bold">OVA Staff channel</p><p className="mt-2">{user?'This account does not have an OVA staff role yet. Staff access is granted by OVA administrators.':'Sign in with your OVA staff account to verify coach applications.'}</p>{!user&&<Link to="/account" className={`${btn.primary} mt-4`}>Sign in</Link>}</Card></AppShell>;
 
   const pending = (hh.data?.visiblePlayers ?? []).filter((p) => p.status === "pending");
   const teamName = (id: string | null) => comp.teams.find((t) => t.id === id)?.name ?? "—";
