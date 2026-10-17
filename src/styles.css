@@ -129,6 +129,12 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     line-height: 1.6;
+    /* Subtle court-line grid for depth behind modules */
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--ink) 3.5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--ink) 3.5%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-attachment: fixed;
   }
   h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0; line-height: 1.15; }
   :focus-visible { outline: 3px solid var(--color-ring); outline-offset: 3px; border-radius: 4px; box-shadow: 0 0 0 3px var(--background); }
@@ -138,7 +144,9 @@
 .home-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .home-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 92%, transparent) 24%, transparent 72%); }
 .home-banner-content { position: relative; z-index: 1; max-width: 520px; padding: 36px; }
-.module-heading { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; text-transform: uppercase; }
+.module-heading { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.02em; }
+/* Modules lift off the gridded background with a soft shadow. */
+main :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary) { box-shadow: var(--home-shadow); }
 .association-wordmark { font-family: "Anton", var(--font-display); color: var(--brand-green); font-weight: 400; font-size: 1.35rem; line-height: 1.15; white-space: nowrap; }
 .association-wordmark > span { color: var(--brand-grey); }
 header a > img { background: var(--paper); border-radius: 4px; }
