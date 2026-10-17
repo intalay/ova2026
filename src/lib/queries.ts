@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { approvedFamilyPlayerIds } from './account';
 
 export type Match = {
   id: string; event_id: string; division_id: string; team_a_id: string; team_b_id: string | null;
@@ -52,7 +53,7 @@ async function fetchHousehold(userId: string | undefined) {
      for (const result of [players, links, roles, follows, profile, managed]) if (result.error) throw result.error;
      const all = players.data ?? [];
     const familyLinks = links.data ?? [];
-    const linkedIds = new Set(familyLinks.filter(l => l.status === 'approved').map((l) => l.player_id));
+    const linkedIds = approvedFamilyPlayerIds(familyLinks);
     return {
       linkedPlayers: all.filter((p) => linkedIds.has(p.id)),
       familyLinks,

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, Section, btn } from '@/components/AppShell';
 import { supabase } from '@/integrations/supabase/client';
 
-export function AccountApprovals({ kind, userId, teamId }: { kind: 'TEAM' | 'FAMILY'; userId: string; teamId?: string }) {
+export function AccountApprovals({ kind, userId, teamId }: { kind: 'TEAM' | 'FAMILY'; userId: string; teamId: string | undefined }) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState<string | null>(null);
   const [changes, setChanges] = useState<string | null>(null);
