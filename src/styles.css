@@ -81,6 +81,8 @@
   --chart-3: oklch(0.45 0.12 155);
   --chart-4: oklch(0.55 0.15 300);
   --chart-5: oklch(0.7 0.12 200);
+  --shadow-shop: 0 3px 8px color-mix(in oklab, var(--foreground) 5%, transparent), 0 12px 24px color-mix(in oklab, var(--foreground) 7%, transparent);
+  --shadow-shop-active: 0 8px 24px color-mix(in oklab, var(--primary) 16%, transparent);
 }
 
 @layer base {
@@ -101,6 +103,16 @@
 .home-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 92%, transparent) 24%, transparent 72%); }
 .home-banner-content { position: relative; z-index: 1; max-width: 520px; padding: 36px; }
 .module-heading { font-family: var(--font-sans); font-weight: 700; font-size: 1.3rem; }
+.shop-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.shop-product { box-shadow: var(--shadow-shop); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+.shop-product:hover, .shop-product:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-shop-active); border-color: var(--primary); }
+.shop-product:active { transform: translateY(1px) scale(.97); }
+.shop-image { height: 156px; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--card); }
+.shop-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 220ms ease; }
+.shop-product:hover .shop-image img { transform: scale(1.04); }
+@media (min-width: 640px) { .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; } .shop-image { height: 180px; } }
+@media (min-width: 1024px) { .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .shop-product:hover, .shop-product:focus-visible, .shop-product:active, .shop-product:hover .shop-image img { transform: none; } }
 @media (max-width: 640px) {
  .home-banner { min-height: 280px; }
  .home-banner-content { padding: 24px; max-width: 280px; }
