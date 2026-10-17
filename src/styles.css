@@ -107,7 +107,7 @@
 .shop-product { box-shadow: var(--shadow-shop); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
 .shop-product:hover, .shop-product:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-shop-active); border-color: var(--primary); }
 .shop-product:active { transform: translateY(1px) scale(.97); }
-.shop-image { height: 156px; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--card); container-type: inline-size; }
+.shop-image { height: 156px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--card); container-type: inline-size; }
 .shop-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 220ms ease; }
 .shop-product:hover .shop-image img { transform: scale(1.04); }
 .shop-image--landscape img { width: 120px; height: min(100cqw, 300px); max-width: none; flex-shrink: 0; transform: rotate(-90deg); }
