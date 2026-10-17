@@ -47,38 +47,38 @@
 
 :root {
   --radius: 0.5rem;
-  /* Enchanted Garden: warm white, pale green, lime, teal, forest and ink. */
-  color-scheme: dark;
+  /* Enchanted Garden: pale warm yellow ground, near-white cards, lime, teal, forest and ink. */
+  color-scheme: light;
   --ink: oklch(0.23229 0.03657 176.80);
   --paper: oklch(0.99155 0.01976 100.57);
   --teal: oklch(0.45612 0.08496 173.69);
   --pale-green: oklch(0.95837 0.06462 131.30);
-  --background: var(--ink);
-  --foreground: var(--paper);
-  --card: oklch(0.40 0.062 172.5);
+  --background: oklch(0.968 0.042 104); /* very pale warm yellow */
+  --foreground: var(--ink);
+  --card: oklch(0.995 0.008 100); /* near-white raised cards */
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.91280 0.19711 113.44);
-  --primary-foreground: var(--background);
-  --secondary: oklch(0.40 0.075 173.69);
-  --secondary-foreground: var(--pale-green);
-  --muted: var(--card);
-  --muted-foreground: oklch(0.88 0.03 145);
-  --accent: oklch(0.91280 0.19711 113.44);
+  --primary: var(--teal); /* saturated green for text and buttons on light */
+  --primary-foreground: var(--paper);
+  --secondary: var(--pale-green);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.93 0.032 110);
+  --muted-foreground: oklch(0.42 0.05 165);
+  --accent: oklch(0.91280 0.19711 113.44); /* lime highlight surfaces */
   --accent-foreground: var(--ink);
   --destructive: oklch(0.5 0.2 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: var(--primary);
-  --success-foreground: var(--background);
+  --success: var(--teal);
+  --success-foreground: var(--paper);
   --pending: oklch(0.9 0.09 90);
   --pending-foreground: oklch(0.3 0.07 70);
-  --court: oklch(0.40 0.062 172.5);
+  --court: oklch(0.36 0.075 172); /* dark vivid feature surfaces */
   --court-foreground: var(--paper);
   --gold: var(--accent);
   --gold-foreground: var(--ink);
-  --border: oklch(0.54 0.06 173.69);
-  --input: oklch(0.64 0.05 173.69);
+  --border: oklch(0.87 0.045 130);
+  --input: oklch(0.86 0.045 130);
   --ring: var(--primary);
   --chart-1: var(--primary);
   --chart-2: var(--pale-green);
