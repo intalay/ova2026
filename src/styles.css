@@ -311,3 +311,6 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
+
+/* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
+.glass-list > * { background: var(--home-glass); border: 1px solid var(--home-glass-border); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
