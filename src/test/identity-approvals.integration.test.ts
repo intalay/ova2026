@@ -1,9 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import postgres from 'postgres';
 
 const connection = process.env['SUPABASE_DB_URL'];
 describe.skipIf(!connection)('owner identity approvals (rolled back database fixtures)', () => {
- it('coach approval removes player pending; only player approval unlocks family access', async () => {
+ let canAuthenticate = false;
+ beforeAll(async () => {
+  if (!connection) return;
+  const sql = postgres(connection, { max: 1, prepare: false });
+  try { canAuthenticate = (await sql`select pg_has_role(current_user,'authenticated','MEMBER') as allowed`)[0]?.['allowed'] === true; }
+  finally { await sql.end({ timeout: 3 }); }
+ });
+ it('coach approval removes player pending; only player approval unlocks family access', async context => {
+  // Never widen production function grants just to make the test account privileged.
+  if (!canAuthenticate) { context.skip(); return; }
   if (!connection) return;
   const sql = postgres(connection, { max: 1, prepare: false });
   const rollback = new Error('rollback successful test fixtures');
@@ -15,7 +24,11 @@ describe.skipIf(!connection)('owner identity approvals (rolled back database fix
     const team = `approval-test-${crypto.randomUUID()}`;
     await tx`insert into public.teams(id,name,season,data_mode) values(${team},'Synthetic approval test','test','synthetic')`;
     await tx`insert into public.managed_teams(user_id,team_id) values(${coach},${team})`;
-    const asUser = (id: string) => tx`select set_config('request.jwt.claim.sub',${id},true)`;
+    const asUser = async (id: string) => {
+     await tx`reset role`;
+     await tx`select set_config('request.jwt.claim.sub',${id},true)`;
+     await tx`set local role authenticated`;
+    };
     await asUser(coach);
     const teamCode = (await tx`select public.create_team_code(${team}) as result`)[0]?.['result']?.code;
     expect(typeof teamCode).toBe('string');
@@ -34,7 +47,9 @@ describe.skipIf(!connection)('owner identity approvals (rolled back database fix
     await tx`select public.redeem_code(${familyCode},'Synthetic family member','parent')`;
     const link = (await tx`select id,status from public.family_links where family_user_id=${familyUser} and player_id=${player?.['id']}`)[0];
     // Isolate any pre-existing association without changing it outside this transaction.
+    await tx`reset role`;
     await tx`update public.family_links set status='pending' where id=${link?.['id']}`;
+    await asUser(familyUser);
     expect((await tx`select public.can_view_player(${familyUser},${player?.['id']}) as allowed`)[0]?.['allowed']).toBe(false);
     expect((await tx`select public.can_view_team(${familyUser},${team}) as allowed`)[0]?.['allowed']).toBe(false);
     await expect(tx.savepoint(async sp => { await sp`select public.review_family_request(${link?.['id']},true)`; })).rejects.toThrow('Only this verified player');
