@@ -1,0 +1,10 @@
+# OVA modular build
+- [x] Apply uploaded references, grey-white / light-green accessible design and official logos.
+- [x] Compose role-aware home modules and shared navigation / Account entry.
+- [x] Add single-month schedule navigation and role-aware results with independent pagination.
+- [x] Add official 50/50 and Shopping pages / product details.
+- [x] Add scoped announcements and role registration / verification using existing secure pairing.
+- [x] Verify public browser flows, automated accessibility checks, mobile layouts and 17 rule/routing tests.
+- [ ] Verify signed-in player/family/coach approval and announcement attachment flows: blocked because no auth users exist.
+- [ ] OVA notification email: awaiting official recipient and verified sending setup.
+- [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.

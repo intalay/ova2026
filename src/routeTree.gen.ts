@@ -11,10 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as FiftyFiftyRouteImport } from './routes/fifty-fifty'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResultsRouteImport } from './routes/results'
 import { Route as ScheduleRouteImport } from './routes/schedule'
+import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StaffRouteImport } from './routes/staff'
+import { Route as ShopIdRouteImport } from './routes/shop_.$id'
 import { Route as VenueIdRouteImport } from './routes/venue.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -27,9 +32,24 @@ const AccountRoute = AccountRouteImport.update({
   path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnouncementsRoute = AnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FiftyFiftyRoute = FiftyFiftyRouteImport.update({
+  id: '/fifty-fifty',
+  path: '/fifty-fifty',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResultsRoute = ResultsRouteImport.update({
@@ -42,9 +62,19 @@ const ScheduleRoute = ScheduleRouteImport.update({
   path: '/schedule',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShopRoute = ShopRouteImport.update({
+  id: '/shop',
+  path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StaffRoute = StaffRouteImport.update({
   id: '/staff',
   path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopIdRoute = ShopIdRouteImport.update({
+  id: '/shop_/$id',
+  path: '/shop/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VenueIdRoute = VenueIdRouteImport.update({
@@ -56,29 +86,44 @@ const VenueIdRoute = VenueIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/announcements': typeof AnnouncementsRoute
   '/explore': typeof ExploreRoute
+  '/fifty-fifty': typeof FiftyFiftyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
+  '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
+  '/shop/$id': typeof ShopIdRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/announcements': typeof AnnouncementsRoute
   '/explore': typeof ExploreRoute
+  '/fifty-fifty': typeof FiftyFiftyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
+  '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
+  '/shop/$id': typeof ShopIdRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/announcements': typeof AnnouncementsRoute
   '/explore': typeof ExploreRoute
+  '/fifty-fifty': typeof FiftyFiftyRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
+  '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
+  '/shop_/$id': typeof ShopIdRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRouteTypes {
@@ -86,38 +131,58 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/announcements'
     | '/explore'
+    | '/fifty-fifty'
+    | '/reset-password'
     | '/results'
     | '/schedule'
+    | '/shop'
     | '/staff'
+    | '/shop/$id'
     | '/venue/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account'
+    | '/announcements'
     | '/explore'
+    | '/fifty-fifty'
+    | '/reset-password'
     | '/results'
     | '/schedule'
+    | '/shop'
     | '/staff'
+    | '/shop/$id'
     | '/venue/$id'
   id:
     | '__root__'
     | '/'
     | '/account'
+    | '/announcements'
     | '/explore'
+    | '/fifty-fifty'
+    | '/reset-password'
     | '/results'
     | '/schedule'
+    | '/shop'
     | '/staff'
+    | '/shop_/$id'
     | '/venue/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  AnnouncementsRoute: typeof AnnouncementsRoute
   ExploreRoute: typeof ExploreRoute
+  FiftyFiftyRoute: typeof FiftyFiftyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResultsRoute: typeof ResultsRoute
   ScheduleRoute: typeof ScheduleRoute
+  ShopRoute: typeof ShopRoute
   StaffRoute: typeof StaffRoute
+  ShopIdRoute: typeof ShopIdRoute
   VenueIdRoute: typeof VenueIdRoute
 }
 
@@ -137,11 +202,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/announcements': {
+      id: '/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/explore': {
       id: '/explore'
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fifty-fifty': {
+      id: '/fifty-fifty'
+      path: '/fifty-fifty'
+      fullPath: '/fifty-fifty'
+      preLoaderRoute: typeof FiftyFiftyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/results': {
@@ -158,11 +244,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScheduleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shop': {
+      id: '/shop'
+      path: '/shop'
+      fullPath: '/shop'
+      preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/staff': {
       id: '/staff'
       path: '/staff'
       fullPath: '/staff'
       preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop_/$id': {
+      id: '/shop_/$id'
+      path: '/shop/$id'
+      fullPath: '/shop/$id'
+      preLoaderRoute: typeof ShopIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/venue/$id': {
@@ -178,10 +278,15 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  AnnouncementsRoute: AnnouncementsRoute,
   ExploreRoute: ExploreRoute,
+  FiftyFiftyRoute: FiftyFiftyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResultsRoute: ResultsRoute,
   ScheduleRoute: ScheduleRoute,
+  ShopRoute: ShopRoute,
   StaffRoute: StaffRoute,
+  ShopIdRoute: ShopIdRoute,
   VenueIdRoute: VenueIdRoute,
 }
 export const routeTree = rootRouteImport

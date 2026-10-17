@@ -15,6 +15,20 @@
       "when": 1792263555787,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792271861738,
+      "tag": "0002_modular_account_and_announcements",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792272016794,
+      "tag": "0003_announcement_attachment_access",
+      "breakpoints": true
     }
   ]
 }

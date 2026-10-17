@@ -26,15 +26,16 @@ export const Route = createFileRoute("/venue/$id")({
 function Venue() {
   const { id } = Route.useParams();
   const { data } = useSuspenseQuery(venueQuery(id));
-  const v = data.venue!;
+  const v = data.venue;
+  if (!v) return <AppShell title="Venue"><p>Venue unavailable.</p></AppShell>;
   const hasPoint = v.coordinates_verified && v.latitude != null && v.longitude != null;
   const dest = hasPoint ? `${v.latitude},${v.longitude}` : v.address;
-  const bbox = hasPoint ? `${v.longitude! - 0.006},${v.latitude! - 0.003},${v.longitude! + 0.006},${v.latitude! + 0.003}` : "";
+  const bbox = hasPoint && v.longitude !== null && v.latitude !== null ? `${v.longitude - 0.006},${v.latitude - 0.003},${v.longitude + 0.006},${v.latitude + 0.003}` : "";
   return (
     <AppShell title={v.name}>
       <p className="text-lg">{v.address}</p>
       <a className={`${btn.primary} w-full`} href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`} target="_blank" rel="noopener noreferrer">
-        <Navigation aria-hidden />Get directions
+        <Navigation aria-hidden />See Route
       </a>
       {hasPoint && (
         <iframe title={`Map of ${v.name}`} className="h-72 w-full rounded-xl border-2" loading="lazy"

@@ -1,0 +1,17 @@
+import { describe,it,expect } from 'vitest';
+import { MODULES,authorizedRole } from '@/lib/modules';
+import { TICKET_TIERS } from '@/lib/lottery';
+import { resultStats,recentResults } from '@/lib/results';
+import type { Match } from '@/lib/queries';
+describe('role rules',()=>{
+ it('general users have no Information',()=>expect(MODULES.general_user.information.visible).toBe(false));
+ it('Account remains available to all four roles',()=>expect(Object.values(MODULES).map(r=>r.account.visible)).toEqual([true,true,true,true]));
+ it('selecting coach without authorization does not unlock coach',()=>expect(authorizedRole('coach',{self:null,linkedPlayers:[],managedTeams:[],roles:['family']})).toBe('general_user'));
+ it('family role requires a linked player',()=>expect(authorizedRole('family_friends',{self:null,linkedPlayers:[],managedTeams:[],roles:['family']})).toBe('general_user'));
+ it('family home module order remains fixed',()=>expect(['information','announcement','schedule','map','results','fifty_fifty'].map(k=>MODULES.family_friends[k as keyof typeof MODULES.family_friends].order)).toEqual([1,2,3,4,5,6]));
+ it('players and family cannot publish announcements',()=>expect([MODULES.player.announcement.actions.includes('publish'),MODULES.family_friends.announcement.actions.includes('publish')]).toEqual([false,false]));
+});
+it('official ticket tiers match requested prices',()=>expect(TICKET_TIERS).toEqual([{tickets:5,price:10},{tickets:20,price:25},{tickets:50,price:50},{tickets:150,price:100},{tickets:400,price:200}]));
+const match=(id:string,team:string,date:string,a:number|null,b:number|null,status='final'):Match=>({id,event_id:'e',division_id:'d',team_a_id:team,team_b_id:'b',venue_id:null,source_date:date,starts_at:null,court:null,status,score_a:a,score_b:b,sets:null,data_mode:'synthetic'});
+it('all results keep unrelated teams in the three-month window',()=>expect(recentResults([match('a','team-a','2026-08-01',2,1),match('c','team-c','2026-09-01',2,0),match('old','team-a','2026-06-01',2,0)],new Date('2026-10-17T12:00:00Z')).map(m=>m.id)).toEqual(['c','a']));
+it('win/loss statistics exclude missing and unfinished scores',()=>expect(resultStats([match('a','a','2026-09-01',2,1),match('b','a','2026-09-02',0,2),match('missing','a','2026-09-03',null,null),match('future','a','2026-11-01',null,null,'scheduled')],'a')).toEqual({played:2,wins:1,losses:1,winRate:50,lossRate:50}));

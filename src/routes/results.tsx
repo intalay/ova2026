@@ -1,100 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Bar, BarChart } from "recharts";
+import { ChevronLeft, ChevronRight, ChartNoAxesCombined } from "lucide-react";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { MatchCard } from "@/components/MatchCard";
-import { competitionQuery } from "@/lib/queries";
+import { competitionQuery, type Match } from "@/lib/queries";
+import { getResultsPage } from "@/lib/results.functions";
+import { resultStats, RESULTS_PAGE_SIZE } from "@/lib/results";
+import { useRole } from "@/hooks/use-role";
 import { formatDate } from "@/lib/format";
-
-export const Route = createFileRoute("/results")({
-  head: () => ({
-    meta: [
-      { title: "Results — OVA Companion" },
-      { name: "description", content: "Match history, set scores and placement trends for Ontario volleyball teams." },
-      { property: "og:title", content: "Results — OVA Companion" },
-      { property: "og:description", content: "Past results and trend charts by team." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(competitionQuery),
-  component: Results,
-});
-
-function Results() {
-  const { data } = useSuspenseQuery(competitionQuery);
-  const [team, setTeam] = useState("demo-north");
-  const [chart, setChart] = useState<"placement" | "sets">("placement");
-  const finals = data.matches.filter((m) => m.status === "final" && (m.team_a_id === team || m.team_b_id === team))
-    .sort((a, b) => (b.starts_at ?? "").localeCompare(a.starts_at ?? ""));
-  const evName = (id: string) => data.events.find((e) => e.id === id);
-  const placement = data.rankings.filter((r) => r.team_id === team && r.final_confirmed)
-    .map((r) => ({ event: evName(r.event_id)?.name.replace(" · Demo", "") ?? r.event_id, date: evName(r.event_id)?.start_date ?? "", rank: r.rank, field: r.field_size }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-  const sets = [...finals].reverse().map((m) => {
-    const mine = m.team_a_id === team ? m.score_a! : m.score_b!;
-    const theirs = m.team_a_id === team ? m.score_b! : m.score_a!;
-    return { label: formatDate(m.source_date).replace(/, \d{4}$/, ""), diff: mine - theirs };
-  });
-
-  return (
-    <AppShell title="Results">
-      <label className="block text-lg font-bold">Team
-        <select value={team} onChange={(e) => setTeam(e.target.value)} className="mt-1 min-h-12 w-full rounded-lg border-2 border-input bg-card px-3 text-lg">
-          {data.teams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
-      </label>
-
-      <Section title="Trend">
-        <div role="group" aria-label="Chart type" className="flex flex-wrap gap-2">
-          <button aria-pressed={chart === "placement"} onClick={() => setChart("placement")} className={chart === "placement" ? btn.primary : btn.secondary}>Final placement</button>
-          <button aria-pressed={chart === "sets"} onClick={() => setChart("sets")} className={chart === "sets" ? btn.primary : btn.secondary}>Set difference</button>
-        </div>
-        <Card>
-          {chart === "placement" ? (
-            placement.length ? (
-              <>
-                <div className="h-64" aria-hidden>
-                  <ResponsiveContainer>
-                    <LineChart data={placement}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="event" tick={{ fontSize: 14 }} />
-                      <YAxis reversed allowDecimals={false} domain={[1, "dataMax"]} tick={{ fontSize: 14 }} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="rank" stroke="var(--chart-1)" strokeWidth={4} dot={{ r: 6 }} isAnimationActive={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                <table className="mt-3 w-full text-left text-base">
-                  <caption className="sr-only">Final placement by event</caption>
-                  <thead><tr><th>Event</th><th>Place</th></tr></thead>
-                  <tbody>{placement.map((p) => <tr key={p.event}><td>{p.event}</td><td>{p.rank} of {p.field ?? "?"}</td></tr>)}</tbody>
-                </table>
-              </>
-            ) : <p>No confirmed final placements for this team. Unconfirmed placements are not charted.</p>
-          ) : sets.length ? (
-            <>
-              <div className="h-64" aria-hidden>
-                <ResponsiveContainer>
-                  <BarChart data={sets}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="label" tick={{ fontSize: 14 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 14 }} />
-                    <Tooltip />
-                    <Bar dataKey="diff" fill="var(--chart-2)" isAnimationActive={false} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="mt-2 text-base">Sets won minus sets lost in each recorded match.</p>
-            </>
-          ) : <p>No recorded results for this team.</p>}
-        </Card>
-      </Section>
-
-      <Section title="Match history">
-        {finals.length ? finals.map((m) => <MatchCard key={m.id} m={m} data={data} focusTeam={team} />) : <Card>No results recorded.</Card>}
-      </Section>
-    </AppShell>
-  );
-}
+const pageQuery=(page:number)=>queryOptions({queryKey:['results-page',page],queryFn:()=>getResultsPage({data:{page,pageSize:RESULTS_PAGE_SIZE}})});
+export const Route=createFileRoute('/results')({head:()=>({meta:[{title:'Results — OVA Companion'},{name:'description',content:'Volleyball match results, confirmed placements and team history.'},{property:'og:title',content:'OVA volleyball results'},{property:'og:description',content:'Browse recorded match results and your linked team history.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>Promise.all([context.queryClient.ensureQueryData(competitionQuery),context.queryClient.ensureQueryData(pageQuery(1))]),component:Results});
+function Results(){const {data}=useSuspenseQuery(competitionQuery);const {role,household}=useRole();const hh=household.data;const teamIds=role==='coach'?hh?.managedTeams??[]:role==='player'?(hh?.self?.team_id?[hh.self.team_id]:[]):role==='family_friends'?hh?.linkedPlayers.flatMap(p=>p.team_id?[p.team_id]:[])??[]:[];const [chosen,setChosen]=useState('');const team=teamIds.includes(chosen)?chosen:teamIds[0];const [expanded,setExpanded]=useState(false);const [months,setMonths]=useState(3);const [page,setPage]=useState(1);const initialResults=Route.useLoaderData()[1];const results=useQuery({...pageQuery(page),...(page===1?{initialData:initialResults}:{})});const totalPages=Math.ceil((results.data?.total??0)/RESULTS_PAGE_SIZE);
+const finals=data.matches.filter(m=>m.status==='final'&&(m.team_a_id===team||m.team_b_id===team)).sort((a,b)=>(b.source_date??'').localeCompare(a.source_date??''));const stats=team?resultStats(finals,team):null;const start=new Date();start.setMonth(start.getMonth()-months);
+const placement=data.rankings.filter(r=>r.team_id===team&&r.final_confirmed).map(r=>({event:data.events.find(e=>e.id===r.event_id)?.name??r.event_id,date:data.events.find(e=>e.id===r.event_id)?.start_date??'',rank:r.rank,field:r.field_size})).filter(r=>r.date&&new Date(r.date)>=start).sort((a,b)=>a.date.localeCompare(b.date));
+return <AppShell title="Results">{role!=='general_user'&&team&&<Section title="Your team"><label className="block font-bold">Team<select className={btn.input} value={team} onChange={e=>setChosen(e.target.value)}>{[...new Set(teamIds)].map(id=><option key={id} value={id}>{data.teams.find(t=>t.id===id)?.name}</option>)}</select></label>{stats&&<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{[['Wins',stats.wins],['Losses',stats.losses],['Win rate',stats.winRate===null?'—':stats.winRate+'%'],['Loss rate',stats.lossRate===null?'—':stats.lossRate+'%']].map(([label,value])=><Card key={label}><p className="text-sm text-muted-foreground">{label}</p><p className="text-3xl font-bold">{value}</p></Card>)}</div>}<p className="text-sm text-muted-foreground">All recorded final matches for this team. Rates exclude missing scores and tied results; synthetic records are not official standings.</p><div className="overflow-x-auto"><table className="w-full text-left text-sm"><caption className="mb-3 text-left font-bold">Team match history</caption><thead className="border-b"><tr><th className="py-3">Date</th><th>Opponent</th><th>Score</th><th>Result</th></tr></thead><tbody>{finals.map(m=>{const mine=m.team_a_id===team?m.score_a:m.score_b;const other=m.team_a_id===team?m.score_b:m.score_a;return <tr key={m.id} className="border-b"><td className="py-4 pr-3">{formatDate(m.source_date)}</td><td className="pr-3">{data.teams.find(t=>t.id===(m.team_a_id===team?m.team_b_id:m.team_a_id))?.name??'Opponent to be determined'}</td><td className="pr-3">{mine??'—'}–{other??'—'}</td><td>{mine===null||other===null?'To be determined':mine>other?'Won':mine<other?'Lost':'Tied'}</td></tr>})}</tbody></table>{!finals.length&&<p className="py-4">No recorded team results.</p>}</div><Button variant="outline" aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}><ChartNoAxesCombined aria-hidden/>{expanded?'Hide results trend':'View results trend'}</Button>{expanded&&<div className="space-y-4"><label className="block font-bold">Trend period<select className={btn.input} value={months} onChange={e=>setMonths(Number(e.target.value))}>{Array.from({length:11},(_,i)=>i+2).map(m=><option key={m} value={m}>Last {m} months</option>)}</select></label>{placement.length?<><div className="h-64" aria-hidden><ResponsiveContainer><LineChart data={placement}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="event"/><YAxis reversed allowDecimals={false}/><Tooltip/><Line dataKey="rank" stroke="var(--chart-1)" strokeWidth={3} isAnimationActive={false}/></LineChart></ResponsiveContainer></div><ul className="space-y-2">{placement.map(p=><li key={p.event}>{p.event}: {p.rank} of {p.field??'field size to be determined'}</li>)}</ul></>:<p>No confirmed final placements in this period. Missing months are not plotted as zero.</p>}</div>}</Section>}
+<Section title="All results · last 3 months"><p className="text-sm text-muted-foreground">All teams in the connected dataset, within a rolling three-month window. This is synthetic competition data, not complete OVA coverage.</p>{results.isPending?<p role="status">Loading results…</p>:results.isError?<><p role="alert">Could not load results.</p><Button variant="outline" onClick={()=>results.refetch()}>Try again</Button></>:results.data?.matches.length?<div className="grid gap-4 md:grid-cols-2">{results.data.matches.map(m=><MatchCard key={m.id} m={m as unknown as Match} data={data}/>)}</div>:<Card>No recorded results in the last three months.</Card>}{totalPages>0&&<div className="flex items-center justify-center gap-4"><Button variant="outline" size="icon" aria-label="Previous results page" disabled={page===1} onClick={()=>setPage(page-1)}><ChevronLeft aria-hidden/></Button><p aria-live="polite" className="text-sm font-bold">Page {page} of {totalPages}</p><Button variant="outline" size="icon" aria-label="Next results page" disabled={page>=totalPages} onClick={()=>setPage(page+1)}><ChevronRight aria-hidden/></Button></div>}</Section></AppShell>}

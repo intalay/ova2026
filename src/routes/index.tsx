@@ -1,99 +1,31 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { MapPin, CalendarDays, UserRound, Megaphone } from "lucide-react";
-import { AppShell, Section, Card, btn } from "@/components/AppShell";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { CalendarDays, MapPin, ArrowUpRight, ShieldCheck, Megaphone } from "lucide-react";
+import { AppShell, Section, Card, MoreLink } from "@/components/AppShell";
 import { MatchCard } from "@/components/MatchCard";
-import { competitionQuery, myHouseholdQuery, type Match, type CompetitionData } from "@/lib/queries";
-import { useSessionUser } from "@/hooks/use-session";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "OVA Companion — Ontario volleyball schedules & results" },
-      { name: "description", content: "Follow Ontario Volleyball Association teams: upcoming matches, results, venues and parking." },
-      { property: "og:title", content: "OVA Companion" },
-      { property: "og:description", content: "Schedules, results and venue guides for Ontario volleyball families." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(competitionQuery),
-  component: Home,
-});
-
-const now = () => Date.now();
-const upcoming = (ms: Match[]) => ms.filter((m) => m.status === "scheduled" && (!m.starts_at || new Date(m.starts_at).getTime() > now() - 3 * 3600e3));
-
-function Home() {
-  const { data } = useSuspenseQuery(competitionQuery);
-  const { user } = useSessionUser();
-  const hh = useQuery(myHouseholdQuery(user?.id));
-  const linked = hh.data?.linkedPlayers ?? [];
-
-  if (user && linked.length > 0) return <FamilyHome data={data} players={linked} />;
-
-  const next = upcoming(data.matches).slice(0, 3);
-  return (
-    <AppShell title="Home">
-      <Card className="bg-primary text-primary-foreground">
-        <h2 className="text-3xl font-bold uppercase">Game day, sorted</h2>
-        <p className="mt-1 text-lg">Schedules, results and venue guides. No sign-in needed to look around.</p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Link to="/schedule" className={btn.primary}><CalendarDays aria-hidden />See the schedule</Link>
-          <Link to="/account" className="inline-flex min-h-12 items-center gap-2 rounded-lg border-2 border-primary-foreground px-5 text-lg font-bold">
-            <UserRound aria-hidden />{user ? "Link a player" : "Sign in for my family"}
-          </Link>
-        </div>
-      </Card>
-      <Section title="Next matches">
-        {next.length ? next.map((m) => <MatchCard key={m.id} m={m} data={data} />) : <Card>No upcoming matches are published yet.</Card>}
-      </Section>
-      <Announcements items={data.announcements} />
-    </AppShell>
-  );
-}
-
-type Data = CompetitionData;
-
-function FamilyHome({ data, players }: { data: Data; players: { id: string; display_name: string; team_id: string | null }[] }) {
-  return (
-    <AppShell title="My family">
-      {players.map((p) => {
-        const team = data.teams.find((t) => t.id === p.team_id);
-        const mine = data.matches.filter((m) => m.team_a_id === p.team_id || m.team_b_id === p.team_id);
-        const next = upcoming(mine)[0];
-        const recent = mine.filter((m) => m.status === "final").sort((a, b) => (b.starts_at ?? "").localeCompare(a.starts_at ?? "")).slice(0, 2);
-        const venue = next && data.venues.find((v) => v.id === next.venue_id);
-        return (
-          <Section key={p.id} id={`player-${p.id}`} title={p.display_name}>
-            <p className="-mt-2 text-lg text-muted-foreground">{team?.name ?? "Team to be determined"}</p>
-            <h3 className="text-xl font-bold uppercase">Next match</h3>
-            {next ? <MatchCard m={next} data={data} focusTeam={p.team_id ?? undefined} /> : <Card>No upcoming match is published.</Card>}
-            {venue && (
-              <Link to="/venue/$id" params={{ id: venue.id }} className={`${btn.primary} w-full`}>
-                <MapPin aria-hidden />Next Venue: {venue.name}
-              </Link>
-            )}
-            <h3 className="text-xl font-bold uppercase">Recent results</h3>
-            {recent.length ? recent.map((m) => <MatchCard key={m.id} m={m} data={data} focusTeam={p.team_id ?? undefined} />) : <Card>No results yet.</Card>}
-          </Section>
-        );
-      })}
-      <Announcements items={data.announcements} />
-    </AppShell>
-  );
-}
-
-function Announcements({ items }: { items: { id: string; title: string; body: string }[] }) {
-  if (!items.length) return null;
-  return (
-    <Section title="Announcements">
-      {items.slice(0, 3).map((a) => (
-        <Card key={a.id}>
-          <p className="flex items-center gap-2 text-xl font-bold"><Megaphone aria-hidden className="size-5 text-accent" />{a.title}</p>
-          <p className="mt-1">{a.body}</p>
-        </Card>
-      ))}
-    </Section>
-  );
+import { LotteryModule } from "@/components/LotteryModule";
+import { Button } from "@/components/ui/button";
+import { competitionQuery } from "@/lib/queries";
+import { useRole } from "@/hooks/use-role";
+import { MODULES, ROLE_LABELS } from "@/lib/modules";
+import court from "@/assets/volleyball-court.jpg";
+export const Route=createFileRoute('/')({head:()=>({meta:[{title:'Fan Plaza — OVA Companion'},{name:'description',content:'Ontario volleyball schedules, team announcements, results and official OVA 50/50.'},{property:'og:title',content:'OVA Companion Fan Plaza'},{property:'og:description',content:'Your Ontario volleyball community, in one place.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>context.queryClient.ensureQueryData(competitionQuery),component:Home});
+function Home(){
+ const {data}=useSuspenseQuery(competitionQuery);const {role,household,user}=useRole();const [object,setObject]=useState('');const hh=household.data;
+ const players=role==='player'?(hh?.self?[hh.self]:[]):role==='family_friends'?hh?.linkedPlayers??[]:[];
+ const player=players.find(p=>p.id===object)??players[0];
+ const teamId=role==='coach'?(hh?.managedTeams.includes(object)?object:hh?.managedTeams[0]):player?.team_id;
+ const team=data.teams.find(t=>t.id===teamId);const mine=data.matches.filter(m=>!teamId||m.team_a_id===teamId||m.team_b_id===teamId);
+ const upcoming=mine.filter(m=>m.status==='scheduled'&&(!m.starts_at||new Date(m.starts_at)>new Date())).sort((a,b)=>(a.starts_at??a.source_date+'T23:59:59Z').localeCompare(b.starts_at??b.source_date+'T23:59:59Z'));
+ const next=upcoming[0];const venue=data.venues.find(v=>v.id===next?.venue_id);const recent=mine.filter(m=>m.status==='final').sort((a,b)=>(b.starts_at??b.source_date??'').localeCompare(a.starts_at??a.source_date??'')).slice(0,1);
+ const announcements=data.announcements.filter(a=>(!a.team_id||a.team_id===teamId)&&(role!=='coach'||a.author_id===user?.id));const a=announcements[0];const cfg=MODULES[role];
+ return <AppShell title={ROLE_LABELS[role]}>
+ {role==='general_user'?<div className="home-banner"><img src={court} alt="Illustrative indoor volleyball match" width={1600} height={768}/><div className="home-banner-content"><p className="mb-3 text-xs font-bold uppercase text-primary">Ontario Volleyball Association</p><h2 className="text-5xl font-bold uppercase sm:text-6xl">Your game.<br/>Your community.</h2><p className="mt-3 text-base text-muted-foreground">Every match. Every moment.</p><Button asChild className="mt-5"><Link to="/schedule">Upcoming matches<ArrowUpRight aria-hidden/></Link></Button></div></div>:<Section title="Information"><div className="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-secondary p-6"><div className="flex items-center gap-4"><span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">{player?.jersey_number?'#'+player.jersey_number:<ShieldCheck aria-hidden/>}</span><div><p className="text-sm font-bold text-primary">{role==='family_friends'?'Linked player':'Registered team'}</p><h3 className="text-3xl font-bold">{role==='family_friends'?player?.display_name:team?.name??'Team to be determined'}</h3><p>{role==='family_friends'?team?.name:player?.display_name}</p>{player&&<p className="text-sm font-bold capitalize">{player.status==='pending'?'Pending verification':player.status}</p>}</div></div>{role==='family_friends'&&<span className="text-sm text-muted-foreground">Note your kid</span>}</div>{players.length>1&&<label className="block font-bold">Player<select className="mt-1 min-h-12 w-full rounded-md border bg-card px-3" value={player?.id} onChange={e=>setObject(e.target.value)}>{players.map(p=><option key={p.id} value={p.id}>{p.display_name}</option>)}</select></label>}{role==='coach'&&(hh?.managedTeams.length??0)>1&&<label className="block font-bold">Team<select className="min-h-12 w-full rounded-md border bg-card px-3" value={teamId??''} onChange={e=>setObject(e.target.value)}>{hh?.managedTeams.map(id=><option key={id} value={id}>{data.teams.find(t=>t.id===id)?.name}</option>)}</select></label>}</Section>}
+ {cfg.announcement.visible&&<Section title="Announcement" link={<MoreLink to="/announcements">{role==='coach'?'Manage':'View all'}</MoreLink>}>{a?<Link to="/announcements" className="flex items-start gap-4 rounded-lg border bg-card p-5"><span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary"><Megaphone aria-hidden className="size-5 text-primary"/></span><div><p className="text-lg font-bold">{a.title}</p><p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p></div><ArrowUpRight aria-hidden className="ml-auto shrink-0"/></Link>:role==='coach'?<Button asChild variant="outline"><Link to="/announcements">Add a new announcement</Link></Button>:<p className="border-y py-5 text-muted-foreground">There is no current announcement.</p>}</Section>}
+ <Section title={role==='general_user'?'Upcoming matches':'Next Match'} link={<MoreLink to="/schedule">Full schedule</MoreLink>}><div className={role==='general_user'?'grid gap-4 md:grid-cols-3':'space-y-3'}>{upcoming.slice(0,role==='general_user'?3:1).map(m=><MatchCard key={m.id} m={m} data={data} focusTeam={teamId??undefined}/>)}{!upcoming.length&&<Card>No upcoming match is published.</Card>}</div></Section>
+ <div className="grid gap-7 md:grid-cols-2"><Section title="Venue">{venue?<Link to="/venue/$id" params={{id:venue.id}} className="flex h-full min-h-36 items-center gap-4 rounded-lg bg-secondary p-5"><MapPin aria-hidden className="size-10 shrink-0 text-primary"/><span><span className="block text-xl font-bold">{venue.name}</span><span className="block text-sm text-muted-foreground">{venue.address}</span><span className="mt-2 inline-flex items-center gap-1 text-sm font-bold text-primary">See venue<ArrowUpRight aria-hidden className="size-4"/></span></span></Link>:<Card>Venue to be determined</Card>}</Section><Section title="Recent Competition Results" link={<MoreLink to="/results">All results</MoreLink>}>{recent.length?recent.map(m=><MatchCard key={m.id} m={m} data={data} focusTeam={teamId??undefined}/>):<Card>No recorded results.</Card>}</Section></div>
+ {cfg.fifty_fifty.visible&&<Section title="Support the sport"><LotteryModule/></Section>}
+ {role==='coach'&&<Button asChild variant="outline"><Link to="/staff">Player verification & roster tools</Link></Button>}
+ </AppShell>;
 }

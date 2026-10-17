@@ -11,7 +11,7 @@ export function MatchCard({ m, data, focusTeam }: { m: Match; data: Lookup; focu
   const event = data.events.find((e) => e.id === m.event_id)?.name;
   const venue = data.venues.find((v) => v.id === m.venue_id);
   const final = m.status === "final";
-  const won = final && focusTeam ? (focusTeam === m.team_a_id ? m.score_a! > m.score_b! : m.score_b! > m.score_a!) : null;
+  const won = final && focusTeam && m.score_a !== null && m.score_b !== null ? (focusTeam === m.team_a_id ? m.score_a > m.score_b : m.score_b > m.score_a) : null;
   return (
     <Card>
       <p className="text-base text-muted-foreground">{event}</p>

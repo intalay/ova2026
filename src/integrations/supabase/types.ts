@@ -21,8 +21,11 @@ export type Database = {
           created_at: string
           data_mode: string
           id: string
+          location_name: string | null
+          media_urls: Json
           published_at: string | null
           status: string
+          team_id: string | null
           title: string
         }
         Insert: {
@@ -31,8 +34,11 @@ export type Database = {
           created_at?: string
           data_mode?: string
           id?: string
+          location_name?: string | null
+          media_urls?: Json
           published_at?: string | null
           status?: string
+          team_id?: string | null
           title: string
         }
         Update: {
@@ -41,11 +47,61 @@ export type Database = {
           created_at?: string
           data_mode?: string
           id?: string
+          location_name?: string | null
+          media_urls?: Json
           published_at?: string | null
           status?: string
+          team_id?: string | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "announcements_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coach_requests: {
+        Row: {
+          created_at: string
+          id: string
+          status: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status?: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_requests_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coach_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       divisions: {
         Row: {
@@ -383,6 +439,7 @@ export type Database = {
           display_name: string
           id: string
           jersey_number: string | null
+          review_note: string | null
           status: string
           team_id: string | null
           user_id: string | null
@@ -393,6 +450,7 @@ export type Database = {
           display_name: string
           id?: string
           jersey_number?: string | null
+          review_note?: string | null
           status?: string
           team_id?: string | null
           user_id?: string | null
@@ -403,6 +461,7 @@ export type Database = {
           display_name?: string
           id?: string
           jersey_number?: string | null
+          review_note?: string | null
           status?: string
           team_id?: string | null
           user_id?: string | null
@@ -601,9 +660,23 @@ export type Database = {
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       join_synthetic_demo: { Args: never; Returns: Json }
       new_code: { Args: never; Returns: string }
+      preview_pairing_code: { Args: { _code: string }; Returns: Json }
       redeem_code: {
         Args: { _code: string; _display_name?: string; _relationship?: string }
         Returns: Json
+      }
+      request_coach_access: { Args: { _team: string }; Returns: undefined }
+      request_player_changes: {
+        Args: { _note: string; _player: string }
+        Returns: undefined
+      }
+      review_coach_request: {
+        Args: { _approve: boolean; _request: string }
+        Returns: undefined
+      }
+      update_player_registration: {
+        Args: { _jersey: string; _name: string }
+        Returns: undefined
       }
       verify_player: {
         Args: { _player: string; _status: string }
