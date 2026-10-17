@@ -1,6 +1,6 @@
 import image0 from "@/assets/2026-27-indoor-rulebook.png.asset.json";
-import image1 from "@/assets/6v6-volleyball-scoresheets.png.asset.json";
-import image2 from "@/assets/4v4-scoresheets-book-of-30.png.asset.json";
+import image1 from "@/assets/6v6-volleyball-scoresheets.png";
+import image2 from "@/assets/4v4-scoresheets-book-of-30.png";
 import image3 from "@/assets/athlete-development-physical-testing-fee.png.asset.json";
 import image5 from "@/assets/fox-40-electronic-whistle.png.asset.json";
 import image6 from "@/assets/crossnet-net-system-6-units.png.asset.json";
@@ -33,7 +33,7 @@ export const PRODUCTS = [
     "price": "20.00",
     "available": true,
     "category": "Game Day",
-    "image": image1.url,
+    "image": image1,
     "description": "6v6 Volleyball Scoresheets - Book of 30",
     "url": "https://ontario-volleyball-association.myshopify.com/products/6v6-volleyball-scoresheets"
   },
@@ -43,7 +43,7 @@ export const PRODUCTS = [
     "price": "20.00",
     "available": true,
     "category": "Game Day",
-    "image": image2.url,
+    "image": image2,
     "description": "4v4 Scoresheets - Book of 30",
     "url": "https://ontario-volleyball-association.myshopify.com/products/4v4-scoresheets-book-of-30"
   },
