@@ -3,14 +3,13 @@ import { useQuery, useSuspenseQuery, queryOptions } from "@tanstack/react-query"
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, ChartNoAxesCombined } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AppShell, Section, Card, btn } from "@/components/AppShell";
+import { AppShell, Section, Card, btn, Tbd } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { MatchCard } from "@/components/MatchCard";
-import { competitionQuery, type Match } from "@/lib/queries";
+import { competitionQuery } from "@/lib/queries";
 import { getResultsPage } from "@/lib/results.functions";
 import { resultStats, RESULTS_PAGE_SIZE } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
-import { formatDate } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 const pageQuery=(page:number)=>queryOptions({queryKey:['results-page',page],queryFn:()=>getResultsPage({data:{page,pageSize:RESULTS_PAGE_SIZE}})});
 export const Route=createFileRoute('/results')({head:()=>({meta:[{title:'Results — OVA Companion'},{name:'description',content:'Volleyball match results, confirmed placements and team history.'},{property:'og:title',content:'OVA volleyball results'},{property:'og:description',content:'Browse recorded match results and your linked team history.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>Promise.all([context.queryClient.ensureQueryData(competitionQuery),context.queryClient.ensureQueryData(pageQuery(1))]),component:Results});
 function Results(){const {data}=useSuspenseQuery(competitionQuery);const {role,household}=useRole();const hh=household.data;const teamIds=role==='coach'?hh?.managedTeams??[]:role==='player'?(hh?.self?.team_id?[hh.self.team_id]:[]):role==='family_friends'?hh?.linkedPlayers.flatMap(p=>p.team_id?[p.team_id]:[])??[]:[];const [chosen,setChosen]=useState('');const team=teamIds.includes(chosen)?chosen:teamIds[0];const [expanded,setExpanded]=useState(false);const [months,setMonths]=useState(3);const [page,setPage]=useState(1);const initialResults=Route.useLoaderData()[1];const results=useQuery({...pageQuery(page),...(page===1?{initialData:initialResults}:{})});const totalPages=Math.ceil((results.data?.total??0)/RESULTS_PAGE_SIZE);
