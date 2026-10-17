@@ -248,7 +248,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .result-row::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 40%, transparent), transparent); }
 .result-row-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 12px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: color-mix(in oklab, var(--secondary) 60%, transparent); color: var(--ink); }
 .result-row-grid { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 14px; width: 100%; }
-.result-row-team { min-width: 0; font-weight: 700; font-size: 1.05rem; }
+.result-row-team { min-width: 0; font-weight: 600; font-size: 1.05rem; }
 .result-row-team--right { text-align: right; }
 .result-row-score { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
 .result-row-meta { font-size: .8rem; color: var(--muted-foreground); }
@@ -261,7 +261,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .home-content > * + * { margin-top: 1.75rem; }
 .home-lottery::before { display: none; }
 .result-row-badge { letter-spacing: 0; background: var(--accent); }
-.result-row-score { font-weight: 800; }
+.result-row-score { font-weight: 700; }
 .home-venue:active, .navigation-link:active { transform: scale(.97); }
 input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea { background: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .home-venue:active, .navigation-link:active { transform: none; } }
@@ -277,7 +277,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-matches { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
-.home-match-teams { font-size: 1.1rem; font-weight: 800; line-height: 1.5; }
+.home-match-teams { font-size: 1.1rem; font-weight: 600; line-height: 1.5; }
 .home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 .home-match-versus { font-size: .85em; font-weight: 500; color: var(--muted-foreground); padding: 0 .25em; }
 .home-match-date { font-size: .9rem; margin-top: 3px; }
