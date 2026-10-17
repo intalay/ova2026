@@ -6,7 +6,7 @@ import { Card, Tbd } from "./AppShell";
 
 type Lookup = { teams: { id: string; name: string }[]; events: { id: string; name: string }[]; venues: { id: string; name: string }[] };
 
-export function MatchCard({ m, data, focusTeam }: { m: Match; data: Lookup; focusTeam?: string }) {
+export function MatchCard({ m, data, focusTeam }: { m: Match; data: Lookup; focusTeam?: string | undefined }) {
   const name = (id: string | null) => data.teams.find((t) => t.id === id)?.name ?? null;
   const event = data.events.find((e) => e.id === m.event_id)?.name;
   const venue = data.venues.find((v) => v.id === m.venue_id);

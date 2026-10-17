@@ -43,19 +43,19 @@ function Staff() {
   async function publish(e: FormEvent) {
     e.preventDefault();
     const { error } = await supabase.from("announcements").insert({ title, body, author_id: user!.id, data_mode: "real" });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Announcement published"); setTitle(""); setBody(""); qc.invalidateQueries({ queryKey: ["competition"] });
   }
   async function verify(id: string, status: "verified" | "rejected") {
     const { error } = await supabase.rpc("verify_player", { _player: id, _status: status });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["household"] });
   }
   async function importRoster() {
     const { rows, errors } = parseRosterCsv(csv);
-    if (errors.length) return toast.error(errors.join(" "));
+    if (errors.length) { toast.error(errors.join(" ")); return; }
     const { error } = await supabase.from("players").upsert(rows.map((r) => ({ id: `roster-${teamId}-${r.key}`, display_name: r.name, jersey_number: r.jersey, team_id: teamId, status: "verified", data_mode: "real" })));
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`${rows.length} roster entries saved`); setCsv(""); qc.invalidateQueries({ queryKey: ["household"] });
   }
 

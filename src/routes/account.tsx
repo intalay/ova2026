@@ -39,7 +39,7 @@ function SignIn() {
       ? await supabase.auth.signInWithPassword({ email, password })
       : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/account`, data: { display_name: name } } });
     setBusy(false);
-    if (res.error) return setMsg(res.error.message);
+    if (res.error) { setMsg(res.error.message); return; }
     if (mode === "up" && !res.data.session) setMsg("Check your email to confirm your account, then sign in.");
   }
   return (
@@ -77,7 +77,7 @@ function Profile({ userId, email }: { userId: string; email: string }) {
   }
   async function joinDemo() {
     const { error } = await supabase.rpc("join_synthetic_demo");
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Linked to the fictional demo players"); qc.invalidateQueries({ queryKey: ["household"] });
   }
 
@@ -135,7 +135,7 @@ function PairingDialog({ onClose, data, teams, roles }: { onClose: () => void; d
   async function redeem(e: FormEvent) {
     e.preventDefault();
     const { data: r, error } = await supabase.rpc("redeem_code", { _code: code, _relationship: rel });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     const res = r as { purpose: string };
     toast.success(res.purpose === "TEAM" ? "Team request sent — waiting for verification" : "Player linked to your family");
     setCode(""); qc.invalidateQueries({ queryKey: ["household"] });
@@ -144,7 +144,7 @@ function PairingDialog({ onClose, data, teams, roles }: { onClose: () => void; d
     const { data: r, error } = kind === "TEAM"
       ? await supabase.rpc("create_team_code", { _team: teamId })
       : await supabase.rpc("create_family_code", { _player: data!.self!.id });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setIssued(r as never);
   }
 

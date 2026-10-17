@@ -24,7 +24,7 @@ export function torontoToday(now = new Date()): string {
 
 /** Calendar shows the current month plus the following two months. */
 export function calendarMonths(now = new Date()): { year: number; month: number }[] {
-  const [y, m] = torontoToday(now).split("-").map(Number);
+  const [y = 1970, m = 1] = torontoToday(now).split("-").map(Number);
   return [0, 1, 2].map((offset) => {
     const idx = m - 1 + offset;
     return { year: y + Math.floor(idx / 12), month: (idx % 12) + 1 };
