@@ -3,7 +3,7 @@ import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { MapPin, CalendarDays, UserRound, Megaphone } from "lucide-react";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
 import { MatchCard } from "@/components/MatchCard";
-import { competitionQuery, myHouseholdQuery, type Match } from "@/lib/queries";
+import { competitionQuery, myHouseholdQuery, type Match, type CompetitionData } from "@/lib/queries";
 import { useSessionUser } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/")({
@@ -53,7 +53,7 @@ function Home() {
   );
 }
 
-type Data = typeof competitionQuery extends { queryFn?: infer F } ? F extends (...a: never[]) => Promise<infer R> ? R : never : never;
+type Data = CompetitionData;
 
 function FamilyHome({ data, players }: { data: Data; players: { id: string; display_name: string; team_id: string | null }[] }) {
   return (

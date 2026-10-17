@@ -7,9 +7,7 @@ export type Match = {
   status: string; score_a: number | null; score_b: number | null; sets: { a: number; b: number }[] | null; data_mode: string;
 };
 
-export const competitionQuery = queryOptions({
-  queryKey: ["competition"],
-  queryFn: async () => {
+async function fetchCompetition() {
     const [teams, divisions, events, venues, matches, rankings, announcements] = await Promise.all([
       supabase.from("teams").select("*").order("name"),
       supabase.from("divisions").select("*").order("name"),
@@ -24,8 +22,9 @@ export const competitionQuery = queryOptions({
       teams: teams.data!, divisions: divisions.data!, events: events.data!, venues: venues.data!,
       matches: matches.data as unknown as Match[], rankings: rankings.data!, announcements: announcements.data!,
     };
-  },
-});
+}
+export type CompetitionData = Awaited<ReturnType<typeof fetchCompetition>>;
+export const competitionQuery = queryOptions({ queryKey: ["competition"], queryFn: fetchCompetition });
 
 export const venueQuery = (id: string) => queryOptions({
   queryKey: ["venue", id],
