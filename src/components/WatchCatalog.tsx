@@ -10,7 +10,7 @@ export function WatchCatalog({ videos, checkedAt }: { videos: WatchVideo[]; chec
   const result = videoPage(videos, keyword, requestedPage);
   return <section aria-labelledby="ova-tv" className="space-y-5">
     <div className="flex flex-wrap items-end justify-between gap-3">
-      <div><p className="mb-1 text-xs font-bold uppercase text-primary">Ontario volleyball · YouTube</p><h3 id="ova-tv" className="text-4xl font-bold">OVA TV</h3></div>
+      <div><p className="mb-1 text-xs font-semibold uppercase text-primary">Ontario volleyball · YouTube</p><h3 id="ova-tv" className="text-4xl font-semibold">OVA TV</h3></div>
       <Button variant="outline" asChild><a href={OVA_CHANNEL_URL} target="_blank" rel="noopener noreferrer">YouTube channel<ArrowUpRight aria-hidden className="size-4" /></a></Button>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-y py-4">
@@ -19,7 +19,7 @@ export function WatchCatalog({ videos, checkedAt }: { videos: WatchVideo[]; chec
     </div>
     {result.videos.length ? <div className="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-3">{result.videos.map(video => <a key={video.id} href={video.url} target="_blank" rel="noopener noreferrer" className="watch-video group overflow-hidden rounded-lg border bg-card text-card-foreground">
       <div className="relative aspect-video overflow-hidden bg-muted">{video.tile === undefined ? <img src={video.thumbnail} alt="" loading="lazy" className="h-full w-full object-cover" /> : <svg aria-hidden viewBox="0 0 320 180" className="h-full w-full"><image href={video.thumbnail} width={1920} height={1800} x={-(video.tile % 6) * 320} y={-Math.floor(video.tile / 6) * 180} /></svg>}<span className="absolute bottom-3 right-3 flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground"><Play aria-hidden className="size-5 fill-current" /></span></div>
-      <div className="space-y-2 p-4"><h4 className="line-clamp-3 min-h-[4.5rem] font-sans text-base font-bold leading-snug">{video.title}</h4><p className="flex items-center justify-between gap-2 text-xs text-muted-foreground"><span>{video.publishedLabel || 'OVA TV'}</span><ArrowUpRight aria-label="Opens YouTube in a new tab" className="size-4 shrink-0" /></p></div>
+      <div className="space-y-2 p-4"><h4 className="line-clamp-3 min-h-[4.5rem] font-sans text-base font-semibold leading-snug">{video.title}</h4><p className="flex items-center justify-between gap-2 text-xs text-muted-foreground"><span>{video.publishedLabel || 'OVA TV'}</span><ArrowUpRight aria-label="Opens YouTube in a new tab" className="size-4 shrink-0" /></p></div>
     </a>)}</div> : <p className="py-10 text-center text-muted-foreground">No videos found.</p>}
     <div className="flex flex-wrap items-center justify-between gap-4 border-t pt-4">
       <div className="flex items-center gap-3"><Button variant="outline" size="icon" aria-label="Previous video page" disabled={result.page === 1} onClick={() => setPage(result.page - 1)}><ChevronLeft aria-hidden /></Button><p aria-live="polite" className="text-sm">Page <strong>{result.page}</strong> of <strong>{result.totalPages}</strong></p><Button variant="outline" size="icon" aria-label="Next video page" disabled={result.page === result.totalPages} onClick={() => setPage(result.page + 1)}><ChevronRight aria-hidden /></Button></div>

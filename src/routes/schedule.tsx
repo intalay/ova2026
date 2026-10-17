@@ -91,7 +91,7 @@ function Schedule() {
               return (
                 <li key={`${x.type}${x.id}`}>
                   <Button aria-pressed={on} variant="outline" onClick={() => toggleFollow(x.type, x.id)} className="flex min-h-12 w-full items-center justify-between rounded-lg border-2 bg-card px-4 text-left text-lg text-foreground">
-                    <span><span className="mr-2 text-sm font-bold uppercase text-muted-foreground">{x.type}</span><span className="font-bold">{x.name}</span></span>
+                    <span><span className="mr-2 text-sm font-semibold uppercase text-muted-foreground">{x.type}</span><span className="font-semibold">{x.name}</span></span>
                     <Star aria-hidden className={on ? "fill-accent text-accent" : "text-muted-foreground"} />
                   </Button>
                 </li>
@@ -110,9 +110,9 @@ function Month({ year, month, counts, selected, onSelect }: { year: number; mont
   const label = new Intl.DateTimeFormat("en-CA", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(year, month - 1, 15)));
   return (
     <div className="rounded-lg border bg-card p-4">
-      <h3 aria-live="polite" className="mb-4 text-center text-2xl font-bold">{label}</h3>
+      <h3 aria-live="polite" className="mb-4 text-center text-2xl font-semibold">{label}</h3>
       <div className="grid grid-cols-7 gap-1 text-center" aria-label={label}>
-        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i} aria-hidden className="text-sm font-bold text-muted-foreground">{d}</span>)}
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => <span key={i} aria-hidden className="text-sm font-semibold text-muted-foreground">{d}</span>)}
         {Array.from({ length: first }).map((_, i) => <span key={`e${i}`} />)}
         {Array.from({ length: days }).map((_, i) => {
           const key = `${year}-${String(month).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`;
@@ -120,7 +120,7 @@ function Month({ year, month, counts, selected, onSelect }: { year: number; mont
           return (
             <Button key={key} disabled={!n} onClick={() => onSelect(key)} aria-pressed={selected === key}
               aria-label={`${key}: ${n ? `${n} match${n > 1 ? "es" : ""}` : "no matches"}`}
-              variant="ghost" className={`min-h-11 w-full p-0 rounded-md text-base ${n ? "bg-accent font-bold text-accent-foreground" : "text-muted-foreground"} ${selected === key ? "ring-4 ring-primary" : ""}`}>
+              variant="ghost" className={`min-h-11 w-full p-0 rounded-md text-base ${n ? "bg-accent font-semibold text-accent-foreground" : "text-muted-foreground"} ${selected === key ? "ring-4 ring-primary" : ""}`}>
               {i + 1}
             </Button>
           );

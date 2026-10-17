@@ -25,15 +25,15 @@ export function StaffSignIn() {
   }
   return (
     <Card className="mx-auto max-w-xl space-y-4">
-      <p className="flex items-center gap-2 text-2xl font-bold"><ShieldCheck aria-hidden />OVA Staff sign-in</p>
+      <p className="flex items-center gap-2 text-2xl font-semibold"><ShieldCheck aria-hidden />OVA Staff sign-in</p>
       <p>For OVA staff to verify coach applications.</p>
       <form onSubmit={submit} className="space-y-4">
-        <label className="block font-bold">Email<input required type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} className={btn.input} /></label>
-        <label className="block font-bold">Password<input required type="password" minLength={8} autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} className={btn.input} /></label>
+        <label className="block font-semibold">Email<input required type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} className={btn.input} /></label>
+        <label className="block font-semibold">Password<input required type="password" minLength={8} autoComplete={mode === "in" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} className={btn.input} /></label>
         <Button disabled={busy} className="w-full">{busy ? "Please wait…" : mode === "in" ? "Sign in" : "Create staff account"}</Button>
       </form>
       <Button variant="link" onClick={() => { setMode(mode === "in" ? "up" : "in"); setMsg(""); }}>{mode === "in" ? "Create staff account" : "Already have an account? Sign in"}</Button>
-      <Link to="/reset-password" className="block min-h-11 text-sm font-bold text-primary underline">Forgot password?</Link>
+      <Link to="/reset-password" className="block min-h-11 text-sm font-semibold text-primary underline">Forgot password?</Link>
       {msg && <p role="status" className="rounded-md bg-secondary p-4">{msg}</p>}
     </Card>
   );
