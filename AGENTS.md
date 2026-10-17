@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Homepage venue photos are source-checked local CDN pointers matched to the exact venue, with external official information links; unknown venues keep explicit fallbacks. Why: presentation must never substitute an unrelated building or fabricate venue details.
 - Explore uses a checked full public YouTube catalogue with CDN thumbnail atlases and a public read-only CBC listing server function; CBC source status and member restrictions remain explicit. Why: no API secrets, invented events, or privileged data are needed for public viewing discovery.
 - Pairing codes, family links and player verification run only in SECURITY DEFINER SQL functions (redeem_code, create_*_code, verify_player); invite_codes has no client access. Why: permission checks must be server-side and atomic.
 - Player private data is gated by RLS via can_view_player (self, linked family, managing coach, staff). Why: family must never see unlinked players.

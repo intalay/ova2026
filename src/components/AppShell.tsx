@@ -20,7 +20,7 @@ export function AppShell({ children, title, action, sourceLabel = 'Synthetic com
   <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-accent focus:px-4 focus:py-2">Skip to content</a>
   <header className="border-b bg-card">
    <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-4 sm:px-8">
-    <Link to="/" aria-label="Ontario Volleyball Association home" className="flex min-w-0 items-center gap-2"><img src={logo.url} alt="" width={60} height={60} className="size-9 shrink-0 object-contain sm:size-12" /><span className="association-wordmark">Ontario Volleyball Association</span></Link>
+    <Link to="/" aria-label="Ontario Volleyball Association home" className="flex min-w-0 items-center gap-2"><img src={logo.url} alt="" width={60} height={60} className="size-9 shrink-0 object-contain sm:size-12" /><span className="association-wordmark"><span>Ontario</span> Volleyball Association</span></Link>
     <div className="flex shrink-0 items-center gap-2">{action}<Button asChild variant="secondary" size="icon"><Link to="/account" aria-label="Account and role selection" title="Account"><UserRound aria-hidden /></Link></Button></div>
    </div>
   </header>
