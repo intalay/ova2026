@@ -1,0 +1,4 @@
+import logo from "@/assets/ova-5050.png.asset.json";
+import { Link } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
+export function LotteryModule(){return <Link to="/fifty-fifty" className="flex flex-wrap items-center justify-between gap-5 rounded-lg bg-accent p-6 text-accent-foreground"><div><img src={logo.url} alt="OVA 50/50" width={200} height={70} className="mb-4 h-14 w-44 object-contain object-left"/><p className="text-sm font-bold uppercase">Last Fall Classic winner took home</p><p className="font-display text-5xl font-bold">$14,835</p><p className="mt-2 text-sm">18+ · Ontario only</p></div><span className="inline-flex min-h-12 items-center gap-2 font-bold">Explore the draw<ArrowUpRight aria-hidden/></span></Link>;}

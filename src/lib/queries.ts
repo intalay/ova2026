@@ -19,8 +19,8 @@ async function fetchCompetition() {
     ]);
     for (const r of [teams, divisions, events, venues, matches, rankings, announcements]) if (r.error) throw r.error;
     return {
-      teams: teams.data!, divisions: divisions.data!, events: events.data!, venues: venues.data!,
-      matches: matches.data as unknown as Match[], rankings: rankings.data!, announcements: announcements.data!,
+      teams: teams.data ?? [], divisions: divisions.data ?? [], events: events.data ?? [], venues: venues.data ?? [],
+      matches: (matches.data ?? []) as unknown as Match[], rankings: rankings.data ?? [], announcements: announcements.data ?? [],
     };
 }
 export type CompetitionData = Awaited<ReturnType<typeof fetchCompetition>>;
@@ -40,15 +40,17 @@ export const venueQuery = (id: string) => queryOptions({
 
 /** Private data: RLS only returns players the signed-in user may see. */
 async function fetchHousehold(userId: string | undefined) {
+    if (!userId) throw new Error("Sign in required");
     const [players, links, roles, follows, profile, managed] = await Promise.all([
       supabase.from("players").select("*"),
-      supabase.from("family_links").select("*").eq("family_user_id", userId!),
-      supabase.from("user_roles").select("role").eq("user_id", userId!),
-      supabase.from("follows").select("*").eq("user_id", userId!),
-      supabase.from("profiles").select("*").eq("id", userId!).maybeSingle(),
-      supabase.from("managed_teams").select("*").eq("user_id", userId!),
+       supabase.from("family_links").select("*").eq("family_user_id", userId),
+       supabase.from("user_roles").select("role").eq("user_id", userId),
+       supabase.from("follows").select("*").eq("user_id", userId),
+       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+       supabase.from("managed_teams").select("*").eq("user_id", userId),
     ]);
-    const all = players.data ?? [];
+     for (const result of [players, links, roles, follows, profile, managed]) if (result.error) throw result.error;
+     const all = players.data ?? [];
     const linkedIds = new Set((links.data ?? []).map((l) => l.player_id));
     return {
       linkedPlayers: all.filter((p) => linkedIds.has(p.id)),

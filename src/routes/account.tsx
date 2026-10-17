@@ -1,197 +1,40 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
-import { KeyRound, LogOut, X } from "lucide-react";
+import { useState, useEffect, type FormEvent } from "react";
+import { KeyRound, LogOut, CheckCircle2, XCircle, ArrowRight, UserRound, UsersRound, ClipboardList, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
-import { competitionQuery, myHouseholdQuery, type Household } from "@/lib/queries";
-import { useSessionUser } from "@/hooks/use-session";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { competitionQuery } from "@/lib/queries";
+import { useRole } from "@/hooks/use-role";
+import { ROLE_LABELS, type AppRole } from "@/lib/modules";
 import { supabase } from "@/integrations/supabase/client";
-
-export const Route = createFileRoute("/account")({
-  head: () => ({
-    meta: [
-      { title: "Account — OVA Companion" },
-      { name: "description", content: "Sign in, link your players and manage pairing codes." },
-      { property: "og:title", content: "Account — OVA Companion" },
-      { property: "og:description", content: "Family and player account for OVA Companion." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(competitionQuery),
-  component: Account,
-});
-
-function Account() {
-  const { user, ready } = useSessionUser();
-  if (!ready) return <AppShell title="Account"><p>Loading…</p></AppShell>;
-  return user ? <Profile userId={user.id} email={user.email ?? ""} /> : <SignIn />;
-}
-
-function SignIn() {
-  const [mode, setMode] = useState<"in" | "up">("in");
-  const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [name, setName] = useState("");
-  const [busy, setBusy] = useState(false); const [msg, setMsg] = useState<string | null>(null);
-  async function submit(e: FormEvent) {
-    e.preventDefault(); setBusy(true); setMsg(null);
-    const res = mode === "in"
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/account`, data: { display_name: name } } });
-    setBusy(false);
-    if (res.error) { setMsg(res.error.message); return; }
-    if (mode === "up" && !res.data.session) setMsg("Check your email to confirm your account, then sign in.");
-  }
-  return (
-    <AppShell title="Account">
-      <Card>
-        <h2 className="text-2xl font-bold uppercase">{mode === "in" ? "Sign in" : "Create account"}</h2>
-        <form onSubmit={submit} className="mt-3 space-y-3">
-          {mode === "up" && <label className="block text-lg font-bold">Your name<input required value={name} onChange={(e) => setName(e.target.value)} className={btn.input} autoComplete="name" /></label>}
-          <label className="block text-lg font-bold">Email<input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={btn.input} autoComplete="email" /></label>
-          <label className="block text-lg font-bold">Password<input required type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} className={btn.input} autoComplete={mode === "in" ? "current-password" : "new-password"} /></label>
-          {msg && <p role="status" className="rounded-lg bg-secondary p-3 font-bold">{msg}</p>}
-          <button disabled={busy} className={`${btn.primary} w-full`}>{mode === "in" ? "Sign in" : "Create account"}</button>
-        </form>
-        <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-3 text-lg font-bold text-primary underline underline-offset-4">
-          {mode === "in" ? "New here? Create an account" : "Already have an account? Sign in"}
-        </button>
-      </Card>
-      <p className="text-base text-muted-foreground">You can browse schedules, results and venues without an account.</p>
-    </AppShell>
-  );
-}
-
-function Profile({ userId, email }: { userId: string; email: string }) {
-  const { data: comp } = useSuspenseQuery(competitionQuery);
-  const hh = useQuery(myHouseholdQuery(userId));
-  const qc = useQueryClient(); const nav = useNavigate();
-  const [pairOpen, setPairOpen] = useState(false);
-  const d = hh.data;
-  const roles = d?.roles ?? [];
-  const teamName = (id: string | null) => comp.teams.find((t) => t.id === id)?.name ?? "Team to be determined";
-
-  async function signOut() {
-    await qc.cancelQueries(); qc.removeQueries({ queryKey: ["household"] });
-    await supabase.auth.signOut(); nav({ to: "/", replace: true });
-  }
-  async function joinDemo() {
-    const { error } = await supabase.rpc("join_synthetic_demo");
-    if (error) { toast.error(error.message); return; }
-    toast.success("Linked to the fictional demo players"); qc.invalidateQueries({ queryKey: ["household"] });
-  }
-
-  return (
-    <AppShell title="Profile" action={
-      <button onClick={() => setPairOpen(true)} aria-label="Pairing codes" className="inline-flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-        <KeyRound aria-hidden />
-      </button>
-    }>
-      <Card>
-        <p className="text-2xl font-bold">{d?.profile?.display_name || email}</p>
-        <p className="text-base text-muted-foreground">{email}</p>
-        <p className="mt-2 flex flex-wrap gap-2">{roles.map((r) => <span key={r} className="rounded bg-secondary px-2 py-0.5 font-bold capitalize text-secondary-foreground">{r}</span>)}</p>
-      </Card>
-
-      {d?.self && (
-        <Section title="My player profile">
-          <Card>
-            <p className="text-xl font-bold">{d.self.display_name}</p>
-            <p>{teamName(d.self.team_id)} · <span className="font-bold capitalize">{d.self.status === "pending" ? "Waiting for coach or staff verification" : d.self.status}</span></p>
-          </Card>
-        </Section>
-      )}
-
-      <Section title="Linked players">
-        {d?.linkedPlayers.length ? d.linkedPlayers.map((p) => (
-          <Card key={p.id}><p className="text-xl font-bold">{p.display_name}</p><p>{teamName(p.team_id)}</p></Card>
-        )) : <Card><p>No players linked yet. Ask your player for a family code, then tap the key icon at the top right.</p></Card>}
-        <Card className="border-dashed">
-          <p className="font-bold">Trying the demo?</p>
-          <p className="text-base">Link your account to the two fictional demo players. This uses synthetic data only.</p>
-          <button onClick={joinDemo} className={`${btn.secondary} mt-2`}>Link demo players</button>
-        </Card>
-      </Section>
-
-      {(roles.includes("staff") || roles.includes("admin") || (d?.managedTeams.length ?? 0) > 0) && (
-        <Link to="/staff" className={`${btn.primary} w-full`}>Open staff tools</Link>
-      )}
-      <button onClick={signOut} className={`${btn.secondary} w-full`}><LogOut aria-hidden />Sign out</button>
-
-      {pairOpen && <PairingDialog onClose={() => setPairOpen(false)} data={d} teams={comp.teams} roles={roles} />}
-    </AppShell>
-  );
-}
-
-type HH = Household;
-
-function PairingDialog({ onClose, data, teams, roles }: { onClose: () => void; data: HH | undefined; teams: { id: string; name: string }[]; roles: string[] }) {
-  const qc = useQueryClient();
-  const [code, setCode] = useState(""); const [rel, setRel] = useState("parent"); const [issued, setIssued] = useState<{ code: string; purpose: string; expires_at: string } | null>(null);
-  const staff = roles.includes("staff") || roles.includes("admin");
-  const codeTeams = teams.filter((t) => staff || data?.managedTeams.includes(t.id));
-  const [teamId, setTeamId] = useState(codeTeams[0]?.id ?? "");
-
-  async function redeem(e: FormEvent) {
-    e.preventDefault();
-    const { data: r, error } = await supabase.rpc("redeem_code", { _code: code, _relationship: rel });
-    if (error) { toast.error(error.message); return; }
-    const res = r as { purpose: string };
-    toast.success(res.purpose === "TEAM" ? "Team request sent — waiting for verification" : "Player linked to your family");
-    setCode(""); qc.invalidateQueries({ queryKey: ["household"] });
-  }
-  async function issue(kind: "TEAM" | "FAMILY") {
-    const { data: r, error } = kind === "TEAM"
-      ? await supabase.rpc("create_team_code", { _team: teamId })
-      : await supabase.rpc("create_family_code", { _player: data!.self!.id });
-    if (error) { toast.error(error.message); return; }
-    setIssued(r as never);
-  }
-
-  return (
-    <div role="dialog" aria-modal="true" aria-labelledby="pair-title" className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 sm:items-center"
-      onKeyDown={(e) => e.key === "Escape" && onClose()}>
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-card p-5 sm:rounded-2xl">
-        <div className="flex items-center justify-between">
-          <h2 id="pair-title" className="text-2xl font-bold uppercase">Pairing codes</h2>
-          <button autoFocus onClick={onClose} aria-label="Close" className="inline-flex size-12 items-center justify-center rounded-full border-2"><X aria-hidden /></button>
-        </div>
-        <form onSubmit={redeem} className="mt-4 space-y-3">
-          <label className="block text-lg font-bold">Enter a team or family code
-            <input value={code} onChange={(e) => setCode(e.target.value)} required className={`${btn.input} font-mono uppercase tracking-widest`} autoComplete="off" />
-          </label>
-          <label className="block text-lg font-bold">If it is a family code, I am the player's
-            <select value={rel} onChange={(e) => setRel(e.target.value)} className={btn.input}>
-              <option value="parent">Parent</option><option value="guardian">Guardian</option><option value="family">Family member</option><option value="friend">Friend</option>
-            </select>
-          </label>
-          <button className={`${btn.primary} w-full`}>Use code</button>
-        </form>
-
-        {data?.self?.status === "verified" && (
-          <div className="mt-6 border-t-2 pt-4">
-            <h3 className="text-xl font-bold uppercase">Invite a family member</h3>
-            <p className="text-base">Each family code works once, for one person, for 48 hours.</p>
-            <button onClick={() => issue("FAMILY")} className={`${btn.secondary} mt-2 w-full`}>Create family code</button>
-          </div>
-        )}
-        {codeTeams.length > 0 && (
-          <div className="mt-6 border-t-2 pt-4">
-            <h3 className="text-xl font-bold uppercase">Team code</h3>
-            <p className="text-base">Players use this to request to join. You verify each request. A new code replaces your previous one.</p>
-            <select value={teamId} onChange={(e) => setTeamId(e.target.value)} aria-label="Team" className={`${btn.input} mt-2`}>
-              {codeTeams.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-            <button onClick={() => issue("TEAM")} className={`${btn.secondary} mt-2 w-full`}>Create team code</button>
-          </div>
-        )}
-        {issued && (
-          <p role="status" className="mt-4 rounded-lg bg-secondary p-4 text-center">
-            <span className="block text-base">{issued.purpose === "TEAM" ? "Team code" : "Family code"} · expires {new Date(issued.expires_at).toLocaleString("en-CA")}</span>
-            <span className="block font-mono text-3xl font-bold tracking-widest">{issued.code}</span>
-          </p>
-        )}
-      </div>
-    </div>
-  );
+export const Route=createFileRoute('/account')({head:()=>({meta:[{title:'Account & Roles — OVA Companion'},{name:'description',content:'Choose Player, Family & Friends or Coach and connect to your OVA team.'},{property:'og:title',content:'Your OVA Account'},{property:'og:description',content:'Sign in and securely connect with your volleyball team.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>context.queryClient.ensureQueryData(competitionQuery),component:Account});
+type Preview={purpose:string;team_name:string;player_name?:string;team_id?:string};
+function Account(){
+ const {user,ready,household,requested,selectRole,role}=useRole();const {data:comp}=useSuspenseQuery(competitionQuery);const qc=useQueryClient();const navigate=useNavigate();
+ const [step,setStep]=useState<'roles'|'auth'|'connect'|'profile'>('roles');const [chosen,setChosen]=useState<AppRole>(requested);const [mode,setMode]=useState<'in'|'up'>('in');const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [name,setName]=useState('');const [jersey,setJersey]=useState('');const [code,setCode]=useState('');const [preview,setPreview]=useState<Preview|null>(null);const [codeError,setCodeError]=useState('');const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);const [team,setTeam]=useState(comp.teams[0]?.id??'');const [pair,setPair]=useState(false);const [linkAnother,setLinkAnother]=useState(false);const [issued,setIssued]=useState<{code:string;expires_at:string}|null>(null);const [relationship,setRelationship]=useState('parent');
+ const requests=useQuery({queryKey:['coach-request',user?.id],enabled:!!user,queryFn:async()=>{if(!user)return null;const {data,error}=await supabase.from('coach_requests').select('*').eq('user_id',user.id).maybeSingle();if(error)throw error;return data;}});
+ const hh=household.data; const verified=hh?.self?.status==='verified';
+ useEffect(()=>{if(!user)return;if(step==='auth')setStep('connect');},[user,step]);
+ useEffect(()=>{if(requests.data?.status==='approved'&&chosen==='coach'){const key=`coach-approved-${requests.data.id}`;if(!sessionStorage.getItem(key)){toast.success('You have been approved to access your coach page');sessionStorage.setItem(key,'seen');}}},[requests.data,chosen]);
+ async function auth(e:FormEvent){e.preventDefault();setBusy(true);setMessage('');try{const res=mode==='in'?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password,options:{emailRedirectTo:`${window.location.origin}/account`,data:{display_name:name}}});if(res.error)throw res.error;if(mode==='up'&&!res.data.session)setMessage('Check your email to confirm your account, then sign in.');}catch(e){setMessage(e instanceof Error?e.message:'Sign-in failed. Try again.');}finally{setBusy(false);}}
+ async function checkCode(){setBusy(true);setPreview(null);setCodeError('');const {data,error}=await supabase.rpc('preview_pairing_code',{_code:code});setBusy(false);if(error){setCodeError(error.message);return;}const p=data as unknown as Preview;if(p.purpose!==(chosen==='player'?'TEAM':'FAMILY')){setCodeError(chosen==='player'?'Use a team code from your coach.':'Use a family code from your player.');return;}setPreview(p);}
+ async function connect(e:FormEvent){e.preventDefault();if(!preview||!user)return;setBusy(true);const {error}=await supabase.rpc('redeem_code',{_code:code,_display_name:name,_relationship:relationship});if(error){setMessage(error.message);setBusy(false);return;}if(chosen==='player'){const {error:err}=await supabase.rpc('update_player_registration',{_name:name,_jersey:jersey});if(err){setMessage(err.message);setBusy(false);return;}}await qc.invalidateQueries({queryKey:['household']});selectRole(chosen);setBusy(false);setLinkAnother(false);setStep('profile');toast.success(chosen==='player'?'Profile sent to your coach for verification':'Player linked');}
+ async function requestCoach(){if(!team)return;setBusy(true);const {error}=await supabase.rpc('request_coach_access',{_team:team});setBusy(false);if(error){setMessage(error.message);return;}await qc.invalidateQueries({queryKey:['coach-request']});setMessage('Pending verification. Your application is available to OVA staff. Email notification is not configured yet.');}
+ async function issue(kind:'TEAM'|'FAMILY'){if(kind==='FAMILY'&&!hh?.self)return;setBusy(true);const result=kind==='TEAM'?await supabase.rpc('create_team_code',{_team:team}):await supabase.rpc('create_family_code',{_player:hh?.self?.id??''});setBusy(false);if(result.error){toast.error(result.error.message);return;}setIssued(result.data as unknown as {code:string;expires_at:string});}
+ async function logout(){await qc.cancelQueries();qc.removeQueries({queryKey:['household']});qc.removeQueries({queryKey:['coach-request']});await supabase.auth.signOut();selectRole('general_user');setStep('roles');}
+ const connected=!linkAnother && (chosen==='player'?!!hh?.self:chosen==='family_friends'?(hh?.linkedPlayers.length??0)>0:chosen==='coach'?(hh?.managedTeams.length??0)>0||hh?.roles.some(r=>r==='staff'||r==='admin'):false);
+ if(!ready)return <AppShell title="Account"><p role="status">Loading account…</p></AppShell>;
+ return <AppShell title="Account" action={user&&(verified||(hh?.managedTeams.length??0)>0)?<Button variant="outline" size="icon" aria-label="Pairing codes" title="Pairing codes" onClick={()=>{setTeam(hh?.managedTeams[0]??team);setPair(true);}}><KeyRound aria-hidden/></Button>:undefined}>
+ {step==='roles'?<div className="mx-auto max-w-xl space-y-6 py-5"><p className="text-sm font-bold uppercase text-primary">Welcome to OVA Companion</p><h2 className="text-5xl font-bold">I am a…</h2><div className="space-y-3">{([{r:'player',icon:UserRound,label:'Player'},{r:'family_friends',icon:UsersRound,label:'Friends & Family'},{r:'coach',icon:ClipboardList,label:'Coach'}] as const).map(({r,icon:Icon,label})=><Button key={r} variant="outline" className="flex min-h-24 w-full justify-start gap-5 bg-card px-5 text-left text-xl" onClick={()=>{setLinkAnother(false);setChosen(r);selectRole(r);setMessage('');setPreview(null);setCode('');setStep(user?'connect':'auth');}}><span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary"><Icon aria-hidden/></span>{label}<ArrowRight aria-hidden className="ml-auto"/></Button>)}</div><Link to="/" onClick={()=>selectRole('general_user')} className="inline-flex min-h-12 items-center gap-2 font-bold text-primary">Just browsing? Explore the Fan Plaza<ArrowRight aria-hidden/></Link></div>:<div className="mx-auto max-w-xl space-y-5"><Button variant="ghost" onClick={()=>setStep('roles')}><ArrowLeft aria-hidden/>Choose another role</Button><h2 className="text-3xl font-bold">{ROLE_LABELS[chosen]}</h2>
+ {!user?<><form onSubmit={auth} className="space-y-4">{mode==='up'&&<label className="block font-bold">Your name<input required className={btn.input} value={name} onChange={e=>setName(e.target.value)} autoComplete="name"/></label>}<label className="block font-bold">Email<input required type="email" className={btn.input} value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/></label><label className="block font-bold">Password<input required type="password" minLength={8} className={btn.input} value={password} onChange={e=>setPassword(e.target.value)} autoComplete={mode==='in'?'current-password':'new-password'}/></label><Button disabled={busy} className="w-full">{busy?'Please wait…':mode==='in'?'Sign in':'Create account'}</Button></form><Button variant="link" onClick={()=>setMode(mode==='in'?'up':'in')}>{mode==='in'?'New here? Create an account':'Already have an account? Sign in'}</Button><Link to="/reset-password" className="block min-h-11 text-sm font-bold text-primary underline">Forgot password?</Link></>:<>
+ <p className="text-sm text-muted-foreground">{user.email}</p>
+ {connected?<><Card><p className="text-xl font-bold">{hh?.profile?.display_name??'Your account'}</p>{hh?.self&&chosen==='player'&&<><p>{hh.self.display_name} · #{hh.self.jersey_number??'—'}</p><p className="font-bold">{hh.self.status==='pending'?'Pending verification':hh.self.status}</p>{hh.self.review_note&&<p className="mt-2">Changes requested: {hh.self.review_note}</p>}</>}{chosen==='family_friends'&&hh?.linkedPlayers.map(p=><p key={p.id}>{p.display_name} · {comp.teams.find(t=>t.id===p.team_id)?.name}</p>)}</Card><Button className="w-full" onClick={()=>{selectRole(chosen);navigate({to:'/'});}}>Open my homepage<ArrowRight aria-hidden/></Button>{chosen==='player'&&hh?.self?.review_note&&<form className="space-y-3" onSubmit={async e=>{e.preventDefault();const {error}=await supabase.rpc('update_player_registration',{_name:name,_jersey:jersey});if(error)toast.error(error.message);else{qc.invalidateQueries({queryKey:['household']});toast.success('Profile resubmitted');}}}><label className="block font-bold">Name<input required value={name} onChange={e=>setName(e.target.value)} className={btn.input}/></label><label className="block font-bold">Jersey number<input required value={jersey} onChange={e=>setJersey(e.target.value)} className={btn.input}/></label><Button>Resubmit profile</Button></form>}{chosen==='family_friends'&&<Button variant="outline" onClick={()=>{setLinkAnother(true);setChosen('family_friends');setStep('connect');setCode('');setPreview(null);}}>Link another player</Button>}</>:chosen==='coach'?<><label className="block font-bold">Registered team<select value={team} onChange={e=>setTeam(e.target.value)} className={btn.input}>{comp.teams.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></label>{requests.data?.status==='pending'?<Card><p className="font-bold">Pending verification</p><p>OVA staff will review your application. Email notification is not configured yet.</p></Card>:<Button disabled={busy} onClick={requestCoach}>Submit coach application</Button>}</>:<form onSubmit={connect} className="space-y-4"><label className="block font-bold">{chosen==='player'?'Team verification code':'Player family code'}<input required value={code} onChange={e=>{setCode(e.target.value);setPreview(null);setCodeError('');}} className={`${btn.input} font-mono uppercase`} autoComplete="off"/></label><Button type="button" variant="outline" onClick={checkCode} disabled={busy||!code}>Verify code</Button>{codeError&&<p role="alert" className="flex items-center gap-2 text-destructive"><XCircle aria-hidden/>{codeError}</p>}{preview&&<><p role="status" className="flex items-center gap-2 font-bold text-success"><CheckCircle2 aria-hidden/>Code verified</p><Card>{preview.player_name&&<p className="text-xl font-bold">{preview.player_name}</p>}<p className="font-bold">{preview.team_name}</p></Card>{chosen==='player'?<><label className="block font-bold">Player name<input required maxLength={100} value={name} onChange={e=>setName(e.target.value)} className={btn.input}/></label><label className="block font-bold">Jersey number<input required maxLength={10} value={jersey} onChange={e=>setJersey(e.target.value)} className={btn.input}/></label></>:<label className="block font-bold">Relationship<select value={relationship} onChange={e=>setRelationship(e.target.value)} className={btn.input}><option value="parent">Parent</option><option value="guardian">Guardian</option><option value="family">Family</option><option value="friend">Friend</option></select></label>}<Button disabled={busy} className="w-full">Confirm & continue</Button></>}</form>}
+ <Button variant="outline" className="w-full" onClick={logout}><LogOut aria-hidden/>Sign out</Button>
+ </>}{message&&<p role="status" className="rounded-md bg-secondary p-4">{message}</p>}
+ </div>}
+ <Dialog open={pair} onOpenChange={setPair}><DialogContent className="max-h-[85dvh] overflow-y-auto"><DialogTitle>Pairing codes</DialogTitle><DialogDescription>Share a team code with players or a single-use family code with one person.</DialogDescription>{(hh?.managedTeams.length??0)>0&&<><label className="block font-bold">Team<select className={btn.input} value={team} onChange={e=>setTeam(e.target.value)}>{hh?.managedTeams.map(id=><option key={id} value={id}>{comp.teams.find(t=>t.id===id)?.name}</option>)}</select></label><Button disabled={busy} onClick={()=>issue('TEAM')}>Create team code</Button></>}{verified&&<><p className="text-sm">Family codes expire in 48 hours and can be used once. Create a separate code for each person.</p><Button disabled={busy} onClick={()=>issue('FAMILY')}>Create family code</Button></>}{issued&&<div role="status" className="rounded-md bg-secondary p-4"><p className="break-all font-mono text-3xl font-bold">{issued.code}</p><p className="text-sm">Expires {new Date(issued.expires_at).toLocaleString()}</p></div>}</DialogContent></Dialog>
+ </AppShell>;
 }

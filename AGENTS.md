@@ -14,3 +14,7 @@
 - Player private data is gated by RLS via can_view_player (self, linked family, managing coach, staff). Why: family must never see unlinked players.
 - Every row carries data_mode ('real'|'synthetic') and the UI labels synthetic data. Why: source data and demo data must stay separate.
 - Unknown schedule, opponent, venue or placement renders the shared "to be determined" helpers in src/lib/format.ts; never invent values. Why: original product rule.
+- Role module visibility, view variants and actions are separate configuration; selected roles are presentation preferences only and actual access remains RLS/RPC-scoped. Why: reusable composition must not grant privileges.
+- Official shop records are a checked static catalog with CDN asset pointers and external checkout links. Why: the app must not duplicate store payment or inventory operations.
+- Team announcements and private attachments use the same team-scoped authorization and persistent records. Why: a shared public feed must never expose private team content.
+- All-results pagination uses a public read-only server function independent of team history and trend state. Why: changing the selected team must not filter the all-team result window.
