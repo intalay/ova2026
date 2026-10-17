@@ -29,8 +29,8 @@ export function AppShell({ children, title, action, sourceLabel = 'Synthetic com
    {children}
    <section aria-labelledby="sponsorship" className="border-t pt-2"><h2 id="sponsorship" className="text-center font-sans text-sm font-normal text-muted-foreground">Partner</h2><ul className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">{SPONSORS.map(s=><li key={s.name}><img src={s.src} alt={s.name} loading="lazy" className="h-5 w-auto max-w-[18vw] object-contain sm:h-8 sm:max-w-none" /></li>)}</ul></section>
   </main>
-  <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-40 border-t bg-card pb-[env(safe-area-inset-bottom)]">
-   <ul className="mx-auto grid max-w-3xl grid-cols-5">{NAV.map(({to,label,icon:Icon})=><li key={to}><Link to={to} activeOptions={{ exact: to === "/" }} className={`flex min-h-20 flex-col items-center justify-center gap-1 text-xs font-bold text-muted-foreground data-[status=active]:text-primary ${to === "/" ? "" : "data-[status=active]:bg-secondary"}`}><span className={to === "/" ? "-mt-5 flex size-14 items-center justify-center rounded-full border-4 border-card bg-primary text-primary-foreground" : "flex size-8 items-center justify-center"}><Icon aria-hidden className="size-6"/></span><span>{label}</span></Link></li>)}</ul>
+  <nav aria-label="Main" className="main-navigation fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)]">
+   <ul className="mx-auto grid max-w-3xl grid-cols-5">{NAV.map(({to,label,icon:Icon})=><li key={to}><Link to={to} activeOptions={{ exact: to === "/" }} className={`navigation-link flex min-h-20 flex-col items-center justify-center gap-1 text-xs font-bold ${to === "/" ? "navigation-home" : ""}`}><span className={to === "/" ? "navigation-home-icon -mt-7 flex size-16 items-center justify-center rounded-full border-4" : "flex size-8 items-center justify-center"}><Icon aria-hidden className={to === "/" ? "size-8" : "size-6"}/></span><span>{label}</span></Link></li>)}</ul>
   </nav>
  </div>;
 }
