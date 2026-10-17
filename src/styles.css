@@ -266,4 +266,4 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery) { transition: transform 180ms ease, box-shadow 180ms ease; }
 .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery):active { transform: translateY(1px) scale(.99); box-shadow: var(--home-shadow-pressed); }
 @media (max-width: 639px) { .home-banner-content { padding: 22px 18px; } .home-content .home-match { padding: 14px 16px; } }
-@media (prefers-reduced-motion: reduce) { .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery):active { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery) { transition: none; } .home-content :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary, .home-banner, .home-venue, .home-result, .home-lottery):active { transform: none; } }
