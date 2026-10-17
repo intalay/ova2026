@@ -34,3 +34,4 @@
 - [ ] OVA notification email: recipient confirmed as 395945526@qq.com; awaiting verified sender domain.
 - [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.- [x] Staff channel entry for verifying coach applications.
 - [x] Sponsorship section with sponsor logos at bottom of every page.
+- [x] Split the homepage slogan into two stacked lines ("Your game." / "Your community.") with auto-fit scaling; verified at 1280/822/390/360 with no clipping or horizontal overflow, 47 tests pass.

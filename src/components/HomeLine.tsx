@@ -11,7 +11,10 @@ export function HomeLine({ children, className = '' }: { children: ReactNode; cl
     const fit = () => {
       line.style.fontSize = '';
       const size = parseFloat(getComputedStyle(line).fontSize);
-      const width = line.getBoundingClientRect().width;
+      const runs = line.querySelectorAll<HTMLElement>('[data-fit-run]');
+      const width = runs.length
+        ? Math.max(...Array.from(runs, (run) => run.getBoundingClientRect().width))
+        : line.getBoundingClientRect().width;
       if (width > box.clientWidth && box.clientWidth > 0) {
         line.style.fontSize = `${size * box.clientWidth / width * .98}px`;
       }
