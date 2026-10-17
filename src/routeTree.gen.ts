@@ -19,7 +19,7 @@ import { Route as ResultsRouteImport } from './routes/results'
 import { Route as ScheduleRouteImport } from './routes/schedule'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StaffRouteImport } from './routes/staff'
-import { Route as ShopIdRouteImport } from './routes/shop.$id'
+import { Route as ShopIdRouteImport } from './routes/shop_.$id'
 import { Route as VenueIdRouteImport } from './routes/venue.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -73,9 +73,9 @@ const StaffRoute = StaffRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopIdRoute = ShopIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ShopRoute,
+  id: '/shop_/$id',
+  path: '/shop/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const VenueIdRoute = VenueIdRouteImport.update({
   id: '/venue/$id',
@@ -92,7 +92,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
-  '/shop': typeof ShopRouteWithChildren
+  '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
   '/shop/$id': typeof ShopIdRoute
   '/venue/$id': typeof VenueIdRoute
@@ -106,7 +106,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
-  '/shop': typeof ShopRouteWithChildren
+  '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
   '/shop/$id': typeof ShopIdRoute
   '/venue/$id': typeof VenueIdRoute
@@ -121,9 +121,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/results': typeof ResultsRoute
   '/schedule': typeof ScheduleRoute
-  '/shop': typeof ShopRouteWithChildren
+  '/shop': typeof ShopRoute
   '/staff': typeof StaffRoute
-  '/shop/$id': typeof ShopIdRoute
+  '/shop_/$id': typeof ShopIdRoute
   '/venue/$id': typeof VenueIdRoute
 }
 export interface FileRouteTypes {
@@ -167,7 +167,7 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/shop'
     | '/staff'
-    | '/shop/$id'
+    | '/shop_/$id'
     | '/venue/$id'
   fileRoutesById: FileRoutesById
 }
@@ -180,8 +180,9 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResultsRoute: typeof ResultsRoute
   ScheduleRoute: typeof ScheduleRoute
-  ShopRoute: typeof ShopRouteWithChildren
+  ShopRoute: typeof ShopRoute
   StaffRoute: typeof StaffRoute
+  ShopIdRoute: typeof ShopIdRoute
   VenueIdRoute: typeof VenueIdRoute
 }
 
@@ -257,12 +258,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop/$id': {
-      id: '/shop/$id'
-      path: '/$id'
+    '/shop_/$id': {
+      id: '/shop_/$id'
+      path: '/shop/$id'
       fullPath: '/shop/$id'
       preLoaderRoute: typeof ShopIdRouteImport
-      parentRoute: typeof ShopRoute
+      parentRoute: typeof rootRouteImport
     }
     '/venue/$id': {
       id: '/venue/$id'
@@ -274,16 +275,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ShopRouteChildren {
-  ShopIdRoute: typeof ShopIdRoute
-}
-
-const ShopRouteChildren: ShopRouteChildren = {
-  ShopIdRoute: ShopIdRoute,
-}
-
-const ShopRouteWithChildren = ShopRoute._addFileChildren(ShopRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
@@ -293,8 +284,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ResultsRoute: ResultsRoute,
   ScheduleRoute: ScheduleRoute,
-  ShopRoute: ShopRouteWithChildren,
+  ShopRoute: ShopRoute,
   StaffRoute: StaffRoute,
+  ShopIdRoute: ShopIdRoute,
   VenueIdRoute: VenueIdRoute,
 }
 export const routeTree = rootRouteImport
