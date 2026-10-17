@@ -1,7 +1,8 @@
 # OVA modular build
-- [ ] Collect coach name, certification number, account email and team; show these to staff before approval.
+- [x] Collect coach name, certification number, account email and team; show these to staff before approval; incomplete applications cannot be approved; 27 tests pass.
+- [ ] Verify coach submission and staff approval end-to-end: requester has no matching app account; waiting for a signed-in preview or an explicitly chosen test account.
 - [ ] Send coach application notifications to the staff QQ email (requires a verified sender domain).
-- [ ] Replace top-left OVA Companion text with official logo and full association name.
+- [x] Replace top-left OVA Companion text with official logo and full association name; mobile and desktop checked.
 - [x] Make Shop cards compact and shadowed with uniform images and reduced-motion-safe click effects; all three categories, images, product detail and mobile layout verified.
 - [x] Add coach Account player approvals and player Account family/friend approvals with pending access enforcement; 20 rule/routing tests pass.
 - [x] Make verified player/coach Account open the appropriate code generator without a separate key icon; 15 account/module/routing tests pass.
@@ -13,6 +14,6 @@
 - [x] Add scoped announcements and role registration / verification using existing secure pairing.
 - [x] Verify public browser flows, automated accessibility checks, mobile layouts and 17 rule/routing tests.
 - [ ] Verify signed-in announcement attachment flows: current authenticated account has no approved coach/team association.
-- [ ] OVA notification email: awaiting official recipient and verified sending setup.
+- [ ] OVA notification email: recipient confirmed as 395945526@qq.com; awaiting verified sender domain.
 - [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.- [x] Staff channel entry for verifying coach applications.
 - [x] Sponsorship section with sponsor logos at bottom of every page.
