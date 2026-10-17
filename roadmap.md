@@ -1,4 +1,6 @@
 # OVA modular build
+- [x] Make verified player/coach Account open the appropriate code generator without a separate key icon; 15 account/module/routing tests pass.
+- [ ] Verify code generation with an authenticated verified player and approved managing coach: available session does not expose either verified identity.
 - [x] Apply uploaded references, grey-white / light-green accessible design and official logos.
 - [x] Compose role-aware home modules and shared navigation / Account entry.
 - [x] Add single-month schedule navigation and role-aware results with independent pagination.
