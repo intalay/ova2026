@@ -48,20 +48,25 @@
 :root {
   --radius: 0.5rem;
   /* Enchanted Garden: warm white, pale green, lime, teal, forest and ink. */
-  --background: oklch(0.99155 0.01976 100.57);
-  --foreground: oklch(0.23229 0.03657 176.80);
-  --card: oklch(1 0 0);
+  color-scheme: dark;
+  --ink: oklch(0.23229 0.03657 176.80);
+  --paper: oklch(0.99155 0.01976 100.57);
+  --teal: oklch(0.45612 0.08496 173.69);
+  --pale-green: oklch(0.95837 0.06462 131.30);
+  --background: var(--ink);
+  --foreground: var(--paper);
+  --card: oklch(0.29474 0.04642 176.99);
   --card-foreground: var(--foreground);
-  --popover: oklch(1 0 0);
+  --popover: var(--card);
   --popover-foreground: var(--foreground);
-  --primary: oklch(0.45612 0.08496 173.69);
+  --primary: oklch(0.91280 0.19711 113.44);
   --primary-foreground: var(--background);
-  --secondary: oklch(0.95837 0.06462 131.30);
-  --secondary-foreground: oklch(0.29474 0.04642 176.99);
-  --muted: oklch(0.95935 0.01599 114.38);
-  --muted-foreground: oklch(0.46288 0.03775 176.16);
+  --secondary: oklch(0.36 0.067 173.69);
+  --secondary-foreground: var(--pale-green);
+  --muted: var(--card);
+  --muted-foreground: oklch(0.81 0.035 145);
   --accent: oklch(0.91280 0.19711 113.44);
-  --accent-foreground: var(--foreground);
+  --accent-foreground: var(--ink);
   --destructive: oklch(0.5 0.2 27);
   --destructive-foreground: oklch(0.99 0 0);
   --success: var(--primary);
@@ -69,15 +74,15 @@
   --pending: oklch(0.9 0.09 90);
   --pending-foreground: oklch(0.3 0.07 70);
   --court: oklch(0.29474 0.04642 176.99);
-  --court-foreground: var(--background);
+  --court-foreground: var(--paper);
   --gold: var(--accent);
-  --gold-foreground: var(--foreground);
-  --border: oklch(0.86539 0.02883 143.68);
-  --input: oklch(0.55 0.04 176);
+  --gold-foreground: var(--ink);
+  --border: oklch(0.46 0.055 173.69);
+  --input: oklch(0.64 0.05 173.69);
   --ring: var(--primary);
   --chart-1: var(--primary);
-  --chart-2: oklch(0.56 0.12 131);
-  --chart-3: var(--court);
+  --chart-2: var(--pale-green);
+  --chart-3: oklch(0.72 0.13 173);
   --chart-4: oklch(0.55 0.15 300);
   --chart-5: oklch(0.7 0.12 200);
   --shadow-shop: 0 3px 8px color-mix(in oklab, var(--foreground) 5%, transparent), 0 12px 24px color-mix(in oklab, var(--foreground) 7%, transparent);
@@ -87,21 +92,21 @@
   --home-glass-border: color-mix(in oklab, var(--primary) 14%, var(--card));
   --home-shadow: 0 4px 6px color-mix(in oklab, var(--primary) 3%, transparent), 0 14px 36px color-mix(in oklab, var(--primary) 8%, transparent);
   --logo-green: oklch(0.72 0.16 131); /* exact OVA logo green #80B840 */
-  --brand-green: oklch(0.52 0.14 131); /* darkened tint of the same logo green */
-  --brand-grey: oklch(0.44 0.005 285);
+  --brand-green: var(--logo-green);
+  --brand-grey: var(--paper);
   --home-prize-glow: 0 0 32px color-mix(in oklab, var(--success) 20%, transparent);
-  --home-lottery-gradient: linear-gradient(120deg, var(--primary), var(--court) 55%, var(--foreground));
-  --home-feature-gradient: linear-gradient(115deg, var(--primary), var(--court));
-  --home-results-gradient: linear-gradient(110deg, var(--accent), var(--secondary));
-  --navigation-background: var(--foreground);
-  --navigation-foreground: var(--background);
-  --navigation-muted: var(--secondary);
+  --home-lottery-gradient: linear-gradient(120deg, var(--teal), var(--court) 55%, var(--ink));
+  --home-feature-gradient: linear-gradient(115deg, var(--teal), var(--court));
+  --home-results-gradient: linear-gradient(110deg, var(--court), var(--secondary));
+  --navigation-background: var(--ink);
+  --navigation-foreground: var(--paper);
+  --navigation-muted: var(--pale-green);
   --navigation-highlight: var(--accent);
   --navigation-shadow: 0 -4px 20px color-mix(in oklab, var(--foreground) 12%, transparent);
-  --lotto-stage-gradient: linear-gradient(145deg, var(--primary), var(--court) 55%, var(--foreground));
-  --ticket-lime-gradient: linear-gradient(160deg, var(--background), var(--accent) 45%, oklch(0.83566 0.18425 113.84));
-  --ticket-neutral-gradient: linear-gradient(160deg, var(--card), var(--background) 45%, var(--border));
-  --ticket-green-gradient: linear-gradient(160deg, var(--background), var(--secondary) 45%, oklch(0.86539 0.02883 143.68));
+  --lotto-stage-gradient: linear-gradient(145deg, var(--teal), var(--court) 55%, var(--ink));
+  --ticket-lime-gradient: linear-gradient(160deg, var(--paper), var(--accent) 45%, oklch(0.83566 0.18425 113.84));
+  --ticket-neutral-gradient: linear-gradient(160deg, var(--paper), var(--pale-green) 45%, oklch(0.86 0.028 143));
+  --ticket-green-gradient: linear-gradient(160deg, var(--paper), var(--pale-green) 45%, oklch(0.86539 0.02883 143.68));
 }
 
 @layer base {
@@ -124,6 +129,8 @@
 .module-heading { font-family: var(--font-sans); font-weight: 700; font-size: 1.3rem; }
 .association-wordmark { font-family: "Anton", var(--font-display); color: var(--brand-green); font-weight: 400; font-size: 1.35rem; line-height: 1.15; white-space: nowrap; }
 .association-wordmark > span { color: var(--brand-grey); }
+header a > img { background: var(--paper); border-radius: 4px; }
+section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 18px 12px; border-radius: 4px; }
 .home-surface { background: var(--home-background); }
 .home-content > * + * { margin-top: 2rem; }
 .home-content .module-heading { line-height: 1.3; }
@@ -133,7 +140,7 @@
 .home-content .announcement-carousel .rounded-lg.bg-card, .home-content .home-venue { background: var(--home-feature-gradient); border-color: var(--primary); }
 .home-content .announcement-carousel .text-primary, .home-content .home-venue .text-primary { color: var(--accent); }
 .home-content .announcement-carousel .bg-secondary { background: var(--accent); }
-.home-content .announcement-carousel .bg-secondary .text-primary { color: var(--foreground); }
+.home-content .announcement-carousel .bg-secondary .text-primary { color: var(--ink); }
 .home-content .announcement-carousel [aria-hidden] .bg-primary { background: var(--accent); }
 .home-content .home-result { background: var(--home-results-gradient); border-color: var(--accent); }
 .home-content .grid .rounded-lg.bg-card { border-top: 4px solid var(--primary); }
@@ -155,7 +162,7 @@
 .navigation-link[data-status="active"] { color: var(--navigation-highlight); }
 .navigation-link:not(.navigation-home)[data-status="active"] { background: var(--court); }
 .navigation-home { color: var(--navigation-highlight); }
-.navigation-home-icon { background: var(--navigation-highlight); border-color: var(--navigation-background); color: var(--foreground); box-shadow: 0 0 0 2px var(--navigation-highlight); }
+.navigation-home-icon { background: var(--navigation-highlight); border-color: var(--navigation-background); color: var(--ink); box-shadow: 0 0 0 2px var(--navigation-highlight); }
 .main-navigation :focus-visible { outline-color: var(--navigation-highlight); box-shadow: 0 0 0 3px var(--navigation-background); }
 @keyframes home-light { 50% { background-position: 100% 50%; } }
 @media (max-width: 639px) { .association-wordmark { font-size: .85rem; } .home-venue { grid-template-columns: 100px minmax(0,1fr); gap: 16px; padding: 18px; } .home-venue > svg { display: none; } .home-result { grid-template-columns: minmax(0,1fr) auto; gap: 14px; padding: 18px; } .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--home-glass-border); padding-top: 12px; } .home-result-score { font-size: 2.5rem; } .home-prize { font-size: 4rem; } }
