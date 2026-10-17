@@ -7,7 +7,7 @@ import canuck from "@/assets/sponsor-canuckstuff.png";
 import ontario from "@/assets/sponsor-ontario.png";
 import toronto from "@/assets/sponsor-toronto.png";
 import mikasa from "@/assets/sponsor-mikasa.png";
-const SPONSORS = [{ name: "Canuckstuff", src: canuck }, { name: "Government of Ontario", src: ontario }, { name: "City of Toronto", src: toronto }, { name: "Mikasa Canada", src: mikasa }];
+export const SPONSORS = [{ name: "Canuckstuff", src: canuck, href: "https://canuckstuff.com/canuckstuff/shop/home" }, { name: "Government of Ontario", src: ontario, href: "https://www.ontario.ca/" }, { name: "City of Toronto", src: toronto, href: "https://www.toronto.ca/" }, { name: "Mikasa Canada", src: mikasa, href: "https://www.mikasasports.ca/en" }];
 const NAV = [
  { to: "/schedule", label: "Matches", icon: CalendarDays },
  { to: "/results", label: "Results", icon: Trophy },
@@ -27,7 +27,7 @@ export function AppShell({ children, title, action, sourceLabel = 'Synthetic com
   <main id="main" className={`mx-auto max-w-6xl space-y-7 px-5 py-6 sm:px-8 sm:py-8 ${contentClassName}`}>
    <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="font-display text-4xl font-bold uppercase sm:text-5xl">{title}</h1><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><span className="size-2 rounded-full bg-pending-foreground"/>{sourceLabel}</span></div>
    {children}
-   <section aria-labelledby="sponsorship" className="border-t pt-2"><h2 id="sponsorship" className="text-center font-sans text-sm font-normal text-muted-foreground">Partner</h2><ul className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">{SPONSORS.map(s=><li key={s.name}><img src={s.src} alt={s.name} loading="lazy" className="h-5 w-auto max-w-[18vw] object-contain sm:h-8 sm:max-w-none" /></li>)}</ul></section>
+   <section aria-labelledby="sponsorship" className="border-t pt-2"><h2 id="sponsorship" className="text-center font-sans text-sm font-normal text-muted-foreground">Partner</h2><ul className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">{SPONSORS.map(s=><li key={s.name}><a href={s.href} target="_blank" rel="noopener noreferrer" className="sponsor-link inline-flex items-center justify-center rounded-md"><img src={s.src} alt={s.name} loading="lazy" className="h-5 w-auto max-w-[18vw] object-contain sm:h-8 sm:max-w-none" /><span className="sr-only"> opens in a new tab</span></a></li>)}</ul></section>
   </main>
   <nav aria-label="Main" className="main-navigation fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)]">
    <ul className="mx-auto grid max-w-3xl grid-cols-5">{NAV.map(({to,label,icon:Icon})=><li key={to}><Link to={to} activeOptions={{ exact: to === "/" }} className={`navigation-link flex min-h-20 flex-col items-center justify-center gap-1 text-xs font-bold ${to === "/" ? "navigation-home" : ""}`}><span className={to === "/" ? "navigation-home-icon -mt-7 flex size-16 items-center justify-center rounded-full border-4" : "flex size-8 items-center justify-center"}><Icon aria-hidden className={to === "/" ? "size-8" : "size-6"}/></span><span>{label}</span></Link></li>)}</ul>
