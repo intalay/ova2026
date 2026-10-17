@@ -131,6 +131,10 @@
 .association-wordmark > span { color: var(--brand-grey); }
 header a > img { background: var(--paper); border-radius: 4px; }
 section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 18px 12px; border-radius: 4px; }
+.sponsor-link { transition: transform 160ms ease, opacity 160ms ease; }
+.sponsor-link:hover { transform: translateY(-2px); }
+.sponsor-link:focus-visible { outline: 3px solid var(--color-ring); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) { .sponsor-link { transition: none; } .sponsor-link:hover { transform: none; } }
 .home-surface { background: var(--home-background); }
 .home-content > * + * { margin-top: 2rem; }
 .home-content .module-heading { line-height: 1.3; }
