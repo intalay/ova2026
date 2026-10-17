@@ -182,8 +182,8 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .home-lottery-content { text-align: center; }
 .home-lottery { color: var(--court-foreground); }
 .home-lottery .text-muted-foreground { color: var(--court-foreground); }
-.home-lottery a { background: var(--accent); color: var(--accent-foreground); }
-.home-lottery::before { background-image: linear-gradient(color-mix(in oklab, var(--accent) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--accent) 10%, transparent) 1px, transparent 1px); }
+.home-lottery a { background: var(--lottery-gold); color: var(--lottery-ticket-foreground); }
+.home-lottery::before { background-image: linear-gradient(color-mix(in oklab, var(--lottery-gold) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--lottery-gold) 12%, transparent) 1px, transparent 1px); }
 .home-prize { font-size: 2.75rem; line-height: 1.1; margin-top: 4px; background: linear-gradient(180deg, var(--lottery-foreground), var(--lottery-gold-light) 35%, var(--lottery-gold) 55%, var(--lottery-gold-deep) 85%, var(--lottery-gold-light)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 16px color-mix(in oklab, var(--lottery-gold) 55%, transparent)); }
 .main-navigation { background: var(--navigation-background); border: 0; box-shadow: var(--navigation-shadow); }
 .navigation-link { color: var(--navigation-muted); }
