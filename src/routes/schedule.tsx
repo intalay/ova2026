@@ -90,8 +90,8 @@ function Schedule() {
               const on = followed.has(`${x.type}:${x.id}`);
               return (
                 <li key={`${x.type}${x.id}`}>
-                  <Button aria-pressed={on} onClick={() => toggleFollow(x.type, x.id)} className="flex min-h-12 w-full items-center justify-between rounded-lg border-2 bg-card px-4 text-left text-lg">
-                    <span><span className="text-sm uppercase text-muted-foreground">{x.type}</span> {x.name}</span>
+                  <Button aria-pressed={on} variant="outline" onClick={() => toggleFollow(x.type, x.id)} className="flex min-h-12 w-full items-center justify-between rounded-lg border-2 bg-card px-4 text-left text-lg text-foreground">
+                    <span><span className="mr-2 text-sm font-bold uppercase text-muted-foreground">{x.type}</span><span className="font-bold">{x.name}</span></span>
                     <Star aria-hidden className={on ? "fill-accent text-accent" : "text-muted-foreground"} />
                   </Button>
                 </li>
