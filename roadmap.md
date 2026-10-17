@@ -7,4 +7,5 @@
 - [x] Verify public browser flows, automated accessibility checks, mobile layouts and 17 rule/routing tests.
 - [ ] Verify signed-in player/family/coach approval and announcement attachment flows: blocked because no auth users exist.
 - [ ] OVA notification email: awaiting official recipient and verified sending setup.
-- [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.
+- [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.- [x] Staff channel entry for verifying coach applications.
+- [x] Sponsorship section with sponsor logos at bottom of every page.
