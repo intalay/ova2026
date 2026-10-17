@@ -107,12 +107,16 @@
 .shop-product { box-shadow: var(--shadow-shop); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
 .shop-product:hover, .shop-product:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-shop-active); border-color: var(--primary); }
 .shop-product:active { transform: translateY(1px) scale(.97); }
-.shop-image { height: 156px; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--card); }
+.shop-image { height: 156px; display: flex; align-items: center; justify-content: center; padding: 18px; background: var(--card); container-type: inline-size; }
 .shop-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 220ms ease; }
 .shop-product:hover .shop-image img { transform: scale(1.04); }
-@media (min-width: 640px) { .shop-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; } .shop-image { height: 180px; } }
-@media (min-width: 1024px) { .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.shop-image--landscape img { width: 120px; height: min(100cqw, 300px); max-width: none; flex-shrink: 0; transform: rotate(-90deg); }
+.shop-product:hover .shop-image--landscape img { transform: rotate(-90deg) scale(1.04); }
+.shop-unavailable { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, var(--card) 48%, transparent); backdrop-filter: blur(3px) saturate(50%); color: var(--foreground); pointer-events: none; }
+.shop-unavailable span { padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius); background: color-mix(in oklab, var(--card) 90%, transparent); font-weight: 700; font-size: 1rem; box-shadow: var(--shadow-shop); }
+@media (min-width: 640px) { .shop-grid { gap: 22px; } .shop-image { height: 180px; } .shop-image--landscape img { width: 144px; } }
 @media (prefers-reduced-motion: reduce) { .shop-product:hover, .shop-product:focus-visible, .shop-product:active, .shop-product:hover .shop-image img { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .shop-image--landscape img, .shop-product:hover .shop-image--landscape img { transform: rotate(-90deg); } }
 @media (max-width: 640px) {
  .home-banner { min-height: 280px; }
  .home-banner-content { padding: 24px; max-width: 280px; }
