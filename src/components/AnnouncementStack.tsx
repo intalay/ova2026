@@ -7,7 +7,6 @@ export function useAnnouncementTime(items: AnnouncementState[]) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const current = Date.now();
-    setNow(current);
     const next = Math.min(...items.filter(a => !a.pinned && a.published_at).map(a => Date.parse(a.published_at ?? '') + ANNOUNCEMENT_LIFETIME_MS).filter(t => t > current));
     if (!Number.isFinite(next)) return;
     const timer = setTimeout(() => setNow(Date.now()), Math.min(next-current+10, 2147483647));
