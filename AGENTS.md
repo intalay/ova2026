@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Uploaded web fonts are CDN assets loaded through a local font-face stylesheet imported by the global theme; heading and body font tokens stay separate. Why: brand typography can change independently without making dense content hard to read or embedding binary files in source.
 - Homepage match cards use the optional compact MatchCard variant and HomeLine container fitting; other match views keep their existing layout. Why: complete single-line homepage information must fit without changing schedules or hiding unknown values.
 - Venue detail and Homepage share exact-name source-checked media through venue-media; existing OpenStreetMap embeds remain the interactive map, and parking selectors use recorded information without inferred coordinates. Why: consistent photography and honest location precision require no new map provider or fabricated markers.
 - Homepage venue photos are source-checked local CDN pointers matched to the exact venue, with external official information links; unknown venues keep explicit fallbacks. Why: presentation must never substitute an unrelated building or fabricate venue details.

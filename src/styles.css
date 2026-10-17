@@ -1,12 +1,13 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "./assets/fonts/unsii.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --font-sans: "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
-  --font-display: "Inter Tight", "Atkinson Hyperlegible", sans-serif;
+  --font-display: "UNSII", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
   --font-home: "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -128,7 +129,7 @@
 .home-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .home-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 92%, transparent) 24%, transparent 72%); }
 .home-banner-content { position: relative; z-index: 1; max-width: 520px; padding: 36px; }
-.module-heading { font-family: var(--font-sans); font-weight: 600; font-size: 1.3rem; }
+.module-heading { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; text-transform: uppercase; }
 .association-wordmark { font-family: "Anton", var(--font-display); color: var(--brand-green); font-weight: 400; font-size: 1.35rem; line-height: 1.15; white-space: nowrap; }
 .association-wordmark > span { color: var(--brand-grey); }
 header a > img { background: var(--paper); border-radius: 4px; }
@@ -247,7 +248,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 @media (prefers-reduced-motion: reduce) { .home-venue:active, .navigation-link:active { transform: none; } }
 
 /* Homepage-only refinement: full-width compact fixtures and same-palette depth. */
-.home-content { --font-display: var(--font-home); --font-sans: var(--font-home); font-family: var(--font-home); }
+.home-content { --font-sans: var(--font-home); font-family: var(--font-home); }
 .home-banner-content { width: 100%; max-width: none; }
 .home-banner h2 { margin: 0; font-size: inherit; line-height: 1.2; white-space: nowrap; }
 .home-line { min-width: 0; width: 100%; line-height: 1.45; }
@@ -257,6 +258,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
 .home-match-teams { font-size: 1.1rem; font-weight: 800; line-height: 1.5; }
+.home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 .home-match-versus { font-size: .85em; font-weight: 500; color: var(--muted-foreground); padding: 0 .25em; }
 .home-match-date { font-size: .9rem; margin-top: 3px; }
 .home-match-location { display: flex; align-items: center; gap: 6px; font-size: .85rem; margin-top: 3px; }
