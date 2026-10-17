@@ -22,9 +22,11 @@ export function HomeLine({ children, className = '' }: { children: ReactNode; cl
     const observer = new ResizeObserver(fit);
     observer.observe(box);
     let active = true;
-    void document.fonts.ready.then(() => { if (active) fit(); });
+    const refit = () => { if (active) fit(); };
+    void document.fonts.ready.then(refit);
+    document.fonts.addEventListener('loadingdone', refit);
     fit();
-    return () => { active = false; observer.disconnect(); };
+    return () => { active = false; observer.disconnect(); document.fonts.removeEventListener('loadingdone', refit); };
   }, [children]);
   return <div ref={container} className={`home-line ${className}`}><span ref={text}>{children}</span></div>;
 }
