@@ -51,9 +51,11 @@ async function fetchHousehold(userId: string | undefined) {
     ]);
      for (const result of [players, links, roles, follows, profile, managed]) if (result.error) throw result.error;
      const all = players.data ?? [];
-    const linkedIds = new Set((links.data ?? []).map((l) => l.player_id));
+    const familyLinks = links.data ?? [];
+    const linkedIds = new Set(familyLinks.filter(l => l.status === 'approved').map((l) => l.player_id));
     return {
       linkedPlayers: all.filter((p) => linkedIds.has(p.id)),
+      familyLinks,
       self: all.find((p) => p.user_id === userId) ?? null,
       visiblePlayers: all,
       roles: (roles.data ?? []).map((r) => r.role as string),

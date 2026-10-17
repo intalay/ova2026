@@ -11,7 +11,7 @@ export const MODULES: Record<AppRole, Record<ModuleKey, ModuleConfig>> = {
 export const ROLE_LABELS: Record<AppRole, string> = { general_user: "Fan Plaza", player: "Player", family_friends: "Family & Friends", coach: "Coach" };
 export function authorizedRole(requested: AppRole, household: { self: unknown; linkedPlayers: unknown[]; managedTeams: string[]; roles: string[] } | undefined): AppRole {
  if (requested === "general_user" || !household) return "general_user";
- if (requested === "player" && household.self) return requested;
+  if (requested === "player" && household.self && typeof household.self === 'object' && 'status' in household.self && household.self.status === 'verified') return requested;
  if (requested === "family_friends" && household.linkedPlayers.length) return requested;
  if (requested === "coach" && (household.managedTeams.length || household.roles.some(r => r === "staff" || r === "admin"))) return requested;
  return "general_user";
