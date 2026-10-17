@@ -119,6 +119,10 @@
   --ticket-lime-gradient: linear-gradient(125deg, var(--lottery-gold-deep), var(--lottery-gold-light) 35%, var(--lottery-gold) 60%, var(--lottery-gold-light));
   --ticket-neutral-gradient: linear-gradient(135deg, var(--lottery-silver), var(--lottery-foreground) 45%, var(--lottery-silver));
   --ticket-green-gradient: linear-gradient(135deg, var(--lottery-gold-light), var(--lottery-gold) 55%, var(--lottery-gold-light));
+  --lottery-rose: oklch(0.72 0.13 25);
+  --lottery-rose-light: oklch(0.88 0.07 35);
+  --lottery-rose-deep: oklch(0.58 0.13 18);
+  --ticket-rose-gradient: linear-gradient(125deg, var(--lottery-rose-deep), var(--lottery-rose-light) 35%, var(--lottery-rose) 60%, var(--lottery-rose-light));
 }
 
 @layer base {
@@ -173,14 +177,14 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .home-venue-photo { width: 100%; aspect-ratio: 16 / 10; border-radius: 4px; object-fit: cover; }
 .home-result { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,.8fr); align-items: center; gap: 24px; padding: 24px; border-radius: var(--radius); }
 .home-result-score { font-size: 3rem; line-height: 1.1; font-weight: 700; color: var(--accent); white-space: nowrap; }
-.home-lottery { position: relative; isolation: isolate; overflow: hidden; padding: 36px 24px; border: 0; border-radius: var(--radius); background: var(--home-lottery-gradient); }
+.home-lottery { position: relative; isolation: isolate; overflow: hidden; padding: 18px 20px; border-radius: var(--radius); background: var(--lotto-stage-gradient); border: 1px solid color-mix(in oklab, var(--lottery-gold) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in oklab, var(--lottery-gold) 20%, transparent), var(--home-shadow); }
 .home-lottery::before { content: ''; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(color-mix(in oklab, var(--primary) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--primary) 6%, transparent) 1px, transparent 1px); background-size: 36px 36px; mask-image: linear-gradient(90deg, black, transparent 45%, black); animation: grid-drift 18s linear infinite; }
 .home-lottery-content { text-align: center; }
 .home-lottery { color: var(--court-foreground); }
 .home-lottery .text-muted-foreground { color: var(--court-foreground); }
-.home-lottery a { background: var(--accent); color: var(--accent-foreground); }
-.home-lottery::before { background-image: linear-gradient(color-mix(in oklab, var(--accent) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--accent) 10%, transparent) 1px, transparent 1px); }
-.home-prize { font-size: 5rem; line-height: 1.1; color: var(--accent); text-shadow: var(--home-prize-glow); margin-top: 8px; }
+.home-lottery a { background: var(--lottery-gold); color: var(--lottery-ticket-foreground); }
+.home-lottery::before { background-image: linear-gradient(color-mix(in oklab, var(--lottery-gold) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--lottery-gold) 12%, transparent) 1px, transparent 1px); }
+.home-prize { font-size: 2.75rem; line-height: 1.1; margin-top: 4px; background: linear-gradient(180deg, var(--lottery-foreground), var(--lottery-gold-light) 35%, var(--lottery-gold) 55%, var(--lottery-gold-deep) 85%, var(--lottery-gold-light)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 16px color-mix(in oklab, var(--lottery-gold) 55%, transparent)); }
 .main-navigation { background: var(--navigation-background); border: 0; box-shadow: var(--navigation-shadow); }
 .navigation-link { color: var(--navigation-muted); }
 .navigation-link[data-status="active"] { color: var(--ink); }
@@ -190,7 +194,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .navigation-home-icon { background: var(--navigation-highlight); border-color: var(--navigation-background); color: var(--ink); box-shadow: 0 0 0 2px var(--navigation-highlight); }
 .main-navigation :focus-visible { outline-color: var(--ink); box-shadow: 0 0 0 3px var(--navigation-background); }
 @keyframes home-light { 50% { background-position: 100% 50%; } }
-@media (max-width: 639px) { .association-wordmark { font-size: .85rem; } .home-venue { grid-template-columns: 100px minmax(0,1fr); gap: 16px; padding: 18px; } .home-venue > svg { display: none; } .home-result { grid-template-columns: minmax(0,1fr) auto; gap: 14px; padding: 18px; } .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--home-glass-border); padding-top: 12px; } .home-result-score { font-size: 2.5rem; } .home-prize { font-size: 4rem; } }
+@media (max-width: 639px) { .association-wordmark { font-size: .85rem; } .home-venue { grid-template-columns: 100px minmax(0,1fr); gap: 16px; padding: 18px; } .home-venue > svg { display: none; } .home-result { grid-template-columns: minmax(0,1fr) auto; gap: 14px; padding: 18px; } .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--home-glass-border); padding-top: 12px; } .home-result-score { font-size: 2.5rem; } .home-prize { font-size: 2.25rem; } }
 .shop-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .shop-product { box-shadow: var(--shadow-shop); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
 .shop-product:hover, .shop-product:focus-visible { transform: translateY(-4px); box-shadow: var(--shadow-shop-active); border-color: var(--primary); }
@@ -227,7 +231,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .lotto-stage { --gold: var(--lottery-gold); --gold-foreground: var(--lottery-ticket-foreground); --court-foreground: var(--lottery-foreground); position: relative; isolation: isolate; overflow: hidden; border-radius: 1rem; background: var(--lotto-stage-gradient); color: var(--lottery-foreground); border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in oklab, var(--gold) 20%, transparent); }
 .lotto-stage::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(color-mix(in oklab, var(--gold) 14%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--gold) 14%, transparent) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%); animation: grid-drift 18s linear infinite; }
 @keyframes grid-drift { to { background-position: 32px 32px; } }
-.jackpot { background: linear-gradient(180deg, var(--court-foreground), var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 24px color-mix(in oklab, var(--gold) 60%, transparent)); animation: pulse-glow 2.6s ease-in-out infinite; }
+.jackpot { letter-spacing: 0.01em; background: linear-gradient(180deg, var(--lottery-foreground), var(--lottery-gold-light) 30%, var(--gold) 52%, var(--lottery-gold-deep) 82%, var(--lottery-gold-light)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 28px color-mix(in oklab, var(--gold) 65%, transparent)); animation: pulse-glow 2.6s ease-in-out infinite; }
 @keyframes pulse-glow { 50% { filter: drop-shadow(0 0 44px color-mix(in oklab, var(--gold) 90%, transparent)); } }
 .golden-ticket { position: relative; overflow: hidden; background: var(--ticket-lime-gradient); color: var(--gold-foreground);
   -webkit-mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
@@ -237,6 +241,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 @keyframes shine { 60%, 100% { transform: translateX(60%); } }
 .golden-ticket.silver { background: var(--ticket-neutral-gradient); }
 .golden-ticket.green { background: var(--ticket-green-gradient); }
+.golden-ticket.rose { background: var(--ticket-rose-gradient); }
 .ticket-btn[aria-pressed="true"] .golden-ticket { transform: translateY(-10px) scale(1.04); filter: drop-shadow(0 0 18px color-mix(in oklab, var(--gold) 80%, transparent)); }
 .ticket-btn:hover .golden-ticket { transform: translateY(-6px); }
 .ticket-btn[aria-pressed="true"]:hover .golden-ticket { transform: translateY(-10px) scale(1.04); }
@@ -306,3 +311,6 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
+
+/* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
+.glass-list > * { background: var(--home-glass); border: 1px solid var(--home-glass-border); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }

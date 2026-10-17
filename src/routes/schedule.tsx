@@ -80,7 +80,7 @@ function Schedule() {
       </Section>
 
       <Section title={selected ? `Matches on ${selected}` : "Upcoming matches"}>
-        {list.length ? list.map((m) => <MatchCard key={m.id} m={m} data={data} />) : <Card>No matches published for this selection.</Card>}
+        {list.length ? <div className="glass-list space-y-3">{list.map((m) => <MatchCard key={m.id} m={m} data={data} />)}</div> : <Card>No matches published for this selection.</Card>}
       </Section>
 
       {user && (
