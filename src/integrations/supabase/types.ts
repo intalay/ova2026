@@ -549,6 +549,18 @@ export type Database = {
           },
         ]
       }
+      staff_allowlist: {
+        Row: {
+          email: string
+        }
+        Insert: {
+          email: string
+        }
+        Update: {
+          email?: string
+        }
+        Relationships: []
+      }
       teams: {
         Row: {
           data_mode: string
