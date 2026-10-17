@@ -18,6 +18,7 @@
 - Role module visibility, view variants and actions are separate configuration; selected roles are presentation preferences only and actual access remains RLS/RPC-scoped. Why: reusable composition must not grant privileges.
 - Official shop records are a checked static catalog with CDN asset pointers and external checkout links. Why: the app must not duplicate store payment or inventory operations.
 - Team announcements and private attachments use the same team-scoped authorization and persistent records. Why: a shared public feed must never expose private team content.
+- Announcement pin limits and pin timestamps are enforced by a database trigger and owner-scoped RPC; all audience displays share sorting and expiry helpers. Why: client choices cannot bypass limits or diverge across pages.
 - All-results pagination uses a public read-only server function independent of team history and trend state. Why: changing the selected team must not filter the all-team result window.
 - Product detail routes unnest from the catalog route. Why: a content-only catalog has no Outlet and must not swallow product detail views.
 - Staff role is granted only by a server trigger for confirmed emails in the staff allow-list. Why: on-screen choices and sign-up must never grant privileges.

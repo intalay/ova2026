@@ -24,6 +24,7 @@ export type Database = {
           location_name: string | null
           media_urls: Json
           pinned: boolean
+          pinned_at: string | null
           published_at: string | null
           status: string
           team_id: string | null
@@ -38,6 +39,7 @@ export type Database = {
           location_name?: string | null
           media_urls?: Json
           pinned?: boolean
+          pinned_at?: string | null
           published_at?: string | null
           status?: string
           team_id?: string | null
@@ -52,6 +54,7 @@ export type Database = {
           location_name?: string | null
           media_urls?: Json
           pinned?: boolean
+          pinned_at?: string | null
           published_at?: string | null
           status?: string
           team_id?: string | null
@@ -726,6 +729,10 @@ export type Database = {
       }
       review_family_request: {
         Args: { _approve: boolean; _link: string }
+        Returns: undefined
+      }
+      set_announcement_pin: {
+        Args: { _announcement: string; _pinned: boolean }
         Returns: undefined
       }
       submit_coach_application: {

@@ -1,0 +1,1 @@
+COMMENT ON COLUMN public.announcements.pinned IS 'DEPRECATED: replaced by pinned_at; pin order and active pin status are determined only by pinned_at.';
