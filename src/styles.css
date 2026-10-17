@@ -214,3 +214,13 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .golden-ticket.green { background: var(--ticket-green-gradient); }
 .ticket-btn[aria-pressed="true"] .golden-ticket { transform: translateY(-10px) scale(1.04); filter: drop-shadow(0 0 18px color-mix(in oklab, var(--gold) 80%, transparent)); }
 .ticket-btn:hover .golden-ticket { transform: translateY(-6px); }
+/* All-results rows: liquid glass, one result per row */
+.result-row { position: relative; display: grid; justify-items: center; row-gap: 10px; overflow: hidden; border-radius: 14px; padding: 16px 20px 14px; background: color-mix(in oklab, var(--card) 72%, transparent); border: 1px solid color-mix(in oklab, var(--primary) 16%, transparent); box-shadow: var(--home-shadow); backdrop-filter: blur(20px) saturate(130%); }
+.result-row::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 40%, transparent), transparent); }
+.result-row-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 12px; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: color-mix(in oklab, var(--secondary) 60%, transparent); color: var(--pale-green); }
+.result-row-grid { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 14px; width: 100%; }
+.result-row-team { min-width: 0; font-weight: 700; font-size: 1.05rem; }
+.result-row-team--right { text-align: right; }
+.result-row-score { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; color: var(--primary); white-space: nowrap; }
+.result-row-meta { font-size: .8rem; color: var(--muted-foreground); }
+@media (max-width: 640px) { .result-row { padding: 14px 14px 12px; } .result-row-grid { gap: 10px; } .result-row-team { font-size: .95rem; } .result-row-score { font-size: 1.8rem; } }
