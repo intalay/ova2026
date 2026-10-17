@@ -1,49 +1,33 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ExternalLink, MapPin, PlayCircle } from "lucide-react";
-import { AppShell, Section, Card } from "@/components/AppShell";
-import { competitionQuery } from "@/lib/queries";
+import { AppShell, Section } from "@/components/AppShell";
+import { WatchCatalog } from '@/components/WatchCatalog';
+import { WatchStreams } from '@/components/WatchStreams';
+import catalog from '@/lib/watch-catalog.json';
+import { streamsQuery } from '@/lib/watch.functions';
 
 export const Route = createFileRoute("/explore")({
   head: () => ({
     meta: [
       { title: "Explore — OVA Companion" },
-      { name: "description", content: "Venues, parking guidance and official OVA video channels." },
+      { name: "description", content: "Search OVA TV volleyball videos and browse CBC Sports upcoming matches and latest recordings." },
       { property: "og:title", content: "Explore — OVA Companion" },
-      { property: "og:description", content: "Find venues and official volleyball video." },
+      { property: "og:description", content: "OVA TV videos, keyword search and CBC Sports volleyball streams." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(competitionQuery),
+  loader: ({ context }) => context.queryClient.ensureQueryData(streamsQuery),
   component: Explore,
 });
 
-const VIDEO = [
-  { name: "OVA on YouTube", note: "Official Ontario Volleyball Association channel", url: "https://www.youtube.com/@OntarioVolleyballAssociation" },
-  { name: "CBC Sports streams", note: "Official streaming destination (opens Pixellot)", url: "https://cbc.watch.pixellot.tv/category/6453c53e4e6ac24f2eda85c5/sub-category/6496170aa84cf6a8dee1c82c/" },
-];
-
 function Explore() {
-  const { data } = useSuspenseQuery(competitionQuery);
+  const { data } = useSuspenseQuery(streamsQuery);
   return (
     <AppShell title="Explore">
-      <Section title="Venues">
-        {data.venues.map((v) => (
-          <Link key={v.id} to="/venue/$id" params={{ id: v.id }} className="block rounded-xl border-2 bg-card p-4 hover:border-primary">
-            <p className="flex items-center gap-2 text-xl font-bold"><MapPin aria-hidden className="text-accent" />{v.name}</p>
-            <p className="text-base text-muted-foreground">{v.address}</p>
-          </Link>
-        ))}
-      </Section>
       <Section title="Watch">
-        {VIDEO.map((v) => (
-          <a key={v.url} href={v.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between gap-3 rounded-xl border-2 bg-card p-4 hover:border-primary">
-            <span><span className="flex items-center gap-2 text-xl font-bold"><PlayCircle aria-hidden className="text-accent" />{v.name}</span><span className="text-base text-muted-foreground">{v.note}</span></span>
-            <ExternalLink aria-label="Opens in a new tab" />
-          </a>
-        ))}
-        <Card><p className="text-base">Latest uploads are not shown: the YouTube connection is not configured. Live status is not tracked.</p></Card>
+        <WatchCatalog videos={catalog.videos} checkedAt={catalog.checkedAt} />
+        <WatchStreams {...data} />
       </Section>
     </AppShell>
   );

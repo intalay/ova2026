@@ -3,7 +3,7 @@ export const STREAM_PREVIEW_SIZE = 3;
 export const OVA_CHANNEL_URL = 'https://www.youtube.com/@OntarioVolleyballAssociation';
 export const CBC_URL = 'https://cbc.watch.pixellot.tv/category/6453c53e4e6ac24f2eda85c5/sub-category/6496170aa84cf6a8dee1c82c/';
 
-export type WatchVideo = { id: string; title: string; url: string; thumbnail: string; publishedLabel?: string };
+export type WatchVideo = { id: string; title: string; url: string; thumbnail: string; publishedLabel?: string; tile?: number };
 export type StreamEvent = { id: string; title: string; url: string; startsAt: string | null; thumbnail: string | null; memberOnly: boolean };
 
 export function videoPage(videos: WatchVideo[], keyword: string, requestedPage: number) {
