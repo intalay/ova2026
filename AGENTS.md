@@ -21,3 +21,4 @@
 - Product detail routes unnest from the catalog route. Why: a content-only catalog has no Outlet and must not swallow product detail views.
 - Staff role is granted only by a server trigger for confirmed emails in the staff allow-list. Why: on-screen choices and sign-up must never grant privileges.
 - Account resolves its code-generation view from the authenticated household verification/team associations; existing RPCs authorize generation. Why: presentation preferences must not expose unauthorized code types.
+- Identity approvals are owner-scoped RPCs: managing coaches review players, verified players review family links; only approved links to verified players can read private team content. Existing family links are preserved as approved during the additive transition. Why: redeeming an invitation must not grant private access by itself.

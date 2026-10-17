@@ -1,13 +1,15 @@
 # OVA modular build
+- [x] Make Shop cards compact and shadowed with uniform images and reduced-motion-safe click effects; all three categories, images, product detail and mobile layout verified.
+- [x] Add coach Account player approvals and player Account family/friend approvals with pending access enforcement; 20 rule/routing tests pass.
 - [x] Make verified player/coach Account open the appropriate code generator without a separate key icon; 15 account/module/routing tests pass.
-- [ ] Verify code generation with an authenticated verified player and approved managing coach: available session does not expose either verified identity.
+- [ ] Verify invitations and both approval flows end-to-end: current authenticated account has neither verified identity; isolated database test cannot impersonate authenticated users and is explicitly skipped.
 - [x] Apply uploaded references, grey-white / light-green accessible design and official logos.
 - [x] Compose role-aware home modules and shared navigation / Account entry.
 - [x] Add single-month schedule navigation and role-aware results with independent pagination.
 - [x] Add official 50/50 and Shopping pages / product details.
 - [x] Add scoped announcements and role registration / verification using existing secure pairing.
 - [x] Verify public browser flows, automated accessibility checks, mobile layouts and 17 rule/routing tests.
-- [ ] Verify signed-in player/family/coach approval and announcement attachment flows: blocked because no auth users exist.
+- [ ] Verify signed-in announcement attachment flows: current authenticated account has no approved coach/team association.
 - [ ] OVA notification email: awaiting official recipient and verified sending setup.
 - [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.- [x] Staff channel entry for verifying coach applications.
 - [x] Sponsorship section with sponsor logos at bottom of every page.

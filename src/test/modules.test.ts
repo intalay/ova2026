@@ -8,6 +8,8 @@ describe('role rules',()=>{
  it('Account remains available to all four roles',()=>expect(Object.values(MODULES).map(r=>r.account.visible)).toEqual([true,true,true,true]));
  it('selecting coach without authorization does not unlock coach',()=>expect(authorizedRole('coach',{self:null,linkedPlayers:[],managedTeams:[],roles:['family']})).toBe('general_user'));
  it('family role requires a linked player',()=>expect(authorizedRole('family_friends',{self:null,linkedPlayers:[],managedTeams:[],roles:['family']})).toBe('general_user'));
+  it('a pending player cannot unlock the private team homepage',()=>expect(authorizedRole('player',{self:{status:'pending'},linkedPlayers:[],managedTeams:[],roles:['player']})).toBe('general_user'));
+  it('coach approval unlocks the player homepage',()=>expect(authorizedRole('player',{self:{status:'verified'},linkedPlayers:[],managedTeams:[],roles:['player']})).toBe('player'));
  it('family home module order remains fixed',()=>expect(['information','announcement','schedule','map','results','fifty_fifty'].map(k=>MODULES.family_friends[k as keyof typeof MODULES.family_friends].order)).toEqual([1,2,3,4,5,6]));
  it('players and family cannot publish announcements',()=>expect([MODULES.player.announcement.actions.includes('publish'),MODULES.family_friends.announcement.actions.includes('publish')]).toEqual([false,false]));
 });

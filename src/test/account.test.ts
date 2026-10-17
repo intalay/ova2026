@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { accountCodeKind } from '@/lib/account';
+import { accountCodeKind, approvedFamilyPlayerIds } from '@/lib/account';
 
 describe('verified Account code entry', () => {
+ it('redeeming a family invitation does not unlock a pending relationship', () => {
+  expect([...approvedFamilyPlayerIds([{ player_id: 'pending-player', status: 'pending' }])]).toEqual([]);
+ });
+ it('a rejected family request cannot unlock private player information', () => {
+  expect([...approvedFamilyPlayerIds([{ player_id: 'rejected-player', status: 'rejected' }])]).toEqual([]);
+ });
+ it('only player-approved family relationships unlock the linked player', () => {
+  expect([...approvedFamilyPlayerIds([{ player_id: 'approved-player', status: 'approved' }, { player_id: 'pending-player', status: 'pending' }])]).toEqual(['approved-player']);
+ });
  it('verified players get family codes without choosing their role again', () => {
   expect(accountCodeKind('general_user', { self: { status: 'verified' }, managedTeams: [] })).toBe('FAMILY');
  });
