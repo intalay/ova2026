@@ -7,6 +7,7 @@ import { AppShell, Section, Card, btn } from "@/components/AppShell";
 import { competitionQuery, myHouseholdQuery } from "@/lib/queries";
 import { useSessionUser } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
+import { StaffSignIn } from "@/components/StaffSignIn";
 import { parseRosterCsv } from "@/lib/roster";
 
 export const Route = createFileRoute("/staff")({
@@ -37,7 +38,7 @@ function Staff() {
 
   if (!ready || hh.isLoading) return <AppShell title="Staff"><p>Loading…</p></AppShell>;
   if (!user || (!staff && !hh.data?.managedTeams.length))
-    return <AppShell title="Staff"><Card><p className="text-xl font-bold">OVA Staff channel</p><p className="mt-2">{user?'This account does not have an OVA staff role yet. Staff access is granted by OVA administrators.':'Sign in with your OVA staff account to verify coach applications.'}</p>{!user&&<Link to="/account" className={`${btn.primary} mt-4`}>Sign in</Link>}</Card></AppShell>;
+    return <AppShell title="Staff">{!user?<StaffSignIn/>:<Card><p className="text-xl font-bold">OVA Staff channel</p><p className="mt-2">Staff access has not been granted to this account.</p><Button className="mt-4" variant="outline" onClick={async()=>{await qc.cancelQueries();qc.clear();await supabase.auth.signOut();}}>Sign out</Button></Card>}</AppShell>;
 
   const pending = (hh.data?.visiblePlayers ?? []).filter((p) => p.status === "pending");
   const teamName = (id: string | null) => comp.teams.find((t) => t.id === id)?.name ?? "—";
