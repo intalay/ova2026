@@ -249,10 +249,10 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 /* Homepage-only refinement: full-width compact fixtures and same-palette depth. */
 .home-content { --font-display: var(--font-home); --font-sans: var(--font-home); font-family: var(--font-home); }
 .home-banner-content { width: 100%; max-width: none; }
-.home-banner h2 { margin: 0; font-size: 2.5rem; line-height: 1.2; white-space: nowrap; }
+.home-banner h2 { margin: 0; font-size: inherit; line-height: 1.2; white-space: nowrap; }
 .home-line { min-width: 0; width: 100%; line-height: 1.45; }
 .home-line > span { display: inline-block; max-width: none; white-space: nowrap; }
-.home-headline { line-height: 1.2; }
+.home-headline { font-size: 2.5rem; line-height: 1.2; }
 .home-matches { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
