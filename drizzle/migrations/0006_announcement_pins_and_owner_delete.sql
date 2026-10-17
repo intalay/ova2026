@@ -1,0 +1,4 @@
+ALTER TABLE public.announcements ADD COLUMN IF NOT EXISTS pinned boolean NOT NULL DEFAULT false;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.announcements TO authenticated;
+CREATE POLICY "coach announcement delete" ON public.announcements FOR DELETE TO authenticated USING (author_id = auth.uid() AND EXISTS (SELECT 1 FROM public.managed_teams m WHERE m.user_id = auth.uid() AND m.team_id = announcements.team_id));
+COMMENT ON COLUMN public.announcements.pinned IS 'Pinned announcements remain on player and family screens until the managing author unpins them. Unpinned display expires after 24 hours; records remain for coach management.';

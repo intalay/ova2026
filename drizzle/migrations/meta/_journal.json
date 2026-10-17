@@ -43,6 +43,13 @@
       "when": 1792274476005,
       "tag": "0005_owner_identity_approvals",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792275336052,
+      "tag": "0006_announcement_pins_and_owner_delete",
+      "breakpoints": true
     }
   ]
 }
