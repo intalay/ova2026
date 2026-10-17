@@ -9,13 +9,13 @@ async function cbcEntries(status: string): Promise<CBCEntry[]> {
   for (let page = 0; page < 30; page++) {
     const response = await fetch('https://cbc.watch.pixellot.tv/api/event/list', {
       method: 'POST', headers: {'Content-Type':'application/json'}, signal: AbortSignal.timeout(12000),
-      body: JSON.stringify({page, size:100, next:true, count:true, filters: {'identities.id':'6496170aa84cf6a8dee1c82c','identities.type':'6453c53e4e6ac24f2eda85c5',status}}),
+      body: JSON.stringify({page, size:status === 'archived' ? 3 : 100, next:true, count:true, filters: {'identities.id':'6496170aa84cf6a8dee1c82c','identities.type':'6453c53e4e6ac24f2eda85c5',status}}),
     });
     if (!response.ok) throw new Error(`CBC listings unavailable (${response.status})`);
     const result = await response.json() as {error?: boolean; content?: { entries?: CBCEntry[]; nextExists?: boolean }};
     if (result.error || !Array.isArray(result.content?.entries)) throw new Error('CBC listings unavailable');
     entries.push(...result.content.entries);
-    if (!result.content.nextExists) return entries;
+    if (status === 'archived' || !result.content.nextExists) return entries;
   }
   throw new Error('CBC listings could not be fully checked');
 }
@@ -27,7 +27,7 @@ function normalize(entry: CBCEntry): StreamEvent | null {
 }
 export const getStreams = createServerFn({method:'GET'}).handler(async () => {
   try {
-    const [upcomingRows, latestRows] = await Promise.all([cbcEntries('upcoming'), cbcEntries('ended')]);
+    const [upcomingRows, latestRows] = await Promise.all([cbcEntries('upcoming'), cbcEntries('archived')]);
     const upcoming = upcomingRows.map(normalize).filter((event): event is StreamEvent => event !== null).sort((a,b) => Date.parse(a.startsAt ?? '') - Date.parse(b.startsAt ?? '')).slice(0,STREAM_PREVIEW_SIZE);
     const latest = latestRows.map(normalize).filter((event): event is StreamEvent => event !== null).sort((a,b) => Date.parse(b.startsAt ?? '') - Date.parse(a.startsAt ?? '')).slice(0,STREAM_PREVIEW_SIZE);
     return {upcoming,latest,checkedAt:new Date().toISOString().slice(0,10),error:upcoming.some(event => Date.parse(event.startsAt ?? '') < Date.now()) ? 'CBC marks these events as upcoming, but their listed dates are in the past. Please confirm availability on CBC Watch.' : undefined};
