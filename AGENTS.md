@@ -19,3 +19,4 @@
 - Team announcements and private attachments use the same team-scoped authorization and persistent records. Why: a shared public feed must never expose private team content.
 - All-results pagination uses a public read-only server function independent of team history and trend state. Why: changing the selected team must not filter the all-team result window.
 - Product detail routes unnest from the catalog route. Why: a content-only catalog has no Outlet and must not swallow product detail views.
+- Staff role is granted only by a server trigger for confirmed emails in the staff allow-list. Why: on-screen choices and sign-up must never grant privileges.
