@@ -9,7 +9,7 @@ describe.skipIf(!connection)('owner identity approvals (rolled back database fix
   const rollback = new Error('rollback successful test fixtures');
   try {
    await sql.begin(async tx => {
-    const users = await tx`select id from auth.users order by created_at limit 3`;
+    const users = await tx`select id from public.profiles order by created_at limit 3`;
     const coach = users[0]?.['id']; const playerUser = users[1]?.['id']; const familyUser = users[2]?.['id'];
     if (!coach || !playerUser || !familyUser) throw new Error('Three existing auth accounts are required for this isolated test');
     const team = `approval-test-${crypto.randomUUID()}`;
