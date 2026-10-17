@@ -15,7 +15,7 @@ const NAV = [
  { to: "/explore", label: "Explore", icon: Compass },
  { to: "/shop", label: "Shop", icon: ShoppingBag },
 ] as const;
-export function AppShell({ children, title, action }: { children: ReactNode; title: string; action?: ReactNode }) {
+export function AppShell({ children, title, action, sourceLabel = 'Synthetic competition data' }: { children: ReactNode; title: string; action?: ReactNode; sourceLabel?: string }) {
  return <div className="min-h-dvh pb-28">
   <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-accent focus:px-4 focus:py-2">Skip to content</a>
   <header className="border-b bg-card">
@@ -25,7 +25,7 @@ export function AppShell({ children, title, action }: { children: ReactNode; tit
    </div>
   </header>
   <main id="main" className="mx-auto max-w-6xl space-y-7 px-5 py-6 sm:px-8 sm:py-8">
-   <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="font-display text-4xl font-bold uppercase sm:text-5xl">{title}</h1><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><span className="size-2 rounded-full bg-pending-foreground"/>Synthetic competition data</span></div>
+   <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="font-display text-4xl font-bold uppercase sm:text-5xl">{title}</h1><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><span className="size-2 rounded-full bg-pending-foreground"/>{sourceLabel}</span></div>
    {children}
    <section aria-labelledby="sponsorship" className="border-t pt-2"><h2 id="sponsorship" className="text-center font-sans text-sm font-normal text-muted-foreground">Partner</h2><ul className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">{SPONSORS.map(s=><li key={s.name}><img src={s.src} alt={s.name} loading="lazy" className="h-5 w-auto max-w-[18vw] object-contain sm:h-8 sm:max-w-none" /></li>)}</ul></section>
   </main>

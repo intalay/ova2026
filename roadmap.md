@@ -1,4 +1,6 @@
 # OVA modular build
+- [x] Remove duplicate player verification and roster tools from Homepage; retain Account entry and its approval tools.
+- [x] Rebuild Explore as separate OVA TV and CBC Watch sections; checked 533-video catalogue with six-video pages, keyword search, arrows and page jump; three upcoming and three latest public CBC listings. CBC upcoming dates are stale at source and explicitly flagged; videos link externally. Mobile and browser flows checked; 16 tests pass.
 - [x] Collect coach name, certification number, account email and team; show these to staff before approval; incomplete applications cannot be approved; 27 tests pass.
 - [ ] Verify coach submission and staff approval end-to-end: requester has no matching app account; waiting for a signed-in preview or an explicitly chosen test account.
 - [ ] Send coach application notifications to the staff QQ email (requires a verified sender domain).
