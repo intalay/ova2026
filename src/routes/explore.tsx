@@ -24,7 +24,7 @@ export const Route = createFileRoute("/explore")({
 function Explore() {
   const { data } = useSuspenseQuery(streamsQuery);
   return (
-    <AppShell title="Explore">
+    <AppShell title="Explore" sourceLabel="Official viewing sources">
       <Section title="Watch">
         <WatchCatalog videos={catalog.videos} checkedAt={catalog.checkedAt} />
         <WatchStreams {...data} />

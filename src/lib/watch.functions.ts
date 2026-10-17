@@ -1,6 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { queryOptions } from '@tanstack/react-query';
 import { CBC_URL, STREAM_PREVIEW_SIZE, type StreamEvent } from './watch';
+import streamImages from './watch-stream-images.json';
 
 type CBCEntry = { event_id?: string; _id?: string; title?: string; event_date?: number; commerceType?: string; content?: { PosterH?: string }; thumbnail?: string };
 
@@ -22,8 +23,8 @@ async function cbcEntries(status: string): Promise<CBCEntry[]> {
 function normalize(entry: CBCEntry): StreamEvent | null {
   const id = entry.event_id ?? entry._id;
   if (!id || !entry.title) return null;
-  const thumbnail = entry.thumbnail ?? entry.content?.PosterH;
-  return {id, title:entry.title.trim(), url:CBC_URL, startsAt:entry.event_date && Number.isFinite(entry.event_date) ? new Date(entry.event_date).toISOString() : null, thumbnail:thumbnail?.startsWith('https://') ? thumbnail : null, memberOnly:entry.commerceType === 'members'};
+  const thumbnail = (streamImages as Record<string,string>)[id];
+  return {id, title:entry.title.trim(), url:CBC_URL, startsAt:entry.event_date && Number.isFinite(entry.event_date) ? new Date(entry.event_date).toISOString() : null, thumbnail:thumbnail ?? null, memberOnly:entry.commerceType === 'members'};
 }
 export const getStreams = createServerFn({method:'GET'}).handler(async () => {
   try {
