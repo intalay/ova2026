@@ -15,16 +15,16 @@ const NAV = [
  { to: "/explore", label: "Explore", icon: Compass },
  { to: "/shop", label: "Shop", icon: ShoppingBag },
 ] as const;
-export function AppShell({ children, title, action, sourceLabel = 'Synthetic competition data' }: { children: ReactNode; title: string; action?: ReactNode; sourceLabel?: string }) {
+export function AppShell({ children, title, action, sourceLabel = 'Synthetic competition data', contentClassName = '' }: { children: ReactNode; title: string; action?: ReactNode; sourceLabel?: string; contentClassName?: string }) {
  return <div className="min-h-dvh pb-28">
   <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-accent focus:px-4 focus:py-2">Skip to content</a>
   <header className="border-b bg-card">
-   <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
-    <Link to="/" aria-label="Ontario Volleyball Association home" className="flex min-w-0 items-center gap-3"><img src={logo.url} alt="" width={60} height={60} className="size-12 shrink-0 object-contain" /><span className="max-w-64 font-display text-xl font-bold leading-tight sm:text-2xl">Ontario Volleyball Association</span></Link>
-    <div className="flex items-center gap-2">{action}<Button asChild variant="secondary" size="icon"><Link to="/account" aria-label="Account and role selection" title="Account"><UserRound aria-hidden /></Link></Button></div>
+   <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-4 sm:px-8">
+    <Link to="/" aria-label="Ontario Volleyball Association home" className="flex min-w-0 items-center gap-2"><img src={logo.url} alt="" width={60} height={60} className="size-9 shrink-0 object-contain sm:size-12" /><span className="association-wordmark"><span>Ontario</span> Volleyball Association</span></Link>
+    <div className="flex shrink-0 items-center gap-2">{action}<Button asChild variant="secondary" size="icon"><Link to="/account" aria-label="Account and role selection" title="Account"><UserRound aria-hidden /></Link></Button></div>
    </div>
   </header>
-  <main id="main" className="mx-auto max-w-6xl space-y-7 px-5 py-6 sm:px-8 sm:py-8">
+  <main id="main" className={`mx-auto max-w-6xl space-y-7 px-5 py-6 sm:px-8 sm:py-8 ${contentClassName}`}>
    <div className="flex flex-wrap items-center justify-between gap-2"><h1 className="font-display text-4xl font-bold uppercase sm:text-5xl">{title}</h1><span className="flex items-center gap-2 text-xs font-bold text-muted-foreground"><span className="size-2 rounded-full bg-pending-foreground"/>{sourceLabel}</span></div>
    {children}
    <section aria-labelledby="sponsorship" className="border-t pt-2"><h2 id="sponsorship" className="text-center font-sans text-sm font-normal text-muted-foreground">Partner</h2><ul className="mt-6 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">{SPONSORS.map(s=><li key={s.name}><img src={s.src} alt={s.name} loading="lazy" className="h-5 w-auto max-w-[18vw] object-contain sm:h-8 sm:max-w-none" /></li>)}</ul></section>
@@ -36,7 +36,7 @@ export function AppShell({ children, title, action, sourceLabel = 'Synthetic com
 }
 export function Section({ title, children, id, link }: { title: string; children: ReactNode; id?: string; link?: ReactNode }) {
  const hid=id??title.toLowerCase().replace(/\W+/g,"-");
- return <section aria-labelledby={hid} className="space-y-3"><div className="flex items-center justify-between gap-3"><h2 id={hid} className="module-heading">{title}</h2>{link}</div>{children}</section>;
+ return <section aria-labelledby={hid} className="min-w-0 space-y-3"><div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><h2 id={hid} className="module-heading min-w-0">{title}</h2>{link}</div>{children}</section>;
 }
 export function Card({ children, className="" }: { children: ReactNode; className?: string }) { return <div className={`rounded-lg border bg-card p-5 text-card-foreground ${className}`}>{children}</div>; }
 export function Tbd({ children }: { children: ReactNode }) {return <span className="rounded bg-pending px-1.5 py-0.5 font-bold text-pending-foreground">{children}</span>;}
