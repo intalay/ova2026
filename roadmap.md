@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Make coach team information explicit at top of home and change Explore to YouTube-only recorded/live shortcuts.
 - [x] Add persistent announcement pins, author/team-scoped coach edit/delete, 24-hour audience display and multi-pin swipe carousel; 7 rule tests and browser fixture carousel pass.
 - [ ] Verify announcement pin/edit/delete with an approved coach and player/family accounts: current signed-in account has no managing-team association; audience page and carousel fixtures verified only.
 - [x] Make Shop cards compact and shadowed with uniform images and reduced-motion-safe click effects; all three categories, images, product detail and mobile layout verified.
