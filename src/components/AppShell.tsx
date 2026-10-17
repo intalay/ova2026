@@ -20,7 +20,7 @@ export function AppShell({ children, title, action }: { children: ReactNode; tit
   <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-accent focus:px-4 focus:py-2">Skip to content</a>
   <header className="border-b bg-card">
    <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
-    <Link to="/" aria-label="OVA Companion home" className="flex items-center gap-3"><img src={logo.url} alt="Ontario Volleyball Association" width={60} height={60} className="size-12 object-contain" /><span className="font-display text-2xl font-bold uppercase leading-none">OVA<br/><span className="font-sans text-xs">COMPANION</span></span></Link>
+    <Link to="/" aria-label="Ontario Volleyball Association home" className="flex min-w-0 items-center gap-3"><img src={logo.url} alt="" width={60} height={60} className="size-12 shrink-0 object-contain" /><span className="max-w-64 font-display text-xl font-bold leading-tight sm:text-2xl">Ontario Volleyball Association</span></Link>
     <div className="flex items-center gap-2">{action}<Button asChild variant="secondary" size="icon"><Link to="/account" aria-label="Account and role selection" title="Account"><UserRound aria-hidden /></Link></Button></div>
    </div>
   </header>

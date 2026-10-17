@@ -20,5 +20,6 @@
 - All-results pagination uses a public read-only server function independent of team history and trend state. Why: changing the selected team must not filter the all-team result window.
 - Product detail routes unnest from the catalog route. Why: a content-only catalog has no Outlet and must not swallow product detail views.
 - Staff role is granted only by a server trigger for confirmed emails in the staff allow-list. Why: on-screen choices and sign-up must never grant privileges.
+- Coach applications collect identity details through submit_coach_application; email is taken from the authenticated claim and team name from the team record, and staff approval rejects incomplete applications. Why: applicants cannot spoof the account contact or bypass required review details.
 - Account resolves its code-generation view from the authenticated household verification/team associations; existing RPCs authorize generation. Why: presentation preferences must not expose unauthorized code types.
 - Identity approvals are owner-scoped RPCs: managing coaches review players, verified players review family links; only approved links to verified players can read private team content. Existing family links are preserved as approved during the additive transition. Why: redeeming an invitation must not grant private access by itself.

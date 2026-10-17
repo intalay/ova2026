@@ -69,24 +69,36 @@ export type Database = {
       }
       coach_requests: {
         Row: {
+          certification_number: string | null
+          coach_name: string | null
+          contact_email: string | null
           created_at: string
           id: string
           status: string
           team_id: string
+          team_name: string | null
           user_id: string
         }
         Insert: {
+          certification_number?: string | null
+          coach_name?: string | null
+          contact_email?: string | null
           created_at?: string
           id?: string
           status?: string
           team_id: string
+          team_name?: string | null
           user_id: string
         }
         Update: {
+          certification_number?: string | null
+          coach_name?: string | null
+          contact_email?: string | null
           created_at?: string
           id?: string
           status?: string
           team_id?: string
+          team_name?: string | null
           user_id?: string
         }
         Relationships: [
@@ -714,6 +726,14 @@ export type Database = {
       }
       review_family_request: {
         Args: { _approve: boolean; _link: string }
+        Returns: undefined
+      }
+      submit_coach_application: {
+        Args: {
+          _certification_number: string
+          _coach_name: string
+          _team: string
+        }
         Returns: undefined
       }
       update_player_registration: {
