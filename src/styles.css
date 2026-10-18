@@ -343,7 +343,10 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-info .player-portrait { position: absolute; height: 66.6667%; width: auto; max-width: 40%; object-fit: contain; object-position: bottom right; bottom: 0; right: 3%; margin: 0; pointer-events: none; user-select: none; }
 .home-info:has(img[alt="Illustrative player portrait"]) > div { width: 54%; }
 .home-info img.player-portrait[alt="Illustrative player portrait"] { height: 75%; right: 6%; }
-.announcement-carousel .announcement-panel { height: 12rem; overflow: hidden; }
+.announcement-carousel .announcement-panel { height: 10.25rem; overflow: hidden; }
+.announcement-carousel .announcement-panel .text-lg { line-height: 1.2; }
+.announce-more { position: absolute; right: 1rem; bottom: .5rem; font-size: .75rem; line-height: 1; font-weight: 600; padding: .05rem .35rem .1rem; background: var(--card); }
+.home-content .announcement-carousel .announce-more { background: var(--home-feature-gradient); }
 .home-content .announcement-carousel .announcement-panel { background: var(--ink-base); color: var(--paper-base); --muted-foreground: var(--paper-base); }
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
@@ -517,7 +520,7 @@ body, body * { font-weight: 500 !important; }
   .home-lottery-cta { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; }
   .home-lottery-button { font-size: .875rem; min-height: 2.75rem; padding-inline: 1rem; }
   .home-lottery-legal { font-size: .75rem; }
-  .announcement-carousel a { min-height: 0; padding: 1rem 1rem 1.75rem; gap: .75rem; }
+  .announcement-carousel a { min-height: 0; padding: 1rem 1rem 1.375rem; gap: .75rem; }
   .announcement-carousel a > span { width: 2.5rem; height: 2.5rem; }
   .announcement-carousel a > svg { width: 1.125rem; height: 1.125rem; }
   .announcement-carousel .text-lg { font-size: 1rem; }
