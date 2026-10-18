@@ -686,6 +686,7 @@ describe("Results history page", () => {
       await section.findByText("No recorded matches for this team in the selected range."),
     ).toBeInTheDocument();
     fireEvent.click(section.getByRole("button", { name: "View results trend" }));
+    fireEvent.click(section.getByRole("button", { name: "Daily cumulative" }));
     expect(section.getByText(/No dated, decided results/)).toBeInTheDocument();
     expect(section.getByText(/No confirmed final placements/)).toBeInTheDocument();
     expect(section.queryByRole("img", { name: /Cumulative/ })).not.toBeInTheDocument();
@@ -757,6 +758,10 @@ describe("Results history page", () => {
     const section = within(await screen.findByRole("region", { name: "Team statistics" }));
     await section.findByText("5");
     fireEvent.click(section.getByRole("button", { name: "View results trend" }));
+    expect(
+      section.getByRole("img", { name: /Cumulative match win rate by displayed record:/ }),
+    ).toBeInTheDocument();
+    fireEvent.click(section.getByRole("button", { name: "Daily cumulative" }));
     expect(
       section.getByRole("img", {
         name: "Cumulative match win rate in selected range: 67%, 50%, 56%",
