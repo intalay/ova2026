@@ -101,6 +101,8 @@
   --home-shadow-pressed: 0 2px 8px color-mix(in oklab, var(--ink) 12%, transparent);
   --logo-green: oklch(0.72 0.16 131); /* exact OVA logo green #80B840 */
   --brand-green: var(--logo-green);
+  --match-time: oklch(0.5 0.14 131); /* logo-green hue darkened for readable small text on light cards */
+
   --brand-grey: var(--ink);
   --home-prize-glow: none;
   --home-lottery-gradient: linear-gradient(125deg, var(--ink) 25%, color-mix(in oklab, var(--ink) 86%, var(--logo-green)));
@@ -311,10 +313,11 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-matches { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
-.home-match-teams { font-size: 1.1rem; font-weight: 600; line-height: 1.5; }
+.home-match-teams { font-size: 1.1rem; font-weight: 700; line-height: 1.5; }
 .home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
-.home-match-versus { font-size: .85em; font-weight: 500; color: var(--muted-foreground); padding: 0 .25em; }
-.home-match-date { font-size: .9rem; margin-top: 3px; }
+.home-match-versus { font-size: .85em; font-weight: 700; color: var(--muted-foreground); padding: 0 .25em; }
+.home-match-date { font-size: .9rem; margin-top: 3px; color: var(--match-time); font-weight: 600; }
+
 .home-match-location { display: flex; align-items: center; gap: 6px; font-size: .85rem; margin-top: 3px; }
 .home-match--linked { position: relative; }
 .home-match-full { display: flex; width: 100%; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 10px; font-size: .85rem; font-weight: 600; color: var(--primary); }
