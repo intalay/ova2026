@@ -106,6 +106,13 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* After a new publish, an open tab may request page files that no longer exist.
+            Reload once to pick up the current version instead of showing a blank screen. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var K='ova-chunk-reload';function r(){try{var t=+sessionStorage.getItem(K)||0;if(Date.now()-t<10000)return;sessionStorage.setItem(K,String(Date.now()));}catch(e){}location.reload();}function m(x){var s=String((x&&x.message)||x||'');return /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(s);}window.addEventListener('vite:preloadError',function(e){e.preventDefault();r();});window.addEventListener('unhandledrejection',function(e){if(m(e.reason))r();});window.addEventListener('error',function(e){if(m(e.error||e.message))r();});})();`,
+          }}
+        />
       </head>
       <body>
         {children}
