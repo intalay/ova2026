@@ -13,6 +13,8 @@ import {
 } from "recharts";
 import { AppShell, Section, Card, btn, Tbd } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { ResultsUpdateStatus } from "@/components/ResultsUpdateStatus";
+import { summarizeRecordedResults } from "@/lib/result-sync/normalize";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
@@ -107,6 +109,7 @@ export const Route = createFileRoute("/results")({
 
 function Results() {
   const { role, household } = useRole();
+  const competition = useQuery(competitionQuery);
   const hh = household.data;
   const loaded = Route.useLoaderData();
   const developmentPreview = import.meta.env.DEV && import.meta.env.MODE !== "test";
@@ -283,6 +286,10 @@ function Results() {
     setSearch(availableTeams?.find((option) => option.id === teamId)?.name ?? "");
     setSearchOpen(false);
   };
+  const updateSummary =
+    competition.isSuccess && selection.eventId && selection.dataMode !== "all"
+      ? summarizeRecordedResults(competition.data.matches, selection.eventId, selection.dataMode)
+      : null;
   const publicLoading = results.isPending || filters.isPending || waitingForEvent;
   const publicError = results.isError || filters.isError;
 
@@ -499,6 +506,13 @@ function Results() {
           </details>
         </div>
       </Section>
+      <ResultsUpdateStatus
+        eventId={selection.eventId || null}
+        dataMode={selection.dataMode}
+        automaticUpdates="disabled"
+        syncState={null}
+        summary={updateSummary}
+      />
       {team ? (
         <Section title="Team statistics">
           <label className="block font-semibold">
