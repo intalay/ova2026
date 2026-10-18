@@ -60,12 +60,35 @@ function Schedule() {
     <AppShell title="Schedule">
       <div role="group" aria-label="Show matches" className="flex gap-2">
         {(["all", "following"] as const).map((f) => (
-          <Button key={f} aria-pressed={filter === f} onClick={() => setFilter(f)} className={filter === f ? btn.primary : btn.secondary} disabled={f === "following" && !user}>
+          <Button key={f} aria-pressed={filter === f} aria-controls={f === "following" ? "starred-team-filters" : undefined} onClick={() => { setFilter(f); setSelected(null); }} className={filter === f ? btn.primary : btn.secondary} disabled={f === "following" && !user}>
             {f === "all" ? "All matches" : "Starred Team"}
           </Button>
         ))}
       </div>
       {!user && <p className="text-base text-muted-foreground">Sign in on Account to follow teams and divisions.</p>}
+
+      {user && filter === "following" && (
+        <div id="starred-team-filters" role="group" aria-label="Starred teams and divisions" className="space-y-4">
+          {(["team", "division"] as const).map((type) => (
+            <div key={type}>
+              <h3 className="mb-2 text-base">{type === "team" ? "Teams" : "Divisions"}</h3>
+              <ul className="space-y-2">
+                {(type === "team" ? data.teams : data.divisions).map((x) => {
+                  const on = followed.has(`${type}:${x.id}`);
+                  return (
+                    <li key={`${type}:${x.id}`}>
+                      <Button aria-pressed={on} variant="outline" onClick={() => { setSelected(null); void toggleFollow(type, x.id); }} className="flex min-h-12 w-full items-center justify-between gap-3 rounded-lg border-2 bg-card px-4 text-left text-base text-foreground whitespace-normal">
+                        <span>{x.name}</span>
+                        <Star aria-hidden className={`shrink-0 ${on ? "fill-starred text-starred" : "text-muted-foreground"}`} />
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
 
       <Section title="Calendar">
         <div className="mx-auto max-w-xl space-y-3" onKeyDown={e => { if (e.target instanceof HTMLSelectElement || e.target instanceof HTMLInputElement) return; if(e.key === "ArrowRight" && monthIndex < 2){setMonthIndex(monthIndex+1);setSelected(null);} if(e.key === "ArrowLeft" && monthIndex > 0){setMonthIndex(monthIndex-1);setSelected(null);} }}>
@@ -78,24 +101,6 @@ function Schedule() {
         </div>
         {selected && <Button className={btn.secondary} onClick={() => setSelected(null)}>Show all dates</Button>}
       </Section>
-
-      {user && (
-        <Section title="Follow teams & divisions">
-          <ul className="space-y-2">
-            {[...data.divisions.map((d) => ({ type: "division" as const, id: d.id, name: d.name })), ...data.teams.map((t) => ({ type: "team" as const, id: t.id, name: t.name }))].map((x) => {
-              const on = followed.has(`${x.type}:${x.id}`);
-              return (
-                <li key={`${x.type}${x.id}`}>
-                  <Button aria-pressed={on} variant="outline" onClick={() => toggleFollow(x.type, x.id)} className="flex min-h-12 w-full items-center justify-between rounded-lg border-2 bg-card px-4 text-left text-lg text-foreground">
-                    <span><span className="mr-2 text-sm font-semibold uppercase text-muted-foreground">{x.type}</span><span className="font-semibold">{x.name}</span></span>
-                    <Star aria-hidden className={on ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"} />
-                  </Button>
-                </li>
-              );
-            })}
-          </ul>
-        </Section>
-      )}
 
       <Section title={selected ? `Matches on ${selected}` : "Upcoming matches"}>
         {list.length ? <div className="glass-list space-y-3">{list.map((m) => <MatchCard key={m.id} m={m} data={data} />)}</div> : <Card>No matches published for this selection.</Card>}
