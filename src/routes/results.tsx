@@ -26,6 +26,7 @@ import {
   cumulativeWinTrend,
   RESULTS_PAGE_SIZE,
 } from "@/lib/results";
+import { useHomeDataMode } from "@/hooks/use-home-data-mode";
 import { useRole } from "@/hooks/use-role";
 import { useParentContext } from "@/hooks/use-parent-context";
 import { validateBrowseSearch } from "@/lib/parent-context";
@@ -107,6 +108,7 @@ export const Route = createFileRoute("/results")({
 
 function Results() {
   const identity = useRole();
+  const homeData = useHomeDataMode(identity);
   const competition = useQuery(competitionQuery);
   const loaded = Route.useLoaderData();
   const developmentPreview = import.meta.env.DEV && import.meta.env.MODE !== "test";
@@ -453,6 +455,26 @@ function Results() {
               <option value="history">Historical results · all dates</option>
             </select>
           </label>
+          <div className="sm:col-span-2 lg:col-span-3">
+            <label className="block font-semibold">
+              Homepage data
+              <select
+                className={btn.input}
+                value={homeData.mode}
+                disabled={!homeData.ready}
+                onChange={(event) =>
+                  homeData.setMode(event.target.value === "synthetic" ? "synthetic" : "real")
+                }
+              >
+                <option value="real">Real data</option>
+                <option value="synthetic">Demo data</option>
+              </select>
+            </label>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Changes the homepage only. Historical results, team search and statistics always use
+              real data.
+            </p>
+          </div>
 
           <details className="space-y-3 sm:col-span-2 lg:col-span-3">
             <summary className="cursor-pointer font-semibold">Event and date filters</summary>
