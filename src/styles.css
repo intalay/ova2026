@@ -354,7 +354,8 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
 /* Fixture matchups stay bold on top of the global medium-weight preference (Penny request). */
-.home-match-teams, .home-match-versus, .match-teams { font-weight: 700 !important; }
+.home-match-teams, .home-match-versus, .match-teams, .match-teams > span { font-weight: 700 !important; }
+
 
 
 /* Page-only editorial hierarchy; other pages retain their medium-weight rule. */
