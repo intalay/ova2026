@@ -3,7 +3,6 @@
 @import "tw-animate-css";
 @import "./assets/fonts/unsii.css";
 @import "./assets/fonts/montserrat.css";
-@import "./coach-home.css";
 
 @custom-variant dark (&:is(.dark *));
 
