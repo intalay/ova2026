@@ -39,4 +39,3 @@ export async function readAllPages<Row extends { id: string }>(
   } while (rows.length < total);
   return rows;
 }
-
