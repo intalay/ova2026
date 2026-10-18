@@ -2,6 +2,7 @@ import { readAllPages, requireExactCount } from "./paged-read";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { REVIEWED_TEAM_DISPLAY_ALIASES } from "./team-display-aliases";
 
 const calendarDate = z
   .string()
@@ -68,6 +69,19 @@ export async function loadResultsPage(
   if (data.dataMode !== "all") query = query.eq("data_mode", data.dataMode);
   if (data.eventId) query = query.eq("event_id", data.eventId);
   if (data.teamId) query = query.or(`team_a_id.eq.${data.teamId},team_b_id.eq.${data.teamId}`);
+  // Discovery excludes only matches between two reviewed anonymous identities.
+  // Apply this in SQL before exact count/range. A selected team's history stays complete.
+  if (!data.teamId && data.dataMode !== "synthetic") {
+    const anonymousIds = Object.entries(REVIEWED_TEAM_DISPLAY_ALIASES)
+      .filter(([, alias]) => alias.kind === "anonymous_pair")
+      .map(([id]) => id);
+    if (anonymousIds.length) {
+      const ids = `(${anonymousIds.join(",")})`;
+      query = query.or(
+        `data_mode.neq.real,team_a_id.is.null,team_b_id.is.null,team_a_id.not.in.${ids},team_b_id.not.in.${ids}`,
+      );
+    }
+  }
   if (data.period === "recent") {
     const start = new Date(now);
     start.setUTCMonth(start.getUTCMonth() - 3);
@@ -176,4 +190,3 @@ export async function loadTeamResultsHistory(
   // not be promoted to confirmed results or plotted as final standings by UI.
   return { matches, rankings };
 }
-
