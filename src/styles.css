@@ -693,3 +693,6 @@ body, body * { font-weight: 500 !important; }
   .startup-ball-flight, .startup-ball, .startup-wave { animation: none; }
   .startup-wave { display: none; }
 }
+
+/* Create-account password hint: small gray placeholder inside the field */
+.password-hint::placeholder { font-size: .75rem; }
