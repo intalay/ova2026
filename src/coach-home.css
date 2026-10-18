@@ -1,5 +1,5 @@
 /* Coach-only tokens and presentation; lottery retains its dedicated treatment. */
-.coach-collage.home-surface {
+.coach-collage.home-surface .home-content {
  --coach-paper: oklch(0.963 0.011 125); --coach-ink: oklch(0.175 0.01 145); --coach-white: oklch(1 0 0);
  --coach-forest: oklch(0.27 0.05 153); --coach-court: oklch(0.43 0.10 150); --coach-emerald: oklch(0.635 0.15 153);
  --coach-lime: oklch(0.85 0.20 127); --coach-mint: oklch(0.921 0.065 140); --coach-sage: oklch(0.938 0.028 130);
@@ -22,39 +22,39 @@
 .coach-narrative > span { color: var(--coach-white); font-weight: 600 !important; }
 .coach-inline-sticker { display: inline-block; width: 42px; height: 42px; margin: 0 12px; vertical-align: middle; transform: rotate(-8deg); filter: drop-shadow(0 0 2px var(--coach-white)) drop-shadow(var(--coach-sticker-shadow)); animation: coach-wobble 400ms ease-out both; }
 .coach-floating-sticker { position: absolute; width: 180px; height: 180px; right: 20px; top: 6px; z-index: 2; transform: rotate(8deg); pointer-events: none; filter: drop-shadow(0 0 3px var(--coach-white)) drop-shadow(var(--coach-sticker-shadow)); animation: coach-wobble 400ms ease-out both; }
-.coach-collage.home-surface .module-heading { font-family: var(--font-coach); font-size: 1rem; text-transform: none; letter-spacing: 0; font-weight: 700 !important; line-height: 1.3; }
-.coach-collage.home-surface .home-info { position: relative; border: 0; border-radius: 28px; padding: 24px; background: var(--coach-forest); color: var(--coach-white); box-shadow: none; margin-bottom: 20px; }
-.coach-collage.home-surface .home-info::after { content: ""; position: absolute; bottom: -12px; left: 36px; width: 28px; height: 28px; background: var(--coach-forest); border-radius: 0 0 28px 0; }
-.coach-collage.home-surface .home-info h3 { font-family: var(--font-coach); font-size: 1.3rem; line-height: 1.3; font-weight: 700 !important; overflow-wrap: anywhere; }
-.coach-collage.home-surface .home-info .text-primary { color: var(--coach-mint); }
-.coach-collage.home-surface .home-info .bg-primary { background: var(--coach-lime); color: var(--coach-ink); border: 3px solid var(--coach-white); width: 48px; height: 48px; }
-.coach-collage.home-surface .home-modules { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 28px; margin: 36px -32px 0; padding: 32px 32px 36px; border-radius: 32px 32px 0 0; background-color: var(--coach-paper); background-image: linear-gradient(var(--coach-grid) 1px, transparent 1px), linear-gradient(90deg, var(--coach-grid) 1px, transparent 1px); background-size: 24px 24px; color: var(--coach-ink); }
-.coach-collage.home-surface .home-modules > section { min-width: 0; animation: coach-rise 400ms ease-out both; }
-.coach-collage.home-surface .home-modules > section:nth-child(2) { animation-delay: 60ms; }
-.coach-collage.home-surface .home-modules > section:nth-child(3) { animation-delay: 120ms; }
-.coach-collage.home-surface .home-modules > section:nth-child(4) { animation-delay: 180ms; }
-.coach-collage.home-surface .home-modules > section > div:first-child > a { color: var(--coach-court); font-family: var(--font-coach); font-size: .75rem; }
-.coach-collage.home-surface .home-modules .home-match { position: relative; border: 0; background: var(--coach-lime); color: var(--coach-ink); border-radius: 28px; box-shadow: none; backdrop-filter: none; padding: 22px; }
-.coach-collage.home-surface .home-match::after { content: ""; position: absolute; right: 30px; bottom: -10px; width: 26px; height: 26px; background: var(--coach-lime); border-radius: 0 0 0 26px; }
-.coach-collage.home-surface .home-match .home-match-teams { font-family: var(--font-coach); font-weight: 700 !important; }
-.coach-collage.home-surface .home-match :is(.home-match-event,.home-match-versus,.home-unknown) { color: var(--coach-forest); }
-.coach-collage.home-surface .announcement-carousel .rounded-lg.bg-card { background: var(--coach-court); color: var(--coach-white); border: 0; border-radius: 28px; box-shadow: none; }
-.coach-collage.home-surface .announcement-carousel .text-muted-foreground { color: var(--coach-sage); }
-.coach-collage.home-surface .announcement-carousel .bg-secondary { background: var(--coach-mint); }
-.coach-collage.home-surface .announcement-carousel .text-primary { color: var(--coach-mint); }
-.coach-collage.home-surface .announcement-carousel .bg-secondary .text-primary { color: var(--coach-forest); }
-.coach-collage.home-surface .home-venue, .coach-collage.home-surface .home-result { position: relative; border: 0; border-radius: 0 18px 18px 18px; box-shadow: none; backdrop-filter: none; margin-top: 28px; }
-.coach-collage.home-surface .home-venue::before, .coach-collage.home-surface .home-result::before { content: ""; position: absolute; left: 0; top: -15px; width: 42%; height: 18px; border-radius: 10px 14px 0 0; background: inherit; }
-.coach-collage.home-surface .home-venue { background: var(--coach-mint); color: var(--coach-ink); grid-template-columns: 110px minmax(0,1fr); padding: 20px; gap: 16px; }
-.coach-collage.home-surface .home-venue > svg { display: none; }
-.coach-collage.home-surface .home-venue .text-primary, .coach-collage.home-surface .home-venue .text-muted-foreground { color: var(--coach-forest); }
-.coach-collage.home-surface .home-venue .font-display { font-family: var(--font-coach); font-size: 1rem; font-weight: 700 !important; text-transform: none; }
-.coach-collage.home-surface .home-venue-photo { border: 3px solid var(--coach-white); transform: rotate(-4deg); border-radius: 8px; }
-.coach-collage.home-surface .home-result { background: var(--coach-forest); color: var(--coach-white); grid-template-columns: minmax(0,1fr) auto; padding: 22px; gap: 18px; }
-.coach-collage.home-surface .home-result h3 { font-family: var(--font-coach); font-size: 1rem; text-transform: none; font-weight: 700 !important; }
-.coach-collage.home-surface .home-result-score { font-family: var(--font-coach); color: var(--coach-lime); font-size: 2.3rem; font-weight: 700 !important; }
-.coach-collage.home-surface .home-result .text-muted-foreground { color: var(--coach-mint); }
-.coach-collage.home-surface .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--coach-court); padding-top: 12px; }
+.coach-collage.home-surface .home-content .module-heading { font-family: var(--font-coach); font-size: 1rem; text-transform: none; letter-spacing: 0; font-weight: 700 !important; line-height: 1.3; }
+.coach-collage.home-surface .home-content .home-info { position: relative; border: 0; border-radius: 28px; padding: 24px; background: var(--coach-forest); color: var(--coach-white); box-shadow: none; margin-bottom: 20px; }
+.coach-collage.home-surface .home-content .home-info::after { content: ""; position: absolute; bottom: -12px; left: 36px; width: 28px; height: 28px; background: var(--coach-forest); border-radius: 0 0 28px 0; }
+.coach-collage.home-surface .home-content .home-info h3 { font-family: var(--font-coach); font-size: 1.3rem; line-height: 1.3; font-weight: 700 !important; overflow-wrap: anywhere; }
+.coach-collage.home-surface .home-content .home-info .text-primary { color: var(--coach-mint); }
+.coach-collage.home-surface .home-content .home-info .bg-primary { background: var(--coach-lime); color: var(--coach-ink); border: 3px solid var(--coach-white); width: 48px; height: 48px; }
+.coach-collage.home-surface .home-content .home-modules { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 28px; margin: 36px -32px 0; padding: 32px 32px 36px; border-radius: 32px 32px 0 0; background-color: var(--coach-paper); background-image: linear-gradient(var(--coach-grid) 1px, transparent 1px), linear-gradient(90deg, var(--coach-grid) 1px, transparent 1px); background-size: 24px 24px; color: var(--coach-ink); }
+.coach-collage.home-surface .home-content .home-modules > section { min-width: 0; animation: coach-rise 400ms ease-out both; }
+.coach-collage.home-surface .home-content .home-modules > section:nth-child(2) { animation-delay: 60ms; }
+.coach-collage.home-surface .home-content .home-modules > section:nth-child(3) { animation-delay: 120ms; }
+.coach-collage.home-surface .home-content .home-modules > section:nth-child(4) { animation-delay: 180ms; }
+.coach-collage.home-surface .home-content .home-modules > section > div:first-child > a { color: var(--coach-court); font-family: var(--font-coach); font-size: .75rem; }
+.coach-collage.home-surface .home-content .home-modules .home-match { position: relative; border: 0; background: var(--coach-lime); color: var(--coach-ink); border-radius: 28px; box-shadow: none; backdrop-filter: none; padding: 22px; }
+.coach-collage.home-surface .home-content .home-match::after { content: ""; position: absolute; right: 30px; bottom: -10px; width: 26px; height: 26px; background: var(--coach-lime); border-radius: 0 0 0 26px; }
+.coach-collage.home-surface .home-content .home-match .home-match-teams { font-family: var(--font-coach); font-weight: 700 !important; }
+.coach-collage.home-surface .home-content .home-match :is(.home-match-event,.home-match-versus,.home-unknown) { color: var(--coach-forest); }
+.coach-collage.home-surface .home-content .announcement-carousel .rounded-lg.bg-card { background: var(--coach-court); color: var(--coach-white); border: 0; border-radius: 28px; box-shadow: none; }
+.coach-collage.home-surface .home-content .announcement-carousel .text-muted-foreground { color: var(--coach-sage); }
+.coach-collage.home-surface .home-content .announcement-carousel .bg-secondary { background: var(--coach-mint); }
+.coach-collage.home-surface .home-content .announcement-carousel .text-primary { color: var(--coach-mint); }
+.coach-collage.home-surface .home-content .announcement-carousel .bg-secondary .text-primary { color: var(--coach-forest); }
+.coach-collage.home-surface .home-content .home-venue, .coach-collage.home-surface .home-content .home-result { position: relative; border: 0; border-radius: 0 18px 18px 18px; box-shadow: none; backdrop-filter: none; margin-top: 28px; }
+.coach-collage.home-surface .home-content .home-venue::before, .coach-collage.home-surface .home-content .home-result::before { content: ""; position: absolute; left: 0; top: -15px; width: 42%; height: 18px; border-radius: 10px 14px 0 0; background: inherit; }
+.coach-collage.home-surface .home-content .home-venue { background: var(--coach-mint); color: var(--coach-ink); grid-template-columns: 110px minmax(0,1fr); padding: 20px; gap: 16px; }
+.coach-collage.home-surface .home-content .home-venue > svg { display: none; }
+.coach-collage.home-surface .home-content .home-venue .text-primary, .coach-collage.home-surface .home-content .home-venue .text-muted-foreground { color: var(--coach-forest); }
+.coach-collage.home-surface .home-content .home-venue .font-display { font-family: var(--font-coach); font-size: 1rem; font-weight: 700 !important; text-transform: none; }
+.coach-collage.home-surface .home-content .home-venue-photo { border: 3px solid var(--coach-white); transform: rotate(-4deg); border-radius: 8px; }
+.coach-collage.home-surface .home-content .home-result { background: var(--coach-forest); color: var(--coach-white); grid-template-columns: minmax(0,1fr) auto; padding: 22px; gap: 18px; }
+.coach-collage.home-surface .home-content .home-result h3 { font-family: var(--font-coach); font-size: 1rem; text-transform: none; font-weight: 700 !important; }
+.coach-collage.home-surface .home-content .home-result-score { font-family: var(--font-coach); color: var(--coach-lime); font-size: 2.3rem; font-weight: 700 !important; }
+.coach-collage.home-surface .home-content .home-result .text-muted-foreground { color: var(--coach-mint); }
+.coach-collage.home-surface .home-content .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--coach-court); padding-top: 12px; }
 .coach-collage.home-surface .home-content > section:last-child { background: var(--coach-paper); color: var(--coach-ink); margin: 0 -32px; padding: 20px 32px 36px; }
 .coach-collage.home-surface .home-content > section:last-child h2 { color: var(--coach-forest); }
 .coach-collage.home-surface .main-navigation { left: 16px; right: 16px; bottom: 16px; max-width: 760px; margin-inline: auto; border-radius: 9999px; background: var(--coach-white); box-shadow: var(--coach-dock-shadow); }
@@ -65,6 +65,6 @@
 .coach-collage.home-surface .navigation-link > span:last-child { font-size: .55rem; }
 @keyframes coach-wobble { from { transform: rotate(-4deg) scale(.94); } }
 @keyframes coach-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@media (min-width: 900px) { .coach-collage.home-surface .home-modules { grid-template-columns: repeat(2,minmax(0,1fr)); } .coach-collage.home-surface .home-modules > section:nth-child(-n+2), .coach-collage.home-surface .home-modules > section:last-child { grid-column: 1 / -1; } }
-@media (max-width: 639px) { .coach-collage.home-surface .home-content { padding-inline: 20px; } .coach-intro { min-height: 140px; } .coach-floating-sticker { width: 112px; height: 112px; right: 0; top: 38px; } .coach-narrative { max-width: 230px; font-size: 1.22rem; } .coach-collage.home-surface .home-modules { margin-inline: -20px; padding-inline: 20px; } .coach-collage.home-surface .home-info { padding: 20px; } .coach-collage.home-surface .home-info > div { min-width: 0; gap: 12px; } .coach-collage.home-surface .home-info > div > div { min-width: 0; } .coach-collage.home-surface .home-content > section:last-child { margin-inline: -20px; padding-inline: 20px; } }
-@media (prefers-reduced-motion: reduce) { .coach-inline-sticker, .coach-floating-sticker, .coach-collage.home-surface .home-modules > section { animation: none; } }
+@media (min-width: 900px) { .coach-collage.home-surface .home-content .home-modules { grid-template-columns: repeat(2,minmax(0,1fr)); } .coach-collage.home-surface .home-content .home-modules > section:nth-child(-n+2), .coach-collage.home-surface .home-content .home-modules > section:last-child { grid-column: 1 / -1; } }
+@media (max-width: 639px) { .coach-collage.home-surface .home-content { padding-inline: 20px; } .coach-intro { min-height: 140px; } .coach-floating-sticker { width: 112px; height: 112px; right: 0; top: 38px; } .coach-narrative { max-width: 230px; font-size: 1.22rem; } .coach-collage.home-surface .home-content .home-modules { margin-inline: -20px; padding-inline: 20px; } .coach-collage.home-surface .home-content .home-info { padding: 20px; } .coach-collage.home-surface .home-content .home-info > div { min-width: 0; gap: 12px; } .coach-collage.home-surface .home-content .home-info > div > div { min-width: 0; } .coach-collage.home-surface .home-content > section:last-child { margin-inline: -20px; padding-inline: 20px; } }
+@media (prefers-reduced-motion: reduce) { .coach-inline-sticker, .coach-floating-sticker, .coach-collage.home-surface .home-content .home-modules > section { animation: none; } }
