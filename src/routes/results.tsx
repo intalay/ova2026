@@ -28,13 +28,8 @@ import {
 } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
 import { formatDate, formatDateMDY, formatDateTime, formatMonthDay } from "@/lib/format";
-import {
-  AMANDA_PREVIEW_TEAM,
-  amandaPreviewMatches,
-  previewOpponentName,
-} from "@/lib/amanda-results-preview";
 
-type DataMode = "all" | "real" | "synthetic";
+type DataMode = "real";
 type ResultsSelection = {
   page: number;
   period: "recent" | "history";
@@ -154,8 +149,6 @@ function Results() {
     (option) => option.id === team && option.data_mode === draft.dataMode,
   );
   const teamMode = teamRecord?.data_mode;
-  const fixtureSelected =
-    developmentPreview && draft.dataMode === "synthetic" && team === AMANDA_PREVIEW_TEAM.id;
   const history = useQuery({
     queryKey: ["team-results-history", team, teamMode],
     enabled: !!team && (teamMode === "real" || teamMode === "synthetic"),
@@ -165,16 +158,8 @@ function Results() {
       return getTeamResultsHistory({ data: { teamId: team, dataMode: teamMode } });
     },
   });
-  // DEV simulation stays explicit and outside public/query caches.
-  const simulatedTeam =
-    fixtureSelected &&
-    filters.isSuccess &&
-    (!teamRecord || (history.isSuccess && !history.data.matches.length));
-  const completeMatches = (
-    (simulatedTeam ? amandaPreviewMatches : (history.data?.matches ?? [])) as Match[]
-  ).filter(
-    (match) =>
-      (match.team_a_id === team || match.team_b_id === team) && match.data_mode === draft.dataMode,
+  const completeMatches = ((history.data?.matches ?? []) as Match[]).filter(
+    (match) => (match.team_a_id === team || match.team_b_id === team) && match.data_mode === "real",
   );
   const defaultEvent =
     team && !eventChosen ? latestCompletedEvent(completeMatches, filters.data?.events ?? []) : "";
@@ -204,17 +189,15 @@ function Results() {
   };
   const validDateRange =
     !selection.dateFrom || !selection.dateTo || selection.dateFrom <= selection.dateTo;
-  const waitingForEvent =
-    !!team && !eventChosen && !simulatedTeam && history.isPending && !!teamRecord;
+  const waitingForEvent = !!team && !eventChosen && history.isPending && !!teamRecord;
   const results = useQuery({
     ...pageQuery(selection),
     enabled: validDateRange && !waitingForEvent,
     initialData: () =>
       !team && draft === initialSelection ? (loaded.page ?? undefined) : undefined,
   });
-  const teamLoading = filters.isPending || (!simulatedTeam && !!team && history.isPending);
-  const teamError =
-    !!team && (filters.isError || (!simulatedTeam && (history.isError || !teamRecord)));
+  const teamLoading = filters.isPending || (!!team && history.isPending);
+  const teamError = !!team && (filters.isError || history.isError || !teamRecord);
   const displayMode = draft.dataMode;
   const finals = filterResultsRange(
     completeMatches.filter(
@@ -289,9 +272,10 @@ function Results() {
     setSearchOpen(false);
   };
   const updateSummary =
-    competition.isSuccess && selection.eventId && selection.dataMode !== "all"
+    competition.isSuccess && selection.eventId
       ? summarizeRecordedResults(competition.data.matches, selection.eventId, selection.dataMode)
       : null;
+  const publicRows = results.data?.matches.filter((match) => match.data_mode !== "synthetic") ?? [];
   const publicLoading = results.isPending || filters.isPending || waitingForEvent;
   const publicError = results.isError || filters.isError;
 
@@ -433,13 +417,6 @@ function Results() {
                   {teamOptionLabel(option)}
                 </option>
               ))}
-            {developmentPreview &&
-              draft.dataMode === "synthetic" &&
-              !availableTeams?.some((option) => option.id === AMANDA_PREVIEW_TEAM.id) && (
-                <option value={AMANDA_PREVIEW_TEAM.id}>
-                  {AMANDA_PREVIEW_TEAM.name} · Local synthetic preview
-                </option>
-              )}
           </select>
         </label>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -456,19 +433,7 @@ function Results() {
               <option value="history">Historical results · all dates</option>
             </select>
           </label>
-          <label className="block font-semibold">
-            Results source
-            <select
-              className={btn.input}
-              value={selection.dataMode}
-              onChange={(e) =>
-                changeFilters({ dataMode: e.target.value as DataMode, eventId: "", teamId: "" })
-              }
-            >
-              <option value="real">Recorded results</option>
-              <option value="synthetic">Demo · Synthetic only</option>
-            </select>
-          </label>
+
           <details className="space-y-3 sm:col-span-2 lg:col-span-3">
             <summary className="cursor-pointer font-semibold">Event and date filters</summary>
             <label className="block font-semibold">
@@ -511,6 +476,7 @@ function Results() {
         </div>
       </Section>
       <ResultsUpdateStatus
+        compact
         eventId={selection.eventId || null}
         dataMode={selection.dataMode}
         automaticUpdates="disabled"
@@ -580,13 +546,9 @@ function Results() {
                 <p>No decided scores are available for statistics in this range.</p>
               )}
               <p className="text-sm text-muted-foreground">
-                {simulatedTeam ? "Synthetic preview · Not saved. " : ""}
-                {sourceLabel(displayMode ?? "")} ·{" "}
-                {simulatedTeam
-                  ? "Simulated final matches"
-                  : "Recorded final matches in the selected range"}{" "}
-                for this team from the same source mode. Rates exclude missing scores and tied
-                results. Source labels do not confirm official standings.
+                {sourceLabel(displayMode ?? "")} · Recorded final matches in the selected range for
+                this team from the same source mode. Rates exclude missing scores and tied results.
+                Source labels do not confirm official standings.
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
@@ -609,10 +571,7 @@ function Results() {
                           <td className="pr-3">
                             {filters.data?.teams.find(
                               (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),
-                            )?.name ??
-                              (simulatedTeam
-                                ? previewOpponentName(m)
-                                : "Opponent to be determined")}
+                            )?.name ?? "Opponent to be determined"}
                           </td>
                           <td className="pr-3">
                             {mine ?? "—"}–{other ?? "—"}
@@ -645,10 +604,7 @@ function Results() {
             <div className="space-y-4">
               {validDateRange && !teamLoading && !teamError && winTrend.length > 0 && (
                 <>
-                  <p>
-                    Cumulative {metric} win rate in selected range
-                    {simulatedTeam ? " · Simulated" : ""}
-                  </p>
+                  <p>Cumulative {metric} win rate in selected range</p>
                   {winTrend.length === 1 && (
                     <p>
                       {winTrend[0]?.date} · {winTrend[0]?.winRate}%
@@ -758,9 +714,9 @@ function Results() {
           </>
         ) : publicLoading ? (
           <p role="status">Loading results…</p>
-        ) : results.data?.matches.length && publicLookup ? (
+        ) : publicRows.length && publicLookup ? (
           <ul className="space-y-3">
-            {results.data.matches.map((m) => {
+            {publicRows.map((m) => {
               const nameA = publicLookup.teams.find((t) => t.id === m.team_a_id)?.name ?? null;
               const nameB = m.team_b_id
                 ? (publicLookup.teams.find((t) => t.id === m.team_b_id)?.name ?? null)

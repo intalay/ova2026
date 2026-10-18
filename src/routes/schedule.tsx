@@ -5,6 +5,7 @@ import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
 import { MatchCard } from "@/components/MatchCard";
+import { publicCompetition } from "@/lib/public-competition";
 import { competitionQuery, myHouseholdQuery } from "@/lib/queries";
 import { calendarMonths, TZ } from "@/lib/format";
 import { useSessionUser } from "@/hooks/use-session";
@@ -28,7 +29,8 @@ export const Route = createFileRoute("/schedule")({
 const dayKey = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(iso));
 
 function Schedule() {
-  const { data } = useSuspenseQuery(competitionQuery);
+  const { data: storedCompetition } = useSuspenseQuery(competitionQuery);
+  const data = publicCompetition(storedCompetition);
   const { user } = useSessionUser();
   const hh = useQuery(myHouseholdQuery(user?.id));
   const qc = useQueryClient();
