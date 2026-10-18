@@ -36,6 +36,7 @@ function Home(){
  const privateAnnouncements=useTeamAnnouncements(user?.id);
  const combinedAnnouncements=[...new Map([...data.announcements,...(privateAnnouncements.data??[])].map(a=>[a.id,a])).values()];
  const announcements=audienceAnnouncements(combinedAnnouncements.filter(a=>(homeMode==='synthetic'?a.data_mode==='synthetic':a.data_mode!=='synthetic')&&(!a.team_id||a.team_id===teamId)&&(role!=='coach'||a.author_id===user?.id)));const cfg=MODULES[role];
+ if(user&&household.isPending)return <AppShell title="Homepage" contentClassName="home-content"><p role="status">Loading your homepage…</p></AppShell>;
  return <div className={`home-surface${role==='coach'?' coach-invert':role==='player'?' player-green':''}`}><AppShell title={ROLE_LABELS[role]} sourceLabel={homeMode==='synthetic'?'Demo data · Not real competition':'Real competition data'} contentClassName="home-content">
 
  {!publicBrowse&&<label className="block font-semibold">Homepage data<select className="mt-1 min-h-12 w-full rounded-md border bg-card px-3" value={homeMode} disabled={!homeModeReady} onChange={e=>setHomeMode(e.target.value==='synthetic'?'synthetic':'real')}><option value="real">Real data</option><option value="synthetic">Demo data</option></select></label>}

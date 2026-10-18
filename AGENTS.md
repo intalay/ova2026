@@ -21,7 +21,7 @@
 - Player private data is gated by RLS via can_view_player (self, linked family, managing coach, staff). Why: family must never see unlinked players.
 - Every row carries data_mode ('real'|'synthetic') and the UI labels synthetic data. Why: source data and demo data must stay separate.
 - Unknown schedule, opponent, venue or placement renders the shared "to be determined" helpers in src/lib/format.ts; never invent values. Why: original product rule.
-- Role module visibility, view variants and actions are separate configuration; selected roles are presentation preferences only and actual access remains RLS/RPC-scoped. Why: reusable composition must not grant privileges.
+- Role configuration is presentation-only; RLS/RPC controls access. Account and Home share the household-based family restoration resolver, preserving authorized player/coach choices. Why: missing preferences must neither strand approved families nor grant access.
 - Official shop records are a checked static catalog with CDN asset pointers and external checkout links. Why: the app must not duplicate store payment or inventory operations.
 - Team announcements and private attachments use the same team-scoped authorization and persistent records. Why: a shared public feed must never expose private team content.
 - Announcement pin limits and pin timestamps are enforced by a database trigger and owner-scoped RPC; all audience displays share sorting and expiry helpers. Why: client choices cannot bypass limits or diverge across pages.
