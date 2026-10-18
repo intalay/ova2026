@@ -332,7 +332,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Illustrative player portrait inside the homepage Information panel */
 .player-portrait {
-  height: 13rem;
+  height: 14rem;
   width: auto;
   object-fit: contain;
   align-self: flex-end;
@@ -341,10 +341,10 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
   user-select: none;
 }
 @media (min-width: 640px) {
-  .player-portrait { height: 16rem; }
+  .player-portrait { height: 18rem; margin-right: 1rem; }
 }
 @media (min-width: 1024px) {
-  .player-portrait { height: 20rem; margin-right: 0.5rem; }
+  .player-portrait { height: 24rem; margin-right: 2.5rem; }
 }
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
