@@ -312,7 +312,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-match--linked .home-match-full::after { content: ""; position: absolute; inset: 0; z-index: 0; border-radius: var(--radius); }
 .home-match--linked .home-match-location { position: relative; z-index: 1; }
 .home-match--linked:hover .home-match-full { text-decoration: underline; }
-.home-match--linked .home-match-full:focus-visible { outline: none; }
+.home-match--linked .home-match-full:focus-visible { outline: none; box-shadow: none; border-radius: 0; }
 .home-match--linked .home-match-full:focus-visible::after { outline: 3px solid var(--ring); outline-offset: 3px; }
 .home-unknown { color: var(--teal); font-weight: 600; }
 .home-content .bg-pending { background: transparent; color: var(--teal); padding: 0; border: 0; border-radius: 0; }
