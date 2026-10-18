@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Player white page/module titles and white background below Partner; refine Results statistics typography and deep-green numerals without changing calculations.
 - [x] Align YouTube channel to the right of OVA TV like Streams; enlarge and shift only the Player portrait left to three-quarters panel height. Explore verified at 375/393/430/1280 without overflow or page errors; Player visual fixture checked at 393/1280, real Player account remains unverified. Eight relevant tests pass; preview build OK.
 - [x] Update player celebration silhouette, crop transparent margins from all three portraits, size portraits to two-thirds of Information height and remove Family note. Visual mock checks at 390/588/1280 show no overflow or text overlap; real role sessions remain unverified.
 - [x] Use uniform 12rem black homepage announcement previews with clipped two-line titles/body and existing full-content links; access and carousel gestures unchanged.
