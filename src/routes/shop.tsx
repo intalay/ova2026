@@ -44,7 +44,7 @@ function Shop() {
   const [category, setCategory] = useState<'all' | (typeof CATEGORIES)[number]>('Game Day');
   return (
     <AppShell title="Shop & Support">
-      <div className="border-b pb-5">
+      <div className="pb-5">
         <p className="text-lg text-muted-foreground">For the game. For the team. For Ontario volleyball.</p>
       </div>
       <div role="group" aria-label="Product category" className="shop-categories flex flex-nowrap gap-2 overflow-x-auto">
