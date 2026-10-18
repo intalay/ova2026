@@ -7,9 +7,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Montserrat", "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
-  --font-display: "UNSII", "Montserrat", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
-  --font-home: "Montserrat", "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-sans: "Swiss 721", "Montserrat", "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "Swiss 721", "UNSII", "Montserrat", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
+  --font-home: "Swiss 721", "Montserrat", "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-lottery-numeric: "Sora", system-ui, sans-serif;
   --font-lottery-editorial: "Montserrat", "Manrope", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
@@ -53,9 +53,9 @@
 
 :root {
   --radius: 1.5rem;
-  /* Pilo-inspired OVA: neutral light surfaces, near-black blocks and acid lime. */
+  /* OVA 2026 core palette; supporting surfaces and role layouts remain unchanged. */
   color-scheme: light;
-  --ink-base: oklch(0.15 0 0);
+  --ink-base: oklch(0.2709049632 0.0070654557 248.0889854); /* Charcoal #24272A */
   --paper-base: oklch(1 0 0);
   --ink: var(--ink-base);
   --paper: var(--paper-base);
@@ -101,7 +101,7 @@
   --home-glass-border: color-mix(in oklab, var(--border) 65%, transparent);
   --home-shadow: 0 2px 4px color-mix(in oklab, var(--ink) 4%, transparent), 0 10px 28px color-mix(in oklab, var(--ink) 9%, transparent);
   --home-shadow-pressed: 0 2px 8px color-mix(in oklab, var(--ink) 12%, transparent);
-  --logo-green: oklch(0.72 0.16 131); /* exact OVA logo green #80B840 */
+  --logo-green: oklch(0.7322488603 0.1666898498 131.5096708); /* OVA Green #81BD41 */
   --brand-green: var(--logo-green);
   --match-time: oklch(0.5 0.14 131); /* logo-green hue darkened for readable small text on light cards */
   --results-stat-ink: var(--ink-base);
