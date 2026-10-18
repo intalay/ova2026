@@ -30,7 +30,7 @@ function ProductCard({ p }: { p: (typeof PRODUCTS)[number] }) {
         {!p.available && <span className="shop-unavailable">unavailable</span>}
       </div>
       <div className="flex flex-1 flex-col gap-3 border-t p-3 sm:p-4">
-        <h2 className="min-h-12 break-words font-sans text-base font-semibold leading-snug">{p.title}</h2>
+        <h2 className="shop-title min-h-12 break-words font-sans font-semibold leading-snug">{p.title}</h2>
         <p className="mt-auto flex items-center justify-between gap-1 text-sm font-semibold sm:text-base">
           <span className="whitespace-nowrap">${p.price} CAD</span>
           <ArrowUpRight aria-hidden className="size-5 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transform-none" />
