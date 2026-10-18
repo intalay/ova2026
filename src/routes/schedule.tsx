@@ -303,7 +303,7 @@ function Schedule() {
       <Section title={selected ? `Matches on ${selected}` : "Upcoming matches"}>
         <div className="glass-list space-y-3">
           {list.length ? (
-            list.map((m) => <MatchCard key={m.id} m={m} data={data} className="match-pending" />)
+            list.map((m) => <MatchCard key={m.id} m={m} data={data} />)
           ) : (
             <Card className="match-pending">
               <p className="font-semibold">
