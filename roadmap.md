@@ -55,3 +55,6 @@
 - [x] 50/50 page title now uses the same heading treatment as every other page (UNSII, uppercase, shared page-heading sizes 54px desktop / 28px mobile); only body copy keeps the lottery editorial font. Verified computed styles match the Results page title at 1280 and 419, build OK, 47 tests pass.
 - [x] Explore: video and stream cards now show two per row on phones (grid-cols-2 from the smallest width, 3-up on desktop) with compact card padding and smaller titles; the redundant "Watch" section heading removed so the page reads Explore → OVA TV → Streams. Shop: category filters stay on one line via a single scrollable row (fade at the edge, snap alignment, no wrapping). Verified at 390/588/1280: 2 per row at 390 and 588, 3 at 1280, category row = 1 row everywhere, no horizontal overflow, build OK, 47 tests pass.
 - [x] Shop: product names made smaller everywhere (desktop .9375rem = 16.9px, phone .8125rem = 13px via .shop-title, with the mobile rule scoped .app-content .shop-title so it beats the .app-content h2 sizing). Verified computed sizes at 419 and 1280, no horizontal overflow, build OK, 47 tests pass.
+
+## Pending
+- [ ] Players 页面配色改为品牌绿大底（Amanda，仅改色：黑白绿+深绿辅助，不动布局/功能/结构）
