@@ -1,9 +1,10 @@
 import { Link } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Pin, Megaphone } from 'lucide-react';
+import type { BrowseSearch } from '@/lib/parent-context';
 import type { CompetitionData } from '@/lib/queries';
 
-function AnnouncementCard({ a, active }: { a: CompetitionData['announcements'][number]; active: boolean }) {
+function AnnouncementCard({ a, active, search }: { search: BrowseSearch; a: CompetitionData['announcements'][number]; active: boolean }) {
  const bodyRef = useRef<HTMLDivElement>(null);
  const [clamped, setClamped] = useState(false);
  useEffect(() => {
@@ -15,7 +16,7 @@ function AnnouncementCard({ a, active }: { a: CompetitionData['announcements'][n
   return () => window.removeEventListener('resize', check);
  }, [a.body]);
  return (
-  <Link to="/announcements" draggable={false} tabIndex={active ? 0 : -1} className="announcement-panel relative flex cursor-inherit items-start gap-4 rounded-lg border bg-card px-6 pt-6 pb-10">
+  <Link to="/announcements" search={search} draggable={false} tabIndex={active ? 0 : -1} className="announcement-panel relative flex cursor-inherit items-start gap-4 rounded-lg border bg-card px-6 pt-6 pb-10">
    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary"><Megaphone aria-hidden className="size-5 text-primary"/></span>
    <div className="min-w-0 flex-1">
     {a.pinned_at && <span className="announce-pin mb-0.5 inline-flex items-center gap-1 text-xs leading-none font-semibold text-primary"><Pin aria-hidden className="size-3"/>Pinned</span>}
@@ -30,7 +31,7 @@ function AnnouncementCard({ a, active }: { a: CompetitionData['announcements'][n
  );
 }
 
-export function AnnouncementCarousel({ items }: { items: CompetitionData['announcements'] }) {
+export function AnnouncementCarousel({ items, search = {} }: { search?: BrowseSearch; items: CompetitionData['announcements'] }) {
  const track = useRef<HTMLDivElement>(null);
  const [active,setActive] = useState(0);
  const [dragging,setDragging] = useState(false);
@@ -46,7 +47,7 @@ export function AnnouncementCarousel({ items }: { items: CompetitionData['announ
    onPointerCancel={()=>{drag.current=null;setDragging(false);}}
    onClickCapture={e=>{if(suppressClick.current){e.preventDefault();e.stopPropagation();suppressClick.current=false;}}}
    onScroll={e=>setActive(Math.round(e.currentTarget.scrollLeft/e.currentTarget.clientWidth))} className={`flex select-none overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${dragging?'cursor-grabbing snap-none':'cursor-grab snap-x snap-mandatory'}`}>
-   {items.map((a,i)=><div key={a.id} className="w-full shrink-0 snap-start" role="group" aria-label={`${i+1} of ${items.length}`}><AnnouncementCard a={a} active={i===active}/></div>)}
+   {items.map((a,i)=><div key={a.id} className="w-full shrink-0 snap-start" role="group" aria-label={`${i+1} of ${items.length}`}><AnnouncementCard a={a} active={i===active} search={search}/></div>)}
   </div>
   {items.length>1&&<div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center gap-2">{items.map((a,i)=><span key={a.id} className={`size-2 rounded-full ${i===active?'bg-primary':'bg-muted-foreground'}`}/>)}</div>}
  </div>;

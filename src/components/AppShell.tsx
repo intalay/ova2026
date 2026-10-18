@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Home, CalendarDays, Trophy, Compass, UserRound, ShoppingBag, ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
+import type { BrowseSearch } from "@/lib/parent-context";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/ova-logo.png.asset.json";
 import canuck from "@/assets/sponsor-canuckstuff.png";
@@ -40,5 +41,5 @@ export function Section({ title, children, id, link }: { title: string; children
 }
 export function Card({ children, className="" }: { children: ReactNode; className?: string }) { return <div className={`app-card min-w-0 rounded-lg border bg-card p-5 text-card-foreground ${className}`}>{children}</div>; }
 export function Tbd({ children }: { children: ReactNode }) {return <span className="home-unknown">{children}</span>;}
-export function MoreLink({to,children}: {to:"/schedule"|"/results"|"/announcements"|"/shop"|"/fifty-fifty";children:ReactNode}) {return <Link to={to} className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary">{children}<ArrowUpRight aria-hidden className="size-4"/></Link>;}
+export function MoreLink({to,children,search}: {search?:BrowseSearch;to:"/schedule"|"/results"|"/announcements"|"/shop"|"/fifty-fifty";children:ReactNode}) {return <Link to={to} search={search??{}} className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-primary">{children}<ArrowUpRight aria-hidden className="size-4"/></Link>;}
 export const btn={primary:"inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-primary px-5 text-base font-semibold text-primary-foreground hover:brightness-95 disabled:opacity-60",secondary:"inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-input bg-card px-5 text-base font-semibold text-primary hover:bg-secondary disabled:opacity-60",input:"min-h-12 w-full rounded-md border border-input bg-card px-3 text-base placeholder:text-muted-foreground"};

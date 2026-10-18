@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin, ArrowUpRight } from "lucide-react";
+import type { BrowseSearch } from "@/lib/parent-context";
 import type { Match } from "@/lib/queries";
 import { formatDateTime, formatDateTimeShort, teamLabel, teamLabelShort, TBD_SHORT } from "@/lib/format";
 import { Card, Tbd } from "./AppShell";
@@ -7,7 +8,7 @@ import { HomeLine } from './HomeLine';
 
 type Lookup = { teams: { id: string; name: string }[]; events: { id: string; name: string }[]; venues: { id: string; name: string }[] };
 
-export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = false }: { m: Match; data: Lookup; focusTeam?: string | undefined; compact?: boolean; fullSchedule?: boolean }) {
+export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = false, browseSearch = {} }: { m: Match; data: Lookup; focusTeam?: string | undefined; compact?: boolean; fullSchedule?: boolean; browseSearch?: BrowseSearch }) {
   const name = (id: string | null) => data.teams.find((t) => t.id === id)?.name ?? null;
   const event = data.events.find((e) => e.id === m.event_id)?.name;
   const venue = data.venues.find((v) => v.id === m.venue_id);
@@ -16,6 +17,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
   const pending = !final && (!m.team_b_id || !m.venue_id || !m.starts_at);
   if (compact && !final) return (
     <Card className={`home-match${fullSchedule ? " home-match--linked" : ""}`}>
+      {m.data_mode === "synthetic" && <p className="text-xs font-semibold uppercase">Demo match · Illustrative schedule</p>}
       {event && <HomeLine className="home-match-event">{event}</HomeLine>}
       <HomeLine className="home-match-teams">
         {name(m.team_a_id) ?? <span className="home-unknown">{teamLabelShort(null)}</span>}
@@ -26,11 +28,12 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
       <div className="home-match-location"><MapPin aria-hidden className="size-4 shrink-0"/>
         <HomeLine>{venue ? <Link to="/venue/$id" params={{id:venue.id}} className="font-semibold underline underline-offset-4">{venue.name}{m.court ? ` · ${m.court}` : ''}</Link> : <span className="home-unknown">Venue {TBD_SHORT}</span>}</HomeLine>
       </div>
-      {fullSchedule && <Link to="/schedule" className="home-match-full">Full schedule<ArrowUpRight aria-hidden className="size-4 shrink-0"/></Link>}
+      {fullSchedule && <Link to="/schedule" search={browseSearch} className="home-match-full">Full schedule<ArrowUpRight aria-hidden className="size-4 shrink-0"/></Link>}
     </Card>
   );
   return (
     <Card className={pending ? "match-pending" : ""}>
+      {m.data_mode === "synthetic" && <p className="text-xs font-semibold uppercase">Demo match · Not real results</p>}
       <p className="text-base text-muted-foreground">{event}</p>
       <p className="match-teams mt-1 text-xl font-bold">
         {name(m.team_a_id)} <span className="font-bold text-muted-foreground">vs</span>{" "}
