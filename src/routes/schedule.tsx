@@ -8,6 +8,7 @@ import { MatchCard } from "@/components/MatchCard";
 import { publicCompetition } from "@/lib/public-competition";
 import { competitionQuery } from "@/lib/queries";
 import { calendarMonths, TZ } from "@/lib/format";
+import { useHomeDataMode } from "@/hooks/use-home-data-mode";
 import { useRole } from "@/hooks/use-role";
 import { useParentContext } from "@/hooks/use-parent-context";
 import { validateBrowseSearch } from "@/lib/parent-context";
@@ -33,11 +34,12 @@ const dayKey = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ,
 
 function Schedule() {
   const { data: storedCompetition } = useSuspenseQuery(competitionQuery);
-  const data = publicCompetition(storedCompetition);
   const identity = useRole();
+  const { mode: homeMode } = useHomeDataMode(identity);
+  const data = homeMode === "synthetic" ? { ...storedCompetition, teams: storedCompetition.teams.filter(t => t.data_mode === "synthetic"), matches: storedCompetition.matches.filter(m => m.data_mode === "synthetic") } : publicCompetition(storedCompetition);
   const { user } = identity;
   const hh = identity.household;
-  const parentContext = useParentContext(identity, data.teams);
+  const parentContext = useParentContext(identity, storedCompetition.teams);
   const qc = useQueryClient();
   const [guestStars, setGuestStars] = useState<string[]>([]);
   useEffect(() => { try { setGuestStars(JSON.parse(localStorage.getItem("ova-guest-stars") ?? "[]")); } catch { /* ignore */ } }, []);
@@ -76,7 +78,7 @@ function Schedule() {
   }
 
   return (
-    <AppShell title="Schedule">
+    <AppShell sourceLabel={homeMode === "synthetic" ? "Demo data · Not real competition" : "Real competition data"} title="Schedule">
       <div className="flex flex-wrap gap-3 text-sm font-semibold"><Link to="/" search={parentContext.search}>Back to homepage</Link><Link to="/announcements" search={parentContext.search}>Announcements</Link></div>
       {parentContext.invalid && <p role="status">This player or team selection is no longer available. Choose an approved player or team.</p>}
       {parentContext.pending && <p role="status">Loading your selected team…</p>}
