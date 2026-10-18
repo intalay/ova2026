@@ -27,5 +27,5 @@ export function confirmedSignupRole(user: { id: string; email?: string; email_co
   if (pending.email.toLowerCase() !== user.email?.toLowerCase() || (pending.userId && pending.userId !== user.id)) return null;
   return pending.role;
  }
- return signupRole(user.user_metadata?.signup_role);
+ return signupRole(user.user_metadata?.['signup_role']);
 }

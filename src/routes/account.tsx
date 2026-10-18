@@ -25,7 +25,7 @@ function Account(){
  useEffect(()=>{
   if(!ready)return;
   const pending=pendingSignup;
-  if(!pending&&!signupRole(user?.user_metadata?.signup_role))return;
+  if(!pending&&(!signupRole(user?.user_metadata?.['signup_role'])||requested!=='general_user'&&requested!==user?.user_metadata?.['signup_role']))return;
   if(user&&resumedSignup.current===user.id)return;
   let active=true;let checking=false;
   async function check(){
@@ -37,7 +37,7 @@ function Account(){
     const role=confirmedSignupRole(data.user,pending);
     if(!role||!data.user)return;
     resumedSignup.current=data.user.id;
-    setChosen(role);selectRole(role);setName(data.user.user_metadata?.display_name??'');setStep('connect');setMessage('');clearSignup();setPendingSignup(null);
+    setChosen(role);selectRole(role);setName(data.user.user_metadata?.['display_name']??'');setStep('connect');setMessage('');clearSignup();setPendingSignup(null);
    }catch{ /* Keep waiting when the auth service cannot confirm the account. */ }
    finally{checking=false;}
   }
@@ -46,7 +46,7 @@ function Account(){
   const focus=()=>void check();
   window.addEventListener('focus',focus);window.addEventListener('storage',focus);document.addEventListener('visibilitychange',focus);
   return()=>{active=false;if(timer!==null)window.clearInterval(timer);window.removeEventListener('focus',focus);window.removeEventListener('storage',focus);document.removeEventListener('visibilitychange',focus);};
- },[ready,pendingSignup,user?.id]);
+ },[ready,pendingSignup,user?.id,requested]);
  const previewRequest=useRef(0);const validPreview=preview?.code===code&&preview.userId===user?.id&&preview.role===chosen?preview:null;
  useEffect(()=>{previewRequest.current+=1;setPreview(null);setCodeError('');setBusy(false);return()=>{previewRequest.current+=1;};},[user?.id,chosen,step]);
  const requests=useQuery({queryKey:['coach-request',user?.id],enabled:!!user,queryFn:async({signal})=>{if(!user)return null;const {data,error}=await supabase.from('coach_requests').select('*').eq('user_id',user.id).abortSignal(signal).maybeSingle();if(error)throw error;return data;}});
