@@ -11,7 +11,7 @@
 
 ## Architecture rules
 - Mobile sizing uses shared AppShell classes and a mobile-only semantic spacing/type layer with scoped module overrides. Why: compact proportions must preserve desktop sizing, role palettes and business behavior.
-- Coach homepage visual overrides are isolated under a role-gated outer wrapper and dedicated coach tokens. Why: shared homepage modules and navigation must retain their existing presentation for every other role and route.
+- Coach and Player homepage visual overrides stay isolated under role-gated wrappers (.coach-invert, .player-green) with dedicated tokens: coach inverts black/white, player uses a brand-green stage with white info cards. Why: shared homepage modules and navigation must retain their existing presentation for every other role and route.
 - Lottery effects, colours and typography use page-scoped tokens. Why: global theme changes must preserve its dedicated presentation.
 - Uploaded web fonts are CDN assets loaded through a local font-face stylesheet imported by the global theme; heading and body font tokens stay separate. Why: brand typography can change independently without making dense content hard to read or embedding binary files in source.
 - Homepage match cards use the optional compact MatchCard variant and HomeLine container fitting; other match views keep their existing layout. Why: complete single-line homepage information must fit without changing schedules or hiding unknown values.
