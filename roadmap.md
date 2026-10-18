@@ -1,5 +1,6 @@
 # OVA modular build
-- [ ] Apply uploaded sticker-collage style only to Coach customized homepage; preserve real content and other roles, verify signed-in coach and mobile/desktop layouts.
+- [x] Apply uploaded sticker-collage style only to Coach customized homepage; preserve content and other roles. Visual-only 1280/884/390 checks show readable green layers and no overflow; 22 existing tests pass and preview build is OK.
+- [ ] Verify the Coach redesign with an authorized signed-in coach: the injected account does not resolve to Coach, so real coach content/navigation remains unverified; requires an authorized coach session. Guest isolation checked with no runtime errors.
 - [x] Refine only 50/50 typography/logo/150-ticket colour and the homepage lottery block; 1280/390/360 layouts checked, Sora weights and logo proportions confirmed, 150 tickets selects $100 CAD, official link unchanged, flowing homepage background respects reduced motion, 14 tests pass.
 - [x] Polygon trial on Coach/Player homepages reverted at user request.
 - [x] Preserve the dedicated 50/50 silky animated lottery treatment with independent premium-gold tokens and restored grid/glow/metallic sweep. Desktop/mobile checked: 150-ticket selection updates to $100 CAD, official checkout link retained, no overflow/runtime errors, reduced motion disables animation; three routing tests pass.
