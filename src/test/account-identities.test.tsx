@@ -153,7 +153,7 @@ describe("Account identities and review feedback — local component and RPC tra
     fireEvent.change(screen.getByLabelText('Your name'),{target:{value:'Test'}});
     fireEvent.change(screen.getByLabelText('Email'),{target:{value:user.email}});
     fireEvent.change(screen.getByLabelText('Password'),{target:{value:'Testing123'}});
-    fireEvent.click(screen.getByRole('button',{name:'Create account',exact:true}));
+    fireEvent.click(screen.getByRole('button',{name:'Create account'}));
     await waitFor(()=>expect(JSON.parse(localStorage.getItem('ova-pending-signup')??'null')).toEqual({role,email:user.email,userId:user.id}));
     expect(mocks.signUp).toHaveBeenCalledWith(expect.objectContaining({options:{emailRedirectTo:`${window.location.origin}/account`,data:{display_name:'Test',signup_role:role}}}));
     expect(mocks.navigate).not.toHaveBeenCalled();

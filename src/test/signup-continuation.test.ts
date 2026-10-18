@@ -8,7 +8,7 @@ describe('email-confirmed signup continuation',()=>{
   rememberSignup(pending);expect(readPendingSignup()).toEqual(pending);
  });
  it('does not continue before real email confirmation',()=>{
-  expect(confirmedSignupRole({...user,email_confirmed_at:undefined},pending)).toBeNull();
+  expect(confirmedSignupRole({id:user.id,email:user.email,user_metadata:user.user_metadata},pending)).toBeNull();
  });
  it('does not apply another account draft',()=>{
   expect(confirmedSignupRole({...user,id:'another-user'},pending)).toBeNull();
