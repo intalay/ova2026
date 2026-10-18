@@ -555,6 +555,12 @@ body, body * { font-weight: 500 !important; }
   .app-content h2 { font-size: 1.25rem; }
   .app-content h3 { font-size: 1.125rem; }
   .app-content .module-heading { font-size: 1.125rem; }
+  /* Equal two-row headers avoid the longer YouTube label wrapping below its title. */
+  .watch-section-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; row-gap: .375rem; }
+  .watch-section-heading > div { display: contents; }
+  .watch-section-heading p { grid-column: 1 / -1; margin-bottom: 0; }
+  .watch-section-heading h3 { grid-column: 1; }
+  .watch-section-heading > a { grid-column: 2; grid-row: 2; font-size: .8125rem; padding-inline: .875rem; min-height: 2.75rem; }
   .app-content .text-xs { font-size: .75rem; }
   .app-content .text-sm { font-size: .875rem; }
   .app-content .text-lg { font-size: 1rem; }
