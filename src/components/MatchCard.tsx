@@ -13,6 +13,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
   const venue = data.venues.find((v) => v.id === m.venue_id);
   const final = m.status === "final";
   const won = final && focusTeam && m.score_a !== null && m.score_b !== null ? (focusTeam === m.team_a_id ? m.score_a > m.score_b : m.score_b > m.score_a) : null;
+  const pending = !final && (!m.team_b_id || !m.venue_id || !m.starts_at);
   if (compact && !final) return (
     <Card className={`home-match${fullSchedule ? " home-match--linked" : ""}`}>
       {event && <HomeLine className="home-match-event">{event}</HomeLine>}
@@ -29,7 +30,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
     </Card>
   );
   return (
-    <Card>
+    <Card className={pending ? "match-pending" : ""}>
       <p className="text-base text-muted-foreground">{event}</p>
       <p className="mt-1 text-xl font-semibold">
         {name(m.team_a_id)} <span className="font-normal text-muted-foreground">vs</span>{" "}

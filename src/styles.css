@@ -54,8 +54,10 @@
   --radius: 1.5rem;
   /* Pilo-inspired OVA: neutral light surfaces, near-black blocks and acid lime. */
   color-scheme: light;
-  --ink: oklch(0.15 0 0);
-  --paper: oklch(1 0 0);
+  --ink-base: oklch(0.15 0 0);
+  --paper-base: oklch(1 0 0);
+  --ink: var(--ink-base);
+  --paper: var(--paper-base);
   --teal: oklch(0.45612 0.08496 173.69);
   --pale-green: oklch(0.955 0 0);
   --background: var(--paper);
@@ -365,6 +367,60 @@ body, body * { font-weight: 500 !important; }
 @media (min-width: 1024px) { .lottery-page .jackpot { font-size: 6rem; } }
 @media (min-width: 640px) { .lottery-page .golden-ticket { --ticket-notch: 10px; } .lottery-page .golden-ticket svg { width: .75rem; height: .75rem; } }
 
-/* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
-.glass-list > * { background: var(--home-glass); border: 1px solid var(--home-glass-border); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
+/* Matches page: fixtures without fully confirmed details invert the confirmed card colours */
+.glass-list .match-pending { background: var(--home-feature-gradient); border: 1px solid color-mix(in oklab, var(--logo-green) 45%, transparent); color: var(--court-foreground); --card-foreground: var(--court-foreground); --muted-foreground: var(--court-foreground); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
+.glass-list .match-pending .text-primary { color: var(--logo-green); }
+.glass-list .match-pending .home-unknown { color: color-mix(in oklab, var(--teal) 45%, var(--paper-base)); }
+
+/* Coach homepage: black/white inverted palette, isolated under the role-gated wrapper */
+.coach-invert {
+  --ink: var(--paper-base);
+  --paper: var(--ink-base);
+  --background: var(--paper);
+  --foreground: var(--ink);
+  color: var(--foreground);
+  --card: oklch(0.17 0 0);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--card-foreground);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: oklch(0.17 0 0);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.26 0 0);
+  --muted-foreground: oklch(0.72 0 0);
+  --accent-foreground: var(--ink-base);
+  --success-foreground: var(--paper);
+  --gold-foreground: var(--ink);
+  --court: var(--ink);
+  --court-foreground: var(--paper);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.3 0 0);
+  --ring: var(--primary);
+  --pending-foreground: var(--pending);
+  --home-background: linear-gradient(145deg, var(--background) 15%, color-mix(in oklab, var(--background) 97%, var(--accent)) 65%, var(--background));
+  --home-glass: linear-gradient(125deg, var(--paper), var(--card) 70%, color-mix(in oklab, var(--card) 96%, var(--accent)));
+  --home-glass-border: color-mix(in oklab, var(--border) 65%, transparent);
+  --home-shadow: 0 2px 4px color-mix(in oklab, var(--ink-base) 30%, transparent), 0 10px 28px color-mix(in oklab, var(--ink-base) 40%, transparent);
+  --home-shadow-pressed: 0 2px 8px color-mix(in oklab, var(--ink-base) 50%, transparent);
+  /* The 50/50 block keeps its permanent dark lottery presentation (Penny-locked). */
+  --home-lottery-gradient: linear-gradient(125deg, var(--ink-base) 25%, color-mix(in oklab, var(--ink-base) 86%, var(--logo-green)));
+  --home-feature-gradient: linear-gradient(120deg, var(--ink) 30%, color-mix(in oklab, var(--ink) 90%, var(--logo-green)));
+  --home-results-gradient: linear-gradient(135deg, var(--ink) 35%, color-mix(in oklab, var(--ink) 88%, var(--logo-green)));
+  --navigation-background: var(--paper);
+  --navigation-foreground: var(--ink);
+  --navigation-muted: var(--ink);
+  --navigation-highlight: var(--accent);
+  --coach-green-ink: color-mix(in oklab, var(--logo-green) 58%, var(--ink-base));
+}
+.coach-invert *, .coach-invert *::before, .coach-invert *::after { border-color: var(--border); }
+.coach-invert :focus-visible { outline-color: var(--ring); }
+.coach-invert header a > img { background: var(--paper-base); }
+.coach-invert .association-wordmark > span { color: var(--ink); }
+.coach-invert .navigation-home-icon { color: var(--ink-base); }
+.coach-invert .home-unknown { color: color-mix(in oklab, var(--teal) 45%, var(--paper-base)); }
+.coach-invert .home-content .announcement-carousel .text-primary, .coach-invert .home-content .home-venue .text-primary { color: var(--coach-green-ink); }
+.coach-invert .home-content .announcement-carousel .bg-secondary .text-primary { color: var(--ink-base); }
+.coach-invert .home-result-score { color: var(--coach-green-ink); }
+.coach-invert .home-content .home-lottery { --court-foreground: var(--paper-base); }
 
