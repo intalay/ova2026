@@ -530,6 +530,7 @@ body, body * { font-weight: 500 !important; }
   .result-row-score { font-size: 1.75rem; }
   .glass-list .app-card > p:first-child { font-size: .8125rem; }
   .glass-list .app-card > p:not(:first-child) { font-size: 1rem; line-height: 1.45; }
+  .glass-list .app-card > p.match-teams { font-size: .9375rem; }
   section[aria-labelledby="calendar"] .rounded-lg { padding: .5rem; }
   section[aria-labelledby="calendar"] .grid-cols-7 { gap: 0; }
   section[aria-labelledby="calendar"] h3 { font-size: 1.125rem; margin-bottom: .75rem; }
