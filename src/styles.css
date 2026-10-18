@@ -316,7 +316,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-match-teams { font-size: 1.1rem; font-weight: 700; line-height: 1.5; }
 .home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 .home-match-versus { font-size: .85em; font-weight: 700; color: var(--muted-foreground); padding: 0 .25em; }
-.home-match-date { font-size: .9rem; margin-top: 3px; color: var(--match-time); font-weight: 600; }
+.home-match-date { font-size: .9rem; margin-top: 3px; color: var(--match-time); }
 
 .home-match-location { display: flex; align-items: center; gap: 6px; font-size: .85rem; margin-top: 3px; }
 .home-match--linked { position: relative; }
@@ -353,6 +353,9 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
+/* Fixture matchups stay bold on top of the global medium-weight preference (Penny request). */
+.home-match-teams, .home-match-versus, .match-teams { font-weight: 700 !important; }
+
 
 /* Page-only editorial hierarchy; other pages retain their medium-weight rule. */
 .lottery-logo { display: block; height: auto; max-width: 100%; object-fit: contain; }

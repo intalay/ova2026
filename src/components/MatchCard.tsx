@@ -32,7 +32,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
   return (
     <Card className={pending ? "match-pending" : ""}>
       <p className="text-base text-muted-foreground">{event}</p>
-      <p className="mt-1 text-xl font-bold">
+      <p className="match-teams mt-1 text-xl font-bold">
         {name(m.team_a_id)} <span className="font-bold text-muted-foreground">vs</span>{" "}
 
         {m.team_b_id ? name(m.team_b_id) : <Tbd>{teamLabel(null)}</Tbd>}
