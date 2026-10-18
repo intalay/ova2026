@@ -17,12 +17,12 @@ export async function fetchCompetition(client = supabase) {
       readAllPages((from, to) => client.from("venues").select("*", { count: "exact" }).order("id").range(from, to), "Competition venues"),
       readAllPages((from, to) => client.from("matches").select("*", { count: "exact" }).order("starts_at", { ascending: true, nullsFirst: false }).order("id").range(from, to), "Competition matches"),
       readAllPages((from, to) => client.from("rankings").select("*", { count: "exact" }).order("id").range(from, to), "Competition rankings"),
-      readAllPages((from, to) => client.from("announcements").select("*", { count: "exact" }).eq("status", "published").order("published_at", { ascending: false }).order("id").range(from, to), "Competition announcements"),
+      readAllPages((from, to) => client.from("announcements").select("*", { count: "exact" }).eq("status", "published").is("team_id", null).order("published_at", { ascending: false }).order("id").range(from, to), "Competition announcements"),
     ]);
     return { teams, divisions, events, venues, matches: matches as unknown as Match[], rankings, announcements };
 }
 export type CompetitionData = Awaited<ReturnType<typeof fetchCompetition>>;
-export const competitionQuery = queryOptions({ queryKey: ["competition"], queryFn: () => fetchCompetition() });
+export const competitionQuery = queryOptions({ queryKey: ["competition", "public"], queryFn: () => fetchCompetition() });
 
 export const venueQuery = (id: string) => queryOptions({
   queryKey: ["venue", id],
@@ -37,16 +37,17 @@ export const venueQuery = (id: string) => queryOptions({
 });
 
 /** Private data: RLS only returns players the signed-in user may see. */
-async function fetchHousehold(userId: string | undefined) {
+async function fetchHousehold(userId: string | undefined, signal: AbortSignal) {
     if (!userId) throw new Error("Sign in required");
     const [players, links, roles, follows, profile, managed] = await Promise.all([
-      supabase.from("players").select("*"),
-       supabase.from("family_links").select("*").eq("family_user_id", userId),
-       supabase.from("user_roles").select("role").eq("user_id", userId),
-       supabase.from("follows").select("*").eq("user_id", userId),
-       supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
-       supabase.from("managed_teams").select("*").eq("user_id", userId),
+      supabase.from("players").select("*").abortSignal(signal),
+       supabase.from("family_links").select("*").eq("family_user_id", userId).abortSignal(signal),
+       supabase.from("user_roles").select("role").eq("user_id", userId).abortSignal(signal),
+       supabase.from("follows").select("*").eq("user_id", userId).abortSignal(signal),
+       supabase.from("profiles").select("*").eq("id", userId).abortSignal(signal).maybeSingle(),
+       supabase.from("managed_teams").select("*").eq("user_id", userId).abortSignal(signal),
     ]);
+     signal.throwIfAborted();
      for (const result of [players, links, roles, follows, profile, managed]) if (result.error) throw result.error;
      const all = players.data ?? [];
     const familyLinks = links.data ?? [];
@@ -64,4 +65,6 @@ async function fetchHousehold(userId: string | undefined) {
 }
 export type Household = Awaited<ReturnType<typeof fetchHousehold>>;
 export const myHouseholdQuery = (userId: string | undefined) =>
-  queryOptions({ queryKey: ["household", userId], enabled: !!userId, queryFn: () => fetchHousehold(userId) });
+  queryOptions({ queryKey: ["household", userId], enabled: !!userId, queryFn: ({ signal }) => fetchHousehold(userId, signal) });
+
+export { teamAnnouncementsQuery } from "./team-announcements";
