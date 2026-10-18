@@ -118,6 +118,8 @@ function Results() {
   const [eventChosen, setEventChosen] = useState(false);
   const [search, setSearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchReady, setSearchReady] = useState(false);
+  useEffect(() => setSearchReady(true), []);
   const [activeSearchIndex, setActiveSearchIndex] = useState(0);
   const searchInput = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -304,6 +306,7 @@ function Results() {
                 <input
                   ref={searchInput}
                   type="search"
+                  disabled={!searchReady}
                   role="combobox"
                   aria-autocomplete="list"
                   aria-expanded={searchOpen}
@@ -323,7 +326,7 @@ function Results() {
                     setActiveSearchIndex(0);
                     setSearchOpen(!!event.target.value.trim());
                   }}
-                  placeholder="Team, division or event"
+                  placeholder={searchReady ? "Team, division or event" : "Loading team search…"}
                   onKeyDown={(event) => {
                     if (event.nativeEvent.isComposing) return;
                     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
