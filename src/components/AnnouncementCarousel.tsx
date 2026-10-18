@@ -1,7 +1,32 @@
 import { Link } from '@tanstack/react-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Pin, Megaphone } from 'lucide-react';
 import type { CompetitionData } from '@/lib/queries';
+
+function AnnouncementCard({ a, index, active }: { a: CompetitionData['announcements'][number]; index: number; active: boolean }) {
+ const bodyRef = useRef<HTMLParagraphElement>(null);
+ const [clamped, setClamped] = useState(false);
+ useEffect(() => {
+  const el = bodyRef.current;
+  if (!el) return;
+  const check = () => setClamped(el.scrollHeight > el.clientHeight + 1);
+  check();
+  window.addEventListener('resize', check);
+  return () => window.removeEventListener('resize', check);
+ }, [a.body]);
+ return (
+  <Link to="/announcements" draggable={false} tabIndex={active ? 0 : -1} className="announcement-panel relative flex cursor-inherit items-start gap-4 rounded-lg border bg-card p-4 pb-6">
+   <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary"><Megaphone aria-hidden className="size-5 text-primary"/></span>
+   <div className="min-w-0 flex-1">
+    {a.pinned_at && <span className="mb-1 inline-flex items-center gap-1 text-xs font-semibold text-primary"><Pin aria-hidden className="size-3"/>Pinned</span>}
+    <p className="line-clamp-2 text-lg font-semibold">{a.title}</p>
+    <p ref={bodyRef} className="mt-1 line-clamp-3 text-sm text-muted-foreground">{a.body}</p>
+   </div>
+   <ArrowUpRight aria-hidden className="shrink-0"/>
+   {clamped && <span className="announce-more" aria-hidden>…more</span>}
+  </Link>
+ );
+}
 
 export function AnnouncementCarousel({ items }: { items: CompetitionData['announcements'] }) {
  const track = useRef<HTMLDivElement>(null);
@@ -19,8 +44,8 @@ export function AnnouncementCarousel({ items }: { items: CompetitionData['announ
    onPointerCancel={()=>{drag.current=null;setDragging(false);}}
    onClickCapture={e=>{if(suppressClick.current){e.preventDefault();e.stopPropagation();suppressClick.current=false;}}}
    onScroll={e=>setActive(Math.round(e.currentTarget.scrollLeft/e.currentTarget.clientWidth))} className={`flex select-none overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${dragging?'cursor-grabbing snap-none':'cursor-grab snap-x snap-mandatory'}`}>
-   {items.map((a,i)=><div key={a.id} className="w-full shrink-0 snap-start" role="group" aria-label={`${i+1} of ${items.length}`}><Link to="/announcements" draggable={false} tabIndex={i===active?0:-1} className="announcement-panel flex cursor-inherit items-start gap-4 rounded-lg border bg-card p-5 pb-10"><span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary"><Megaphone aria-hidden className="size-5 text-primary"/></span><div className="min-w-0 flex-1">{a.pinned_at&&<span className="mb-1 inline-flex items-center gap-1 text-xs font-semibold text-primary"><Pin aria-hidden className="size-3"/>Pinned</span>}<p className="line-clamp-2 text-lg font-semibold">{a.title}</p><p className="mt-1 text-sm text-muted-foreground">{a.body}</p></div><ArrowUpRight aria-hidden className="shrink-0"/></Link></div>)}
+   {items.map((a,i)=><div key={a.id} className="w-full shrink-0 snap-start" role="group" aria-label={`${i+1} of ${items.length}`}><AnnouncementCard a={a} index={i} active={i===active}/></div>)}
   </div>
-  {items.length>1&&<div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-2">{items.map((a,i)=><span key={a.id} className={`size-2 rounded-full ${i===active?'bg-primary':'bg-muted-foreground'}`}/>)}</div>}
+  {items.length>1&&<div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-2">{items.map((a,i)=><span key={a.id} className={`size-2 rounded-full ${i===active?'bg-primary':'bg-muted-foreground'}`}/>)}</div>
  </div>;
 }
