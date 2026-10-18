@@ -347,7 +347,7 @@ body, body * { font-weight: 500 !important; }
 /* Fixture matchups stay bold on top of the global medium-weight preference (Penny request).
    HomeLine wraps its children in an unstyled span, so the bold has to reach that span too. */
 .home-match-teams span:not(.home-unknown), .match-teams, .match-teams > span:not(.home-unknown) { font-weight: 700 !important; }
-.match-teams { font-size: 1.0625rem; }
+.match-teams { font-size: 1rem; }
 
 
 
