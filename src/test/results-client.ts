@@ -33,6 +33,11 @@ export function mockClient(
           filters.push((row) => row[field] === value);
           return chain;
         },
+        is(field: string, value: unknown) {
+          operations.push({ method: "is", args: [field, value] });
+          filters.push((row) => row[field] === value);
+          return chain;
+        },
         gte(field: string, value: string) {
           operations.push({ method: "gte", args: [field, value] });
           filters.push((row) => row[field] != null && String(row[field]) >= value);

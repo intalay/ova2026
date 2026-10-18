@@ -4,8 +4,17 @@ import { fetchCompetition } from '@/lib/queries';
 import { mockClient } from './results-client';
 
 describe('complete shared competition reads', () => {
+  it('keeps team-private announcements out of the public shared query even when authenticated transport can return them', async () => {
+    const { client, calls } = mockClient({ announcements: [
+      { id: 'public', team_id: null, status: 'published' },
+      { id: 'private-A', team_id: 'team-A', status: 'published' },
+      { id: 'private-B', team_id: 'team-B', status: 'published' },
+    ] });
+    expect((await fetchCompetition(client)).announcements.map(a => a.id)).toEqual(['public']);
+    expect(calls.find(c => c.table === 'announcements')?.operations).toContainEqual({ method: 'is', args: ['team_id', null] });
+  });
   it('reads beyond the server cap on all seven tables with stable ID ordering and exact counts', async () => {
-    const rows = Array.from({ length: 1836 }, (_, index) => ({ id: `row-${String(index).padStart(4, '0')}`, name: 'Same name', status: 'published', starts_at: null, published_at: null }));
+    const rows = Array.from({ length: 1836 }, (_, index) => ({ id: `row-${String(index).padStart(4, '0')}`, name: 'Same name', status: 'published', starts_at: null, published_at: null, team_id: null }));
     const { client, calls } = mockClient(Object.fromEntries(['teams', 'divisions', 'events', 'venues', 'matches', 'rankings', 'announcements'].map(table => [table, rows])), { serverLimit: 100 });
     const result = await fetchCompetition(client);
     for (const records of Object.values(result)) { expect(records).toHaveLength(1836); expect(records.at(-1)?.id).toBe('row-1835'); }

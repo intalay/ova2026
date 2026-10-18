@@ -1,3 +1,6 @@
+vi.mock("@/hooks/use-team-announcements", () => ({
+  useTeamAnnouncements: () => ({ data: [], isError: false }),
+}));
 vi.mock("@/hooks/use-home-data-mode", () => ({
   useHomeDataMode: () => ({ mode: "real", setMode: vi.fn(), ready: true }),
 }));
