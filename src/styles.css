@@ -453,6 +453,8 @@ body, body * { font-weight: 500 !important; }
 .coach-invert .home-content .announcement-carousel .bg-secondary .text-primary { color: var(--ink-base); }
 .coach-invert .home-content .announcement-carousel .announcement-panel { color: var(--ink-base); --muted-foreground: color-mix(in oklab, var(--ink-base) 70%, var(--paper-base)); }
 .coach-invert .home-result-score { color: var(--coach-green-ink); }
+/* Inverted (light) result card: pale gray labels would disappear, so secondary text goes dark. */
+.coach-invert .home-content .home-result { --muted-foreground: color-mix(in oklab, var(--ink-base) 72%, var(--paper-base)); }
 .coach-invert .home-content .home-lottery { --court-foreground: var(--paper-base); }
 /* Coach Information block: soft brand-green glow drifting out of the top-left corner */
 .coach-invert .home-info { isolation: isolate; }
