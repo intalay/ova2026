@@ -9,11 +9,7 @@ export function WatchCatalog({ videos, checkedAt }: { videos: WatchVideo[]; chec
   const [jump, setJump] = useState('');
   const result = videoPage(videos, keyword, requestedPage);
   return <section aria-labelledby="ova-tv" className="space-y-5">
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3 gap-y-1">
-      <p className="col-span-2 text-xs font-semibold uppercase text-primary">Ontario volleyball · YouTube</p>
-      <h3 id="ova-tv" className="text-4xl font-semibold">OVA TV</h3>
-      <Button variant="outline" asChild><a href={OVA_CHANNEL_URL} target="_blank" rel="noopener noreferrer">YouTube channel<ArrowUpRight aria-hidden className="size-4" /></a></Button>
-    </div>
+    <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="mb-1 text-xs font-semibold uppercase text-primary">Ontario volleyball · YouTube</p><h3 id="ova-tv" className="text-4xl font-semibold">OVA TV</h3></div><Button variant="outline" asChild><a href={OVA_CHANNEL_URL} target="_blank" rel="noopener noreferrer">YouTube channel<ArrowUpRight aria-hidden className="size-4" /></a></Button></div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-y py-4">
       <div className="relative w-full sm:max-w-md"><Search aria-hidden className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" /><input aria-label="Search OVA TV videos" type="search" value={keyword} onChange={e => {setKeyword(e.target.value); setPage(1);}} placeholder="Search OVA TV" className="min-h-12 w-full rounded-md border border-input bg-card pl-10 pr-12 text-base" />{keyword && <Button variant="ghost" size="icon" aria-label="Clear video search" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => {setKeyword(''); setPage(1);}}><X aria-hidden className="size-4" /></Button>}</div>
       <p aria-live="polite" className="text-sm text-muted-foreground">{result.total} videos{keyword ? ' found' : ''}</p>
