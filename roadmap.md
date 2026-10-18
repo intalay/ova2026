@@ -39,3 +39,5 @@
 - [ ] Verified venue photography / parking markers and live video feed: awaiting authorized venue data and actual video source access; existing maps and official external viewing links retained.- [x] Staff channel entry for verifying coach applications.
 - [x] Sponsorship section with sponsor logos at bottom of every page.
 - [x] Split the homepage slogan into two stacked lines ("Your game." / "Your community.") with auto-fit scaling; verified at 1280/822/390/360 with no clipping or horizontal overflow, 47 tests pass.
+
+- [x] Enlarge the Coach homepage page title (coach-collage only): 3.4rem desktop / 2.5rem phone, Inter 700, data label moved onto its own line on phones; verified signed-in at 1280/390 with no clipping or horizontal overflow, build OK, 47 tests pass.
