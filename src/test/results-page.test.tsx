@@ -52,8 +52,6 @@ vi.mock("@/lib/results.functions", () => ({
   getResultsFilters: mocks.filters,
   getTeamResultsHistory: mocks.history,
 }));
-// Preview graphics are exercised in the browser; these tests cover live results queries.
-vi.mock("@/components/AmandaResultsPreview", () => ({ AmandaResultsPreview: () => null }));
 vi.mock("@/hooks/use-role", () => ({
   useRole: () => ({
     role: mocks.role,
@@ -167,6 +165,7 @@ async function loaded() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.unstubAllEnvs();
   mocks.role = "general_user";
   mocks.page.mockImplementation(async () => ({ matches: [match()], total: 7 }));
   mocks.filters.mockImplementation(async ({ data }: { data: { dataMode: string } }) => ({
@@ -195,6 +194,21 @@ afterEach(() => {
 });
 
 describe("Results history page", () => {
+  it("uses the four Sand & Sky simulated matches inside team statistics without writing them to public caches", async () => {
+    vi.stubEnv("MODE", "development");
+    const client = renderPage();
+    const section = within(screen.getByRole("region", { name: "Your team" }));
+    await section.findByRole("table");
+    expect(section.getByLabelText("Team")).toHaveValue("demo-sand");
+    expect(section.getAllByRole("row")).toHaveLength(5);
+    expect(section.getByText("75")).toBeInTheDocument();
+    expect(section.getByText("25")).toBeInTheDocument();
+    expect(section.getByRole("img", { name: "Cumulative win rate: 100%, 50%, 67%, 75%" })).toBeInTheDocument();
+    expect(mocks.history).not.toHaveBeenCalled();
+    expect(client.getQueryData(["team-results-history", "demo-sand", undefined])).toBeUndefined();
+    expect(client.getQueryData(["results-page", defaultRequest])).toEqual({ matches: [match()], total: 7 });
+  });
+
   it("keeps the recent/all default and shows complete independent names, source and source date", async () => {
     renderPage();
     await loaded();
