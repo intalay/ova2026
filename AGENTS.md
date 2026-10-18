@@ -12,8 +12,7 @@
 ## Architecture rules
 - Mobile sizing uses shared AppShell classes and a mobile-only semantic spacing/type layer with scoped module overrides. Why: compact proportions must preserve desktop sizing, role palettes and business behavior.
 - Coach homepage visual overrides are isolated under a role-gated outer wrapper and dedicated coach tokens. Why: shared homepage modules and navigation must retain their existing presentation for every other role and route.
-- The 50/50 stage uses independent lottery semantic tokens and scoped effects rather than global accent/card colours. Why: app-wide theme changes must not flatten or recolour its dedicated lottery presentation.
-- Lottery typography overrides are scoped to its page wrapper, with independent numeric and editorial font tokens. Why: lottery hierarchy must not override other pages' typography or the global weight preference.
+- Lottery effects, colours and typography use page-scoped tokens. Why: global theme changes must preserve its dedicated presentation.
 - Uploaded web fonts are CDN assets loaded through a local font-face stylesheet imported by the global theme; heading and body font tokens stay separate. Why: brand typography can change independently without making dense content hard to read or embedding binary files in source.
 - Homepage match cards use the optional compact MatchCard variant and HomeLine container fitting; other match views keep their existing layout. Why: complete single-line homepage information must fit without changing schedules or hiding unknown values.
 - Venue detail and Homepage share exact-name source-checked CDN media via venue-media and official links; unknown venues have fallbacks, OpenStreetMap remains interactive and parking uses recorded information only. Why: avoid unrelated buildings or fabricated location details.
@@ -32,3 +31,6 @@
 - Coach applications collect identity details through submit_coach_application; email is taken from the authenticated claim and team name from the team record, and staff approval rejects incomplete applications. Why: applicants cannot spoof the account contact or bypass required review details.
 - Account resolves its code-generation view from the authenticated household verification/team associations; existing RPCs authorize generation. Why: presentation preferences must not expose unauthorized code types.
 - Identity approvals are owner-scoped RPCs: managing coaches review players, verified players review family links; only approved links to verified players can read private team content. Existing family links are preserved as approved during the additive transition. Why: redeeming an invitation must not grant private access by itself.
+
+- Startup uses an SSR-safe root overlay with a one-shot timer and CSS motion while routes load underneath. Why: navigation must not replay it or change identity logic.
+- Information portraits use panel-relative sizing; announcement previews use fixed-height frames linking to full content. Why: text length must not change visual proportions or access.
