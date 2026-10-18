@@ -79,10 +79,6 @@ function Schedule() {
         {selected && <Button className={btn.secondary} onClick={() => setSelected(null)}>Show all dates</Button>}
       </Section>
 
-      <Section title={selected ? `Matches on ${selected}` : "Upcoming matches"}>
-        {list.length ? <div className="glass-list space-y-3">{list.map((m) => <MatchCard key={m.id} m={m} data={data} />)}</div> : <Card>No matches published for this selection.</Card>}
-      </Section>
-
       {user && (
         <Section title="Follow teams & divisions">
           <ul className="space-y-2">
@@ -100,6 +96,10 @@ function Schedule() {
           </ul>
         </Section>
       )}
+
+      <Section title={selected ? `Matches on ${selected}` : "Upcoming matches"}>
+        {list.length ? <div className="glass-list space-y-3">{list.map((m) => <MatchCard key={m.id} m={m} data={data} />)}</div> : <Card>No matches published for this selection.</Card>}
+      </Section>
     </AppShell>
   );
 }
