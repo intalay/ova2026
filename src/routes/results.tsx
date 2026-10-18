@@ -226,16 +226,18 @@ function Results() {
           ) : (
             <>
               {stats && (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="results-stats grid grid-cols-2">
                   {[
                     ["Wins", stats.wins],
                     ["Losses", stats.losses],
                     ["Win rate", stats.winRate === null ? "—" : stats.winRate + "%"],
                     ["Loss rate", stats.lossRate === null ? "—" : stats.lossRate + "%"],
                   ].map(([label, value]) => (
-                    <div key={label} className="space-y-1">
-                      <p className="text-base text-muted-foreground">{label}</p>
-                      <p className="text-3xl font-semibold text-accent">{value}</p>
+                    <div key={label} className="results-stat">
+                      <p className="results-stat-label">{label}</p>
+                      <p className={`results-stat-value${value === "—" ? " results-stat-missing" : ""}`}>
+                        {typeof value === "string" && value.endsWith("%") ? <>{value.slice(0, -1)}<span className="results-stat-percent">%</span></> : value}
+                      </p>
                     </div>
                   ))}
                 </div>
