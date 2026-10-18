@@ -37,6 +37,8 @@ export function clearPrivateSessionData(qc: QueryClient, resetHomePreview = true
   void qc.cancelQueries(filters);
   qc.removeQueries(filters);
   qc.getMutationCache().clear();
+  // Initial hydration clears private caches, while an unchanged identity keeps its preferences.
+  if (!resetHomePreview) return;
   try {
     for (const key of Object.keys(sessionStorage)) {
       if (
@@ -82,6 +84,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
     const initialRevision = revision.current;
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      // getUser verifies initial hydration; a stale storage snapshot must not replace it.
+      if (event === "INITIAL_SESSION") return;
       revision.current += 1;
       if (event === "SIGNED_IN") locallySignedOut.current = false;
       if (event === "SIGNED_OUT") locallySignedOut.current = true;
