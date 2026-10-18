@@ -235,7 +235,7 @@ function Results() {
                   ].map(([label, value]) => (
                     <div key={label} className="space-y-1">
                       <p className="text-base text-muted-foreground">{label}</p>
-                      <p className="text-3xl font-semibold text-primary">{value}</p>
+                      <p className="text-3xl font-semibold text-accent">{value}</p>
                     </div>
                   ))}
                 </div>
