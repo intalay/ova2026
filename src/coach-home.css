@@ -1,5 +1,5 @@
 /* Coach-only tokens and presentation; lottery retains its dedicated treatment. */
-.coach-collage {
+.coach-collage.home-surface {
  --coach-paper: oklch(0.963 0.011 125); --coach-ink: oklch(0.175 0.01 145); --coach-white: oklch(1 0 0);
  --coach-forest: oklch(0.27 0.05 153); --coach-court: oklch(0.43 0.10 150); --coach-emerald: oklch(0.635 0.15 153);
  --coach-lime: oklch(0.85 0.20 127); --coach-mint: oklch(0.921 0.065 140); --coach-sage: oklch(0.938 0.028 130);
@@ -28,8 +28,7 @@
 .coach-collage .home-info h3 { font-family: var(--font-coach); font-size: 1.3rem; line-height: 1.3; font-weight: 700 !important; overflow-wrap: anywhere; }
 .coach-collage .home-info .text-primary { color: var(--coach-mint); }
 .coach-collage .home-info .bg-primary { background: var(--coach-lime); color: var(--coach-ink); border: 3px solid var(--coach-white); width: 48px; height: 48px; }
-.home-modules { display: contents; }
-.coach-collage .home-modules { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 28px; margin: 36px -36px 0; padding: 32px 36px 36px; border-radius: 32px 32px 0 0; background-color: var(--coach-paper); background-image: linear-gradient(var(--coach-grid) 1px, transparent 1px), linear-gradient(90deg, var(--coach-grid) 1px, transparent 1px); background-size: 24px 24px; color: var(--coach-ink); }
+.coach-collage .home-modules { position: relative; display: grid; grid-template-columns: minmax(0,1fr); gap: 28px; margin: 36px -32px 0; padding: 32px 32px 36px; border-radius: 32px 32px 0 0; background-color: var(--coach-paper); background-image: linear-gradient(var(--coach-grid) 1px, transparent 1px), linear-gradient(90deg, var(--coach-grid) 1px, transparent 1px); background-size: 24px 24px; color: var(--coach-ink); }
 .coach-collage .home-modules > section { min-width: 0; animation: coach-rise 400ms ease-out both; }
 .coach-collage .home-modules > section:nth-child(2) { animation-delay: 60ms; }
 .coach-collage .home-modules > section:nth-child(3) { animation-delay: 120ms; }
@@ -56,7 +55,7 @@
 .coach-collage .home-result-score { font-family: var(--font-coach); color: var(--coach-lime); font-size: 2.3rem; font-weight: 700 !important; }
 .coach-collage .home-result .text-muted-foreground { color: var(--coach-mint); }
 .coach-collage .home-result-sets { grid-column: 1 / -1; border-top: 1px solid var(--coach-court); padding-top: 12px; }
-.coach-collage .home-content > section:last-child { background: var(--coach-paper); color: var(--coach-ink); margin: 0 -36px; padding: 20px 36px 36px; }
+.coach-collage .home-content > section:last-child { background: var(--coach-paper); color: var(--coach-ink); margin: 0 -32px; padding: 20px 32px 36px; }
 .coach-collage .home-content > section:last-child h2 { color: var(--coach-forest); }
 .coach-collage .main-navigation { left: 16px; right: 16px; bottom: 16px; max-width: 760px; margin-inline: auto; border-radius: 9999px; background: var(--coach-white); box-shadow: var(--coach-dock-shadow); }
 .coach-collage .navigation-link { min-height: 72px; color: var(--coach-ink); font-family: var(--font-coach); }
