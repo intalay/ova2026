@@ -326,12 +326,13 @@ body, body * { font-weight: 500 !important; }
 .lottery-page .lottery-winner { max-width: 34rem; margin-inline: auto; font-size: .85rem; line-height: 1.6; font-weight: 600 !important; }
 .lottery-page .jackpot, .lottery-page .lottery-quantity, .lottery-page .lottery-price { font-family: var(--font-lottery-numeric); font-variant-numeric: tabular-nums; }
 .lottery-page .jackpot { font-size: 2.7rem; font-weight: 800 !important; padding-block: .1em; }
-.lottery-page .lottery-quantity { font-size: 1.35rem; font-weight: 700 !important; }
-.lottery-page .lottery-price { font-size: 1.05rem; font-weight: 700 !important; }
+.lottery-page .lottery-quantity { font-size: 1rem; font-weight: 700 !important; }
+.lottery-page .lottery-price { font-size: .85rem; font-weight: 700 !important; }
 .lottery-page .golden-ticket > span:first-child, .lottery-page .lottery-ticket-label { font-weight: 600 !important; }
+.lottery-page .golden-ticket > span:first-child { font-size: .45rem; line-height: 1.5; }
 .lottery-page .golden-ticket.green { color: var(--ink); }
 .lottery-page .lotto-stage > div > p.text-sm { line-height: 1.6; }
-@media (min-width: 640px) { .lottery-page h1 { font-size: 2.4rem; } .lottery-page .jackpot { font-size: 5rem; } .lottery-page .lottery-winner { font-size: 1rem; } .lottery-page .lottery-quantity { font-size: 2.5rem; } .lottery-page .lottery-price { font-size: 1.65rem; } }
+@media (min-width: 640px) { .lottery-page h1 { font-size: 2.4rem; } .lottery-page .jackpot { font-size: 5rem; } .lottery-page .lottery-winner { font-size: 1rem; } .lottery-page .lottery-quantity { font-size: 2.5rem; } .lottery-page .lottery-price { font-size: 1.65rem; } .lottery-page .golden-ticket > span:first-child { font-size: .7rem; } }
 @media (min-width: 1024px) { .lottery-page .jackpot { font-size: 6rem; } }
 
 /* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
