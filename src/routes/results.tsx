@@ -387,12 +387,6 @@ function Results() {
         </Section>
       )}
       <Section title="All results">
-        <p className="text-sm text-muted-foreground">
-          The default view covers the last three months. Choose historical results to browse older
-          recorded matches. Dates use the recorded source date; coverage may be incomplete. Real
-          source identifies the record origin, not a confirmed official placement. Synthetic demo
-          records are demonstration data.
-        </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block font-semibold">
             Period
