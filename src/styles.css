@@ -378,6 +378,10 @@ body, body * { font-weight: 500 !important; }
 .glass-list .match-pending { background: var(--home-feature-gradient); border: 1px solid color-mix(in oklab, var(--logo-green) 45%, transparent); color: var(--court-foreground); --card-foreground: var(--court-foreground); --muted-foreground: var(--court-foreground); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
 .glass-list .match-pending .text-primary { color: var(--logo-green); }
 .glass-list .match-pending .home-unknown { color: color-mix(in oklab, var(--teal) 45%, var(--paper-base)); }
+/* Pending cards sit on the dark feature gradient, so the date keeps the bright logo green. */
+.glass-list .match-pending { --match-time: var(--logo-green); }
+.match-date { color: var(--match-time); }
+
 
 /* Coach homepage: black/white inverted palette, isolated under the role-gated wrapper */
 .coach-invert {
@@ -419,7 +423,9 @@ body, body * { font-weight: 500 !important; }
   --navigation-muted: var(--ink);
   --navigation-highlight: var(--accent);
   --coach-green-ink: color-mix(in oklab, var(--logo-green) 58%, var(--ink-base));
+  --match-time: var(--logo-green); /* inverted homepage cards are dark, so dates use the bright logo green */
 }
+
 .coach-invert *, .coach-invert *::before, .coach-invert *::after { border-color: var(--border); }
 .coach-invert :focus-visible { outline-color: var(--ring); }
 .coach-invert header a > img { background: var(--paper-base); }
