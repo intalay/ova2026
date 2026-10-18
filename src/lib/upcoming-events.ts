@@ -38,6 +38,33 @@ export const OFFICIAL_EVENT_OVERVIEWS: readonly EventOverview[] = [
     location: "Cohere Centre, Ottawa · 4899 Uplands Dr, Ottawa, ON K1V 2N6",
     officialUrl: "https://www.ontariovolleyball.org/fall-classic",
   },
+  {
+    id: "ova-17ub-fall-classic-2026",
+    name: "17U Boys Fall Classic",
+    startsOn: "2026-11-14",
+    endsOn: "2026-11-15",
+    divisions: "17U Boys · Top 24 teams",
+    location: "Venue to be determined",
+    officialUrl: "https://www.ontariovolleyball.org/news_article/show/1362866",
+  },
+  {
+    id: "ova-18ub-challenge-cup-2026",
+    name: "18U Boys Challenge Cup",
+    startsOn: "2026-12-12",
+    endsOn: "2026-12-12",
+    divisions: "18U Boys",
+    location: "Venue to be determined",
+    officialUrl: "https://www.ontariovolleyball.org/news_article/show/1362866",
+  },
+  {
+    id: "ova-18ug-challenge-cup-2026",
+    name: "18U Girls Challenge Cup",
+    startsOn: "2026-12-13",
+    endsOn: "2026-12-13",
+    divisions: "18U Girls",
+    location: "Venue to be determined",
+    officialUrl: "https://www.ontariovolleyball.org/news_article/show/1362866",
+  },
 ];
 export function upcomingEventOverviews(now = new Date()) {
   const today = competitionDate(now);
