@@ -25,7 +25,7 @@
 - Official shop records are a checked static catalog with CDN asset pointers and external checkout links. Why: the app must not duplicate store payment or inventory operations.
 - Team announcements and private attachments use the same team-scoped authorization and persistent records. Why: a shared public feed must never expose private team content.
 - Announcement pin limits and pin timestamps are enforced by a database trigger and owner-scoped RPC; all audience displays share sorting and expiry helpers. Why: client choices cannot bypass limits or diverge across pages.
-- Public results pagination stays independent of household history. Development-only preview fixtures stay outside shared caches and persistence, with charts derived from fixture matches. Why: team changes and invented previews must not alter public or real results.
+- Public results pagination stays independent of household history. Development-only fixtures fill only an empty synthetic team in the existing team section, outside shared caches and persistence; charts derive from the displayed team's matches. Why: team changes and invented previews must not alter public or real results.
 - Product detail routes unnest from the catalog route. Why: a content-only catalog has no Outlet and must not swallow product detail views.
 - Staff role is granted only by a server trigger for confirmed emails in the staff allow-list. Why: on-screen choices and sign-up must never grant privileges.
 - Coach applications collect identity details through submit_coach_application; email is taken from the authenticated claim and team name from the team record, and staff approval rejects incomplete applications. Why: applicants cannot spoof the account contact or bypass required review details.
