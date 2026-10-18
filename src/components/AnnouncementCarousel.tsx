@@ -18,7 +18,7 @@ function AnnouncementCard({ a, active }: { a: CompetitionData['announcements'][n
   <Link to="/announcements" draggable={false} tabIndex={active ? 0 : -1} className="announcement-panel relative flex cursor-inherit items-start gap-4 rounded-lg border bg-card px-6 pt-6 pb-10">
    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary"><Megaphone aria-hidden className="size-5 text-primary"/></span>
    <div className="min-w-0 flex-1">
-    {a.pinned_at && <span className="announce-pin mb-1 inline-flex items-center gap-1 text-xs font-semibold text-primary"><Pin aria-hidden className="size-3"/>Pinned</span>}
+    {a.pinned_at && <span className="announce-pin mb-0.5 inline-flex items-center gap-1 text-xs leading-none font-semibold text-primary"><Pin aria-hidden className="size-3"/>Pinned</span>}
     <p className="line-clamp-2 text-lg font-semibold pr-8">{a.title}</p>
     <div ref={bodyRef} className="announce-body relative mt-1 overflow-hidden">
      <p className="text-sm leading-[1.25rem] text-muted-foreground">{a.body}</p>
