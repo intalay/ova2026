@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { AppShell, Section } from "@/components/AppShell";
+import { AppShell } from "@/components/AppShell";
 import { WatchCatalog } from '@/components/WatchCatalog';
 import { WatchStreams } from '@/components/WatchStreams';
 import catalog from '@/lib/watch-catalog.json';
@@ -25,10 +25,10 @@ function Explore() {
   const { data } = useSuspenseQuery(streamsQuery);
   return (
     <AppShell title="Explore" sourceLabel="Official viewing sources">
-      <Section title="Watch">
+      <div className="min-w-0 space-y-8">
         <WatchCatalog videos={catalog.videos} checkedAt={catalog.checkedAt} />
         <WatchStreams {...data} />
-      </Section>
+      </div>
     </AppShell>
   );
 }

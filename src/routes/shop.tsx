@@ -47,10 +47,10 @@ function Shop() {
       <div className="border-b pb-5">
         <p className="text-lg text-muted-foreground">For the game. For the team. For Ontario volleyball.</p>
       </div>
-      <div role="group" aria-label="Product category" className="flex flex-wrap gap-2">
-        <Button variant={category === 'all' ? 'default' : 'outline'} aria-pressed={category === 'all'} onClick={() => setCategory('all')}>Show all</Button>
+      <div role="group" aria-label="Product category" className="shop-categories flex flex-nowrap gap-2 overflow-x-auto">
+        <Button className="shrink-0" variant={category === 'all' ? 'default' : 'outline'} aria-pressed={category === 'all'} onClick={() => setCategory('all')}>Show all</Button>
         {CATEGORIES.map(c => (
-          <Button key={c} variant={c === category ? 'default' : 'outline'} aria-pressed={c === category} onClick={() => setCategory(c)}>{c}</Button>
+          <Button key={c} className="shrink-0" variant={c === category ? 'default' : 'outline'} aria-pressed={c === category} onClick={() => setCategory(c)}>{c}</Button>
         ))}
       </div>
       {category === 'all' ? (
