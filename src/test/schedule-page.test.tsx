@@ -34,7 +34,7 @@ vi.mock("@/hooks/use-role", async () => {
       role: mocks.family ? "family_friends" : "general_user",
       ready: true,
       household: useQuery({
-        queryKey: ["household"],
+        queryKey: ["household", mocks.family ? "parent" : "test-user"],
         queryFn: async () => ({ ...parentHousehold(), follows: [...mocks.follows] }),
       }),
     }),
@@ -48,7 +48,7 @@ vi.mock("@/lib/queries", () => ({
     },
   },
   myHouseholdQuery: () => ({
-    queryKey: ["household"],
+    queryKey: ["household", mocks.family ? "parent" : "test-user"],
     queryFn: async () => ({ follows: [...mocks.follows] }),
   }),
 }));
@@ -105,7 +105,10 @@ it("filters both upcoming matches and calendar dates by either starred team or d
       },
     ],
   });
-  client.setQueryData(["household"], { ...parentHousehold(), follows: [] });
+  client.setQueryData(["household", mocks.family ? "parent" : "test-user"], {
+    ...parentHousehold(),
+    follows: [],
+  });
   render(
     <QueryClientProvider client={client}>
       <Schedule />
@@ -176,7 +179,7 @@ it("defaults the real Schedule page to the approved second child's team and perm
       },
     ],
   });
-  client.setQueryData(["household"], parentHousehold());
+  client.setQueryData(["household", mocks.family ? "parent" : "test-user"], parentHousehold());
   render(
     <QueryClientProvider client={client}>
       <Schedule />

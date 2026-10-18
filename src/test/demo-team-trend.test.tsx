@@ -54,8 +54,8 @@ it("keeps Alex on demo-sand and cannot borrow unrelated real or Demo final score
   const original = structuredClone(data);
   render(<DemoTeamTrend data={data} />);
   expect(screen.getByRole("heading", { name: "Alex · Sand & Sky" })).toBeInTheDocument();
-  expect(screen.getByText("0 completed matches · 1 scheduled records")).toBeInTheDocument();
-  expect(screen.getByText(/4 existing fixture matches/)).toBeInTheDocument();
+  expect(screen.getByText("Demo", { exact: true })).toBeInTheDocument();
+  expect(screen.queryByText(/completed matches|scheduled records|4 existing fixture matches|Demo only\./)).not.toBeInTheDocument();
   expect(
     screen.getByRole("img", {
       name: "Cumulative match win rate by displayed record: 100%, 50%, 67%, 75%",
@@ -79,7 +79,7 @@ it("uses stored synthetic finals instead of appending fixtures and keeps sources
   } as unknown as CompetitionData;
   const original = structuredClone(data);
   render(<DemoTeamTrend data={data} />);
-  expect(screen.getByText("1 completed matches · 0 scheduled records")).toBeInTheDocument();
+  expect(screen.getByText("Demo", { exact: true })).toBeInTheDocument();
   expect(
     screen.getByRole("img", {
       name: "Cumulative match win rate by displayed record: 0%",

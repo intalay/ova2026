@@ -258,3 +258,17 @@ describe("ten-at-a-time starred targets", () => {
     expect([...followed]).toEqual(["team:unavailable", "division:removed"]);
   });
 });
+
+it("retains loaded stars and cannot toggle while persistence is unavailable", () => {
+  const { onToggle, rerender, props } = fixture({
+    disabled: true,
+    followed: new Set(["team:t-0"]),
+  });
+  expect(rows()[0]).toHaveAttribute("aria-pressed", "true");
+  expect(rows().every((row) => row.hasAttribute("disabled"))).toBe(true);
+  fireEvent.click(rows()[0]!);
+  expect(onToggle).not.toHaveBeenCalled();
+  rerender(<StarredTargetsPicker {...props} disabled={false} />);
+  expect(rows()[0]).toBeEnabled();
+  expect(rows()[0]).toHaveAttribute("aria-pressed", "true");
+});

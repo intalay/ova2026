@@ -9,6 +9,9 @@ import type { BrowseSearch } from "@/lib/parent-context";
 const mocks = vi.hoisted(() => ({
   user: null as { id: string } | null,
   role: "general_user" as string,
+  ready: true,
+  householdPending: false,
+  householdError: false,
   household: undefined as Household | undefined,
   search: {} as Record<string, unknown>,
   navigate: vi.fn(),
@@ -38,8 +41,12 @@ vi.mock("@/hooks/use-role", () => ({
   useRole: () => ({
     user: mocks.user,
     role: mocks.role,
-    ready: true,
-    household: { data: mocks.household, isPending: false, isError: false },
+    ready: mocks.ready,
+    household: {
+      data: mocks.household,
+      isPending: mocks.householdPending,
+      isError: mocks.householdError,
+    },
   }),
 }));
 vi.mock("@/components/AppShell", () => ({
@@ -120,6 +127,9 @@ beforeEach(() => {
   vi.setSystemTime(new Date("2026-10-18T04:00:00Z"));
   mocks.user = null;
   mocks.role = "general_user";
+  mocks.ready = true;
+  mocks.householdPending = false;
+  mocks.householdError = false;
   mocks.household = undefined;
   mocks.search = {};
   vi.clearAllMocks();
@@ -275,5 +285,23 @@ it.each([{ team_b_id: null }, { venue_id: null }, { starts_at: null }])(
     expect(cards).toHaveLength(2);
     expect(cards[0]).not.toHaveClass("match-pending");
     expect(cards[1]).toHaveClass("match-pending");
+  },
+);
+
+it.each(["auth", "household", "error"])(
+  "blocks star persistence until %s data is trustworthy",
+  (stage) => {
+    mocks.ready = stage !== "auth";
+    mocks.user = stage === "auth" ? null : { id: "account-A" };
+    mocks.householdPending = stage === "household";
+    mocks.householdError = stage === "error";
+    localStorage.setItem("ova-guest-stars", JSON.stringify(["team:team-a"]));
+    mount([]);
+    fireEvent.click(screen.getByRole("button", { name: "Starred Team" }));
+    const rows = within(screen.getByRole("list", { name: "Star teams" })).getAllByRole("button");
+    expect(rows.every((row) => row.hasAttribute("disabled"))).toBe(true);
+    fireEvent.click(rows[0]!);
+    expect(mocks.mutate).not.toHaveBeenCalled();
+    expect(localStorage.getItem("ova-guest-stars")).toBe(JSON.stringify(["team:team-a"]));
   },
 );
