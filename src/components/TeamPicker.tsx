@@ -140,7 +140,9 @@ export function TeamPicker({
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <div className={compact && !value ? "sr-only" : "flex min-w-0 items-start justify-between gap-3"}>
+      <div
+        className={compact && !value ? "sr-only" : "flex min-w-0 items-start justify-between gap-3"}
+      >
         <div className={compact ? "sr-only" : "min-w-0 flex-1"}>
           <p className="text-sm font-semibold text-muted-foreground">Browse team</p>
           <p className="mt-1 break-words text-lg font-semibold [overflow-wrap:anywhere]">
@@ -205,10 +207,7 @@ export function TeamPicker({
                 setOpen(false);
                 setActive(-1);
               }
-              if (
-                (event.key === "ArrowDown" || event.key === "ArrowUp") &&
-                visible.length
-              ) {
+              if ((event.key === "ArrowDown" || event.key === "ArrowUp") && visible.length) {
                 event.preventDefault();
                 setOpen(true);
                 setActive((current) =>
@@ -319,10 +318,10 @@ export function TeamPicker({
           : error
             ? "Teams could not be loaded. Please try again."
             : !expanded
-                ? "Search closed. Focus the search field to continue."
-                : matches.length
-                  ? `${matches.length} ${matches.length === 1 ? "result" : "results"} · Showing ${pageIndex * PAGE_SIZE + 1}–${pageIndex * PAGE_SIZE + visible.length}`
-                  : "No teams found. Try another name or clear the filters."}
+              ? "Search closed. Focus the search field to continue."
+              : matches.length
+                ? `${matches.length} ${matches.length === 1 ? "result" : "results"} · Showing ${pageIndex * PAGE_SIZE + 1}–${pageIndex * PAGE_SIZE + visible.length}`
+                : "No teams found. Try another name or clear the filters."}
       </p>
       {error && onRetry && (
         <Button type="button" variant="outline" onClick={onRetry}>
