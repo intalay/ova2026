@@ -79,12 +79,16 @@ export const Route = createFileRoute("/results")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  loader: ({ context }) =>
-    Promise.all([
+  // Loader data is serialized into the SSR payload, so the browser's first render
+  // starts from exactly the same public results page and filter options as the server.
+  loader: async ({ context }) => {
+    const [, page, filters] = await Promise.all([
       context.queryClient.ensureQueryData(competitionQuery),
-      context.queryClient.ensureQueryData(pageQuery(initialSelection)).catch(() => undefined),
-      context.queryClient.ensureQueryData(filtersQuery("all")).catch(() => undefined),
-    ]),
+      context.queryClient.ensureQueryData(pageQuery(initialSelection)).catch(() => null),
+      context.queryClient.ensureQueryData(filtersQuery("all")).catch(() => null),
+    ]);
+    return { page, filters };
+  },
   component: Results,
 });
 
@@ -107,14 +111,26 @@ function Results() {
   const [expanded, setExpanded] = useState(false);
   const [months, setMonths] = useState(3);
   const [selection, setSelection] = useState(initialSelection);
+  const loaded = Route.useLoaderData();
   const changeFilters = (patch: Partial<Omit<ResultsSelection, "page">>) =>
     setSelection((current) => ({ ...current, ...patch, page: 1 }));
   const validDateRange =
     !selection.dateFrom || !selection.dateTo || selection.dateFrom <= selection.dateTo;
-  const results = useQuery({ ...pageQuery(selection), enabled: validDateRange });
-  const filters = useQuery(filtersQuery(selection.dataMode));
+  const results = useQuery({
+    ...pageQuery(selection),
+    enabled: validDateRange,
+    initialData: () => (selection === initialSelection ? (loaded.page ?? undefined) : undefined),
+  });
+  const filters = useQuery({
+    ...filtersQuery(selection.dataMode),
+    initialData: () => (selection.dataMode === "all" ? (loaded.filters ?? undefined) : undefined),
+  });
   // Household history has its own source lookup and query; public filters never change it.
-  const householdFilters = useQuery({ ...filtersQuery("all"), enabled: !!team });
+  const householdFilters = useQuery({
+    ...filtersQuery("all"),
+    enabled: !!team,
+    initialData: () => loaded.filters ?? undefined,
+  });
   const teamRecord = householdFilters.data?.teams.find((t) => t.id === team);
   const teamMode = teamRecord?.data_mode;
   const history = useQuery({
