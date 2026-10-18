@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
@@ -32,7 +32,9 @@ function Schedule() {
   const { user } = useSessionUser();
   const hh = useQuery(myHouseholdQuery(user?.id));
   const qc = useQueryClient();
-  const followed = new Set((hh.data?.follows ?? []).map((f) => `${f.target_type}:${f.target_id}`));
+  const [guestStars, setGuestStars] = useState<string[]>([]);
+  useEffect(() => { try { setGuestStars(JSON.parse(localStorage.getItem("ova-guest-stars") ?? "[]")); } catch { /* ignore */ } }, []);
+  const followed = new Set(user ? (hh.data?.follows ?? []).map((f) => `${f.target_type}:${f.target_id}`) : guestStars);
   const [filter, setFilter] = useState<"all" | "following">("all");
   const [monthIndex, setMonthIndex] = useState(0);
   const months = calendarMonths();
@@ -50,7 +52,13 @@ function Schedule() {
   const list = selected ? visible.filter((m) => (m.starts_at ? dayKey(m.starts_at) : m.source_date) === selected) : visible.filter(m => (m.starts_at ? dayKey(m.starts_at) : m.source_date)?.startsWith(monthPrefix) || (!m.starts_at && !m.source_date));
 
   async function toggleFollow(type: "team" | "division", id: string) {
-    if (!user) return;
+    if (!user) {
+      const k = `${type}:${id}`;
+      const next = guestStars.includes(k) ? guestStars.filter((x) => x !== k) : [...guestStars, k];
+      setGuestStars(next);
+      try { localStorage.setItem("ova-guest-stars", JSON.stringify(next)); } catch { /* ignore */ }
+      return;
+    }
     if (followed.has(`${type}:${id}`)) await supabase.from("follows").delete().eq("user_id", user.id).eq("target_type", type).eq("target_id", id);
     else await supabase.from("follows").insert({ user_id: user.id, target_type: type, target_id: id });
     qc.invalidateQueries({ queryKey: ["household"] });
@@ -60,14 +68,13 @@ function Schedule() {
     <AppShell title="Schedule">
       <div role="group" aria-label="Show matches" className="flex gap-2">
         {(["all", "following"] as const).map((f) => (
-          <Button key={f} aria-pressed={filter === f} aria-controls={f === "following" ? "starred-team-filters" : undefined} onClick={() => { setFilter(f); setSelected(null); }} className={filter === f ? btn.primary : btn.secondary} disabled={f === "following" && !user}>
+          <Button key={f} aria-pressed={filter === f} aria-controls={f === "following" ? "starred-team-filters" : undefined} onClick={() => { setFilter(f); setSelected(null); }} className={filter === f ? btn.primary : btn.secondary}>
             {f === "all" ? "All matches" : "Starred Team"}
           </Button>
         ))}
       </div>
-      {!user && <p className="text-base text-muted-foreground">Sign in on Account to follow teams and divisions.</p>}
 
-      {user && filter === "following" && (
+      {filter === "following" && (
         <div id="starred-team-filters" role="group" aria-label="Starred teams and divisions" className="space-y-4">
           {(["team", "division"] as const).map((type) => (
             <div key={type}>
