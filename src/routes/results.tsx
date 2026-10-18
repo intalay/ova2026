@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ChartNoAxesCombined } from "lucide-react";
 import {
   CartesianGrid,
@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { AppShell, Section, Card, btn, Tbd } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
 import {
@@ -113,6 +114,15 @@ function Results() {
   const [teamChosen, setTeamChosen] = useState(false);
   const [eventChosen, setEventChosen] = useState(false);
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [activeSearchIndex, setActiveSearchIndex] = useState(0);
+  const searchInput = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (searchOpen)
+      document
+        .getElementById(`team-search-option-${activeSearchIndex}`)
+        ?.scrollIntoView?.({ block: "nearest" });
+  }, [activeSearchIndex, searchOpen]);
   const [expanded, setExpanded] = useState(developmentPreview);
   const [metric, setMetric] = useState<"match" | "set">("match");
   const filters = useQuery({
@@ -263,36 +273,149 @@ function Results() {
       (sameEntryLabels?.length ?? 0) > 1 && !eventNames?.length ? ` [${option.id.slice(-6)}]` : "";
     return `${option.name}${suffix}${context.length ? ` · ${context.join(" · ")}` : ""} · ${sourceLabel(option.data_mode)}`;
   };
+  const searchWords = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const matchingTeams = (availableTeams ?? []).filter((option) => {
+    const label = teamOptionLabel(option).toLowerCase();
+    return searchWords.every((word) => label.includes(word));
+  });
+  const chooseSearchTeam = (teamId: string) => {
+    chooseTeam(teamId);
+    setSearch(availableTeams?.find((option) => option.id === teamId)?.name ?? "");
+    setSearchOpen(false);
+  };
   const publicLoading = results.isPending || filters.isPending || waitingForEvent;
   const publicError = results.isError || filters.isError;
 
   return (
     <AppShell title="Results" sourceLabel="Sources labeled per result">
       <Section title="Browse results">
-        <label className="block font-semibold">
-          Search teams
-          <input
-            type="search"
-            className={btn.input}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Team, division or event"
-          />
-        </label>
+        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+          <PopoverAnchor asChild>
+            <div>
+              <label className="block font-semibold">
+                Search teams
+                <input
+                  ref={searchInput}
+                  type="search"
+                  role="combobox"
+                  aria-autocomplete="list"
+                  aria-expanded={searchOpen}
+                  aria-controls={searchOpen ? "team-search-options" : undefined}
+                  aria-activedescendant={
+                    searchOpen && matchingTeams[activeSearchIndex]
+                      ? `team-search-option-${activeSearchIndex}`
+                      : undefined
+                  }
+                  className={btn.input}
+                  value={search}
+                  onFocus={() => {
+                    if (search.trim()) setSearchOpen(true);
+                  }}
+                  onChange={(event) => {
+                    setSearch(event.target.value);
+                    setActiveSearchIndex(0);
+                    setSearchOpen(!!event.target.value.trim());
+                  }}
+                  placeholder="Team, division or event"
+                  onKeyDown={(event) => {
+                    if (event.nativeEvent.isComposing) return;
+                    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                      event.preventDefault();
+                      if (!search.trim()) return;
+                      setSearchOpen(true);
+                      setActiveSearchIndex((current) =>
+                        !searchOpen
+                          ? 0
+                          : (current +
+                              (event.key === "ArrowDown" ? 1 : -1) +
+                              Math.max(matchingTeams.length, 1)) %
+                            Math.max(matchingTeams.length, 1),
+                      );
+                    }
+                    if (event.key === "Enter" && searchOpen && matchingTeams[activeSearchIndex]) {
+                      event.preventDefault();
+                      chooseSearchTeam(matchingTeams[activeSearchIndex].id);
+                    }
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      setSearchOpen(false);
+                    }
+                    if (event.key === "Tab") setSearchOpen(false);
+                  }}
+                />
+              </label>
+              {searchOpen && (
+                <p className="mt-1 text-sm" role="status">
+                  Choose a search result to change teams. Results below still show{" "}
+                  {teamRecord?.name ?? "all teams"}.
+                </p>
+              )}
+            </div>
+          </PopoverAnchor>
+          <PopoverContent
+            id="team-search-options"
+            role="listbox"
+            aria-label="Matching teams"
+            align="start"
+            side="bottom"
+            className="z-[100] max-h-[min(24rem,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-[min(20rem,calc(100vw-2rem))] overflow-y-auto border border-black/20 bg-white p-1 text-black shadow-xl"
+            style={{ width: "var(--radix-popper-anchor-width)" }}
+            onOpenAutoFocus={(event) => event.preventDefault()}
+            onCloseAutoFocus={(event) => event.preventDefault()}
+            onInteractOutside={(event) => {
+              if (event.target === searchInput.current) event.preventDefault();
+            }}
+          >
+            <p role="status" className="px-3 py-2 text-sm text-black/70">
+              {filters.isPending
+                ? "Loading teams…"
+                : filters.isError
+                  ? "Teams could not be loaded. Try again below."
+                  : matchingTeams.length
+                    ? `${matchingTeams.length} ${matchingTeams.length === 1 ? "team matches" : "teams match"}. Use ↑ ↓ and Enter, or click a team.`
+                    : "No teams match this search in the selected results source. Try a team name, division or event, or change Results source."}
+            </p>
+            {matchingTeams.map((option, index) => (
+              <button
+                key={option.id}
+                id={`team-search-option-${index}`}
+                type="button"
+                role="option"
+                aria-selected={option.id === team}
+                className={`block w-full rounded-sm px-3 py-3 text-left hover:bg-black/5 focus:bg-black/5 ${index === activeSearchIndex ? "bg-black/5" : ""}`}
+                onPointerDown={(event) => event.preventDefault()}
+                onMouseMove={() => setActiveSearchIndex(index)}
+                onClick={() => chooseSearchTeam(option.id)}
+              >
+                <span className="block font-semibold">{option.name}</span>
+                <span className="mt-1 block text-sm text-black/60">
+                  {teamOptionLabel(option).slice(option.name.length).replace(/^ · /, "")}
+                </span>
+              </button>
+            ))}
+          </PopoverContent>
+        </Popover>
         <label className="block font-semibold">
           Browse team
           <select
             className={btn.input}
             value={team}
             disabled={!filters.data || filters.isError}
-            onChange={(event) => chooseTeam(event.target.value)}
+            onChange={(event) => {
+              chooseTeam(event.target.value);
+              setSearch(
+                availableTeams?.find((option) => option.id === event.target.value)?.name ?? "",
+              );
+              setSearchOpen(false);
+            }}
           >
             <option value="">All teams · public historical results</option>
             {availableTeams
               ?.filter(
                 (option) =>
                   option.id === team ||
-                  teamOptionLabel(option).toLowerCase().includes(search.toLowerCase()),
+                  !searchOpen ||
+                  matchingTeams.some((match) => match.id === option.id),
               )
               .map((option) => (
                 <option key={option.id} value={option.id}>
