@@ -536,7 +536,7 @@ body, body * { font-weight: 500 !important; }
   .lottery-page .lotto-stage ul { grid-template-columns: repeat(5, minmax(5.75rem, 1fr)); overflow-x: auto; scroll-snap-type: x proximity; padding-inline: .25rem; }
   .lottery-page .lotto-stage li { scroll-snap-align: center; }
   .lottery-page .golden-ticket > span:first-child { font-size: .75rem; min-height: 2.25rem; overflow-wrap: normal; }
-  .lottery-page .golden-ticket { height: 10.5rem; padding-block: .75rem; }
+  .lottery-page .golden-ticket { height: 12rem; padding-block: .75rem; }
   .lottery-page .lottery-quantity { font-size: 1.5rem; }
   .lottery-page .lottery-price { font-size: 1rem; }
   .lottery-page .lottery-ticket-label { font-size: .75rem; }
