@@ -11,7 +11,11 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@tanstack/react-router", () => ({
-  createFileRoute: () => (options: { component: ComponentType }) => ({ options }),
+  // Loader prefetch is absent in unit tests, so the page starts from its query mocks.
+  createFileRoute: () => (options: { component: ComponentType }) => ({
+    options,
+    useLoaderData: () => ({ page: null, filters: null }),
+  }),
   Link: ({ children }: { children: ReactNode }) => <span>{children}</span>,
 }));
 vi.mock("@/components/AppShell", () => ({
