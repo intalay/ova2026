@@ -92,7 +92,7 @@ function Schedule() {
                 <li key={`${x.type}${x.id}`}>
                   <Button aria-pressed={on} variant="outline" onClick={() => toggleFollow(x.type, x.id)} className="flex min-h-12 w-full items-center justify-between rounded-lg border-2 bg-card px-4 text-left text-lg text-foreground">
                     <span><span className="mr-2 text-sm font-semibold uppercase text-muted-foreground">{x.type}</span><span className="font-semibold">{x.name}</span></span>
-                    <Star aria-hidden className={on ? "fill-accent text-accent" : "text-muted-foreground"} />
+                    <Star aria-hidden className={on ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"} />
                   </Button>
                 </li>
               );
