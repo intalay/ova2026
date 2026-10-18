@@ -15,7 +15,7 @@ import { AppShell, Section, Card, btn, Tbd } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
-import { resultStats, RESULTS_PAGE_SIZE } from "@/lib/results";
+import { resultStats, cumulativeWinTrend, RESULTS_PAGE_SIZE } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
 import { formatDate, formatDateMDY, formatDateTime, formatMonthDay } from "@/lib/format";
 import { AMANDA_PREVIEW_TEAM, amandaPreviewMatches, previewOpponentName } from "@/lib/amanda-results-preview";
@@ -33,7 +33,7 @@ type ResultsSelection = {
 const initialSelection: ResultsSelection = {
   page: 1,
   period: "recent",
-  dataMode: "all",
+  dataMode: "real",
   eventId: "",
   teamId: "",
   dateFrom: "",
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/results")({
     const [, page, filters] = await Promise.all([
       context.queryClient.ensureQueryData(competitionQuery),
       context.queryClient.ensureQueryData(pageQuery(initialSelection)).catch(() => null),
-      context.queryClient.ensureQueryData(filtersQuery("all")).catch(() => null),
+      context.queryClient.ensureQueryData(filtersQuery("real")).catch(() => null),
     ]);
     return { page, filters };
   },
@@ -98,6 +98,7 @@ function Results() {
   const { role, household } = useRole();
   const hh = household.data;
   const developmentPreview = import.meta.env.DEV && import.meta.env.MODE !== "test";
+  const [analysisMode, setAnalysisMode] = useState<"real" | "synthetic">("real");
   const teamIds =
     role === "coach"
       ? (hh?.managedTeams ?? [])
@@ -112,13 +113,14 @@ function Results() {
   const loaded = Route.useLoaderData();
   // Public history can be inspected without creating account associations.
   const householdFilters = useQuery({
-    ...filtersQuery("all"),
-    initialData: () => loaded.filters ?? undefined,
+    ...filtersQuery(analysisMode),
+    initialData: () => analysisMode === "real" ? loaded.filters ?? undefined : undefined,
   });
-  const defaultTeams = teamIds.length ? teamIds : developmentPreview ? [AMANDA_PREVIEW_TEAM.id] : [];
+  const defaultTeams = teamIds.filter(id => householdFilters.data?.teams.some(t => t.id === id && t.data_mode === analysisMode));
   const selectableTeams = [...new Set([
     ...defaultTeams,
-    ...(householdFilters.data?.teams.filter((t) => t.data_mode === "real").map((t) => t.id) ?? []),
+    ...(analysisMode === "synthetic" && developmentPreview ? [AMANDA_PREVIEW_TEAM.id] : []),
+    ...(householdFilters.data?.teams.filter((t) => t.data_mode === analysisMode).map((t) => t.id) ?? []),
   ])];
   const team = selectableTeams.includes(chosen) ? chosen : selectableTeams[0];
   const [expanded, setExpanded] = useState(developmentPreview);
@@ -135,7 +137,7 @@ function Results() {
   });
   const filters = useQuery({
     ...filtersQuery(selection.dataMode),
-    initialData: () => (selection.dataMode === "all" ? (loaded.filters ?? undefined) : undefined),
+    initialData: () => (selection.dataMode === "real" ? (loaded.filters ?? undefined) : undefined),
   });
   // Household history has its own source lookup and query; public filters never change it.
   const teamRecord = householdFilters.data?.teams.find((t) => t.id === team);
@@ -150,7 +152,7 @@ function Results() {
     },
   });
   // Local fixtures only fill an empty synthetic team; never replace real history or a failed read.
-  const simulatedTeam = developmentPreview && team === AMANDA_PREVIEW_TEAM.id &&
+  const simulatedTeam = analysisMode === "synthetic" && developmentPreview && team === AMANDA_PREVIEW_TEAM.id &&
     householdFilters.isSuccess && (!teamRecord || (teamMode === "synthetic" && history.isSuccess && !history.data.matches.length));
   const teamLoading = householdFilters.isPending || (!simulatedTeam && history.isPending);
   const teamError =
@@ -169,13 +171,10 @@ function Results() {
   const stats =
     team && !teamLoading && !teamError ? resultStats(finals as unknown as Match[], team) : null;
   const start = new Date();
-  start.setMonth(start.getMonth() - months);
-  const chronological = [...finals].reverse();
-  const winTrend = chronological.map((match, index) => ({
-    date: formatMonthDay(match.source_date),
-    winRate: resultStats(chronological.slice(0, index + 1) as Match[], team ?? "").winRate,
-    sourceDate: match.source_date,
-  })).filter((point) => point.sourceDate && new Date(point.sourceDate) >= start);
+  start.setUTCMonth(start.getUTCMonth() - months);
+  const winTrend = cumulativeWinTrend(finals as Match[], team ?? "")
+    .filter(point => months === 0 || new Date(point.sourceDate) >= start)
+    .map(point => ({ ...point, date: formatMonthDay(point.sourceDate) }));
   const placement = (history.data?.rankings ?? [])
     .filter((r) => r.team_id === team && r.final_confirmed && r.data_mode === teamMode)
     .map((r) => ({
@@ -184,7 +183,7 @@ function Results() {
       rank: r.rank,
       field: r.field_size,
     }))
-    .filter((r) => r.date && new Date(r.date) >= start)
+    .filter((r) => r.date && (months === 0 || new Date(r.date) >= start))
     .sort((a, b) => a.date.localeCompare(b.date));
   const totalPages = Math.ceil((results.data?.total ?? 0) / RESULTS_PAGE_SIZE);
   const publicLookup = filters.data
@@ -211,8 +210,15 @@ function Results() {
 
   return (
     <AppShell title="Results" sourceLabel="Sources labeled per result">
-      {team && (role !== "general_user" || developmentPreview) && (
+      {(
         <Section title="Your team">
+          <label className="block font-semibold">
+            Analysis source
+            <select className={btn.input} value={analysisMode} onChange={e => { setAnalysisMode(e.target.value as "real" | "synthetic"); setChosen(""); }}>
+              <option value="real">Real source</option>
+              <option value="synthetic">Demo · Synthetic only</option>
+            </select>
+          </label>
           <label className="block font-semibold">
             Team
             <select className={btn.input} value={team} onChange={(e) => setChosen(e.target.value)}>
@@ -243,7 +249,7 @@ function Results() {
             <p role="status">Loading complete team history…</p>
           ) : (
             <>
-              {stats && (
+              {stats && stats.played > 0 && (
                 <div className="results-stats grid grid-cols-2">
                   {[
                     ["Wins", stats.wins],
@@ -260,6 +266,7 @@ function Results() {
                   ))}
                 </div>
               )}
+              {stats && stats.played === 0 && <p>No decided match scores are available for statistics.</p>}
               <p className="text-sm text-muted-foreground">
                 {simulatedTeam ? "Synthetic preview · Not saved. " : ""}
                 {sourceLabel(displayMode ?? "")} · {simulatedTeam ? "Simulated final matches" : "All recorded final matches"} for this team from the
@@ -327,6 +334,7 @@ function Results() {
                   value={months}
                   onChange={(e) => setMonths(Number(e.target.value))}
                 >
+                  <option value={0}>All recorded dates</option>
                   {Array.from({ length: 11 }, (_, i) => i + 2).map((m) => (
                     <option key={m} value={m}>
                       Last {m} months
@@ -337,6 +345,7 @@ function Results() {
               {!teamLoading && !teamError && winTrend.length > 0 && (
                 <>
                   <p>Cumulative win rate{simulatedTeam ? " · Simulated" : ""}</p>
+                  {winTrend.length === 1 && <p>{winTrend[0]?.date} · {winTrend[0]?.winRate}%</p>}
                   <div className="h-64 min-w-0" role="img" aria-label={`Cumulative win rate: ${winTrend.map((point) => point.winRate === null ? "TBD" : `${point.winRate}%`).join(", ")}`}>
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={winTrend} margin={{ top: 12, right: 20, bottom: 8, left: 0 }}>
@@ -344,12 +353,13 @@ function Results() {
                         <XAxis dataKey="date" stroke="var(--muted-foreground)" />
                         <YAxis domain={[0, 100]} unit="%" width={48} stroke="var(--muted-foreground)" />
                         <Tooltip formatter={(value) => [`${value}%`, "Win rate"]} />
-                        <Line dataKey="winRate" stroke="var(--chart-1)" strokeWidth={3} isAnimationActive={false} />
+                        <Line dataKey="winRate" stroke="var(--chart-1)" strokeWidth={3} dot={{ r: 4 }} isAnimationActive={false} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </>
               )}
+              {!teamLoading && !teamError && !winTrend.length && <p>No dated, decided results in this period. No win-rate data available.</p>}
               {teamError ? (
                 <p>Complete team history is unavailable. Retry team history to view placements.</p>
               ) : teamLoading ? (
@@ -414,9 +424,8 @@ function Results() {
                 changeFilters({ dataMode: e.target.value as DataMode, eventId: "", teamId: "" })
               }
             >
-              <option value="all">All sources · labeled separately</option>
               <option value="real">Real source</option>
-              <option value="synthetic">Synthetic demo</option>
+              <option value="synthetic">Demo · Synthetic only</option>
             </select>
           </label>
           <label className="block font-semibold">
