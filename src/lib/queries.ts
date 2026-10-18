@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { approvedFamilyPlayerIds } from './account';
+import { readAllPages } from './paged-read';
 
 export type Match = {
   id: string; event_id: string; division_id: string; team_a_id: string; team_b_id: string | null;
@@ -8,24 +9,20 @@ export type Match = {
   status: string; score_a: number | null; score_b: number | null; sets: { a: number; b: number }[] | null; data_mode: string;
 };
 
-async function fetchCompetition() {
+export async function fetchCompetition(client = supabase) {
     const [teams, divisions, events, venues, matches, rankings, announcements] = await Promise.all([
-      supabase.from("teams").select("*").order("name"),
-      supabase.from("divisions").select("*").order("name"),
-      supabase.from("events").select("*"),
-      supabase.from("venues").select("*"),
-      supabase.from("matches").select("*").order("starts_at", { ascending: true, nullsFirst: false }),
-      supabase.from("rankings").select("*"),
-      supabase.from("announcements").select("*").eq("status", "published").order("published_at", { ascending: false }),
+      readAllPages((from, to) => client.from("teams").select("*", { count: "exact" }).order("name").order("id").range(from, to), "Competition teams"),
+      readAllPages((from, to) => client.from("divisions").select("*", { count: "exact" }).order("name").order("id").range(from, to), "Competition divisions"),
+      readAllPages((from, to) => client.from("events").select("*", { count: "exact" }).order("id").range(from, to), "Competition events"),
+      readAllPages((from, to) => client.from("venues").select("*", { count: "exact" }).order("id").range(from, to), "Competition venues"),
+      readAllPages((from, to) => client.from("matches").select("*", { count: "exact" }).order("starts_at", { ascending: true, nullsFirst: false }).order("id").range(from, to), "Competition matches"),
+      readAllPages((from, to) => client.from("rankings").select("*", { count: "exact" }).order("id").range(from, to), "Competition rankings"),
+      readAllPages((from, to) => client.from("announcements").select("*", { count: "exact" }).eq("status", "published").order("published_at", { ascending: false }).order("id").range(from, to), "Competition announcements"),
     ]);
-    for (const r of [teams, divisions, events, venues, matches, rankings, announcements]) if (r.error) throw r.error;
-    return {
-      teams: teams.data ?? [], divisions: divisions.data ?? [], events: events.data ?? [], venues: venues.data ?? [],
-      matches: (matches.data ?? []) as unknown as Match[], rankings: rankings.data ?? [], announcements: announcements.data ?? [],
-    };
+    return { teams, divisions, events, venues, matches: matches as unknown as Match[], rankings, announcements };
 }
 export type CompetitionData = Awaited<ReturnType<typeof fetchCompetition>>;
-export const competitionQuery = queryOptions({ queryKey: ["competition"], queryFn: fetchCompetition });
+export const competitionQuery = queryOptions({ queryKey: ["competition"], queryFn: () => fetchCompetition() });
 
 export const venueQuery = (id: string) => queryOptions({
   queryKey: ["venue", id],
