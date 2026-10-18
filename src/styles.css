@@ -436,6 +436,7 @@ body, body * { font-weight: 500 !important; }
 .coach-invert .home-unknown { color: color-mix(in oklab, var(--teal) 45%, var(--paper-base)); }
 .coach-invert .home-content .announcement-carousel .text-primary, .coach-invert .home-content .home-venue .text-primary { color: var(--coach-green-ink); }
 .coach-invert .home-content .announcement-carousel .bg-secondary .text-primary { color: var(--ink-base); }
+.coach-invert .home-content .announcement-carousel .announcement-panel { color: var(--ink-base); --muted-foreground: color-mix(in oklab, var(--ink-base) 70%, var(--paper-base)); }
 .coach-invert .home-result-score { color: var(--coach-green-ink); }
 .coach-invert .home-content .home-lottery { --court-foreground: var(--paper-base); }
 
