@@ -368,6 +368,7 @@ function Results() {
             aria-label="Matching teams"
             align="start"
             side="bottom"
+            avoidCollisions={false}
             className="z-[100] max-h-[min(24rem,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-[min(20rem,calc(100vw-2rem))] overflow-y-auto border border-black/20 bg-white p-1 text-black shadow-xl"
             style={{ width: "var(--radix-popper-anchor-width)" }}
             onOpenAutoFocus={(event) => event.preventDefault()}
