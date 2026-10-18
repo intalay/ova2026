@@ -444,6 +444,23 @@ body, body * { font-weight: 500 !important; }
 .coach-invert .home-result-score { color: var(--coach-green-ink); }
 .coach-invert .home-content .home-lottery { --court-foreground: var(--paper-base); }
 
+/* Player homepage: brand-green stage with white info cards, isolated under the role-gated wrapper */
+.player-green {
+  --home-background: var(--logo-green);
+  --home-glass: var(--paper-base);
+  --home-glass-border: color-mix(in oklab, var(--ink-base) 14%, transparent);
+  --home-shadow: 0 2px 4px color-mix(in oklab, var(--ink-base) 8%, transparent), 0 10px 28px color-mix(in oklab, var(--ink-base) 16%, transparent);
+  --home-shadow-pressed: 0 2px 8px color-mix(in oklab, var(--ink-base) 22%, transparent);
+  /* Announcement/venue/results keep a very dark green-black stage; accents stay brand green. */
+  --home-feature-gradient: linear-gradient(120deg, var(--ink-base) 30%, color-mix(in oklab, var(--ink-base) 84%, var(--logo-green)));
+  --home-results-gradient: linear-gradient(135deg, var(--ink-base) 35%, color-mix(in oklab, var(--ink-base) 82%, var(--logo-green)));
+  --pending-foreground: var(--ink-base); /* data-source dot: brown → black */
+}
+.player-green .page-source { color: color-mix(in oklab, var(--ink-base) 75%, transparent); }
+.player-green .home-content p.border-y { color: var(--ink-base); border-color: color-mix(in oklab, var(--ink-base) 30%, transparent); }
+.player-green .announcement-carousel [aria-hidden] .bg-muted-foreground { background: color-mix(in oklab, var(--paper-base) 55%, transparent); }
+
+
 
 /* Native mobile proportions: sizing only; retain desktop and specialized palettes. */
 :root {
