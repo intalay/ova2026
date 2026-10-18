@@ -14,7 +14,7 @@ vi.mock("@/components/AppShell", () => ({
 vi.mock("@/components/MatchCard", () => ({ MatchCard: ({ m }: { m: { id: string } }) => <div data-testid="match">{m.id}</div> }));
 vi.mock("@/hooks/use-session", () => ({ useSessionUser: () => ({ user: { id: "test-user" } }) }));
 vi.mock("@/lib/queries", () => ({
-  competitionQuery: { queryKey: ["competition"] },
+  competitionQuery: { queryKey: ["competition"], queryFn: async () => { throw new Error("Competition must be seeded in the test cache"); } },
   myHouseholdQuery: () => ({ queryKey: ["household"], queryFn: async () => ({ follows: [...mocks.follows] }) }),
 }));
 vi.mock("@/integrations/supabase/client", () => ({ supabase: { from: () => ({ insert: async (row: { target_type: string; target_id: string }) => { mocks.follows.push(row); return {}; } }) } }));
