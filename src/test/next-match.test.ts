@@ -95,6 +95,7 @@ describe("October 20 Sand & Sky Demo simulation", () => {
     team_b_id: "demo-sun",
     source_date: "2026-10-20",
     starts_at: "2026-10-20T18:00:00Z",
+    venue_id: "demo-venue",
     data_mode: "synthetic",
   });
   const before = new Date("2026-10-19T16:00:00Z");
@@ -114,5 +115,12 @@ describe("October 20 Sand & Sky Demo simulation", () => {
     expect(selectUpcomingMatches([simulation], {
       teamId: "demo-sand", dataMode: "real", now: before,
     }).upcoming).toEqual([]);
+  });
+
+  it("preserves the existing Demo Enercare venue association in the next match", () => {
+    const result = selectUpcomingMatches([simulation], {
+      teamId: "demo-sand", dataMode: "synthetic", now: before,
+    });
+    expect(result.nextMatches[0]?.venue_id).toBe("demo-venue");
   });
 });
