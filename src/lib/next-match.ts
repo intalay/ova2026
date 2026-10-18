@@ -14,8 +14,14 @@ export function selectUpcomingMatches(
   {
     teamId,
     publicBrowse = false,
+    dataMode = "real",
     now = new Date(),
-  }: { teamId?: string | null | undefined; publicBrowse?: boolean; now?: Date } = {},
+  }: {
+    teamId?: string | null | undefined;
+    publicBrowse?: boolean;
+    dataMode?: "real" | "synthetic" | "all";
+    now?: Date;
+  } = {},
 ) {
   if (!publicBrowse && !teamId) return { upcoming: [], nextMatches: [], ambiguous: false };
   const today = competitionDate(now);
@@ -23,7 +29,7 @@ export function selectUpcomingMatches(
     (match) => {
       if (
         match.status !== "scheduled" ||
-        match.data_mode !== "real" ||
+        (dataMode !== "all" && match.data_mode !== dataMode) ||
         (teamId && match.team_a_id !== teamId && match.team_b_id !== teamId)
       )
         return [];
