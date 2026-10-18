@@ -464,9 +464,22 @@ body, body * { font-weight: 500 !important; }
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(38% 52% at 0% 0%, color-mix(in oklab, var(--logo-green) 34%, var(--paper-base)) 0%, transparent 60%),
-    radial-gradient(88% 104% at 0% 0%, color-mix(in oklab, var(--logo-green) 26%, transparent) 0%, color-mix(in oklab, var(--logo-green) 9%, transparent) 44%, transparent 78%);
-  opacity: .6;
+    radial-gradient(120% 140% at 0% 0%, color-mix(in oklab, var(--logo-green) 16%, transparent) 0%, color-mix(in oklab, var(--logo-green) 10%, transparent) 40%, color-mix(in oklab, var(--logo-green) 4%, transparent) 68%, transparent 100%),
+    radial-gradient(55% 75% at 0% 0%, color-mix(in oklab, var(--logo-green) 18%, var(--paper-base)) 0%, color-mix(in oklab, var(--logo-green) 8%, transparent) 55%, transparent 85%);
+  opacity: .5;
+}
+/* Fine grain over the glow: adds texture so the soft green never reads as a flat wash */
+.coach-invert .home-info::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: .045;
+  mix-blend-mode: overlay;
 }
 
 
