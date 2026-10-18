@@ -8,7 +8,7 @@ export const MODULES: Record<AppRole, Record<ModuleKey, ModuleConfig>> = {
  family_friends: { ...common, information: { visible: true, variant: "linked_player", actions: ["read"], order: 1 }, announcement: { visible: true, variant: "reader", actions: ["read"], order: 2 } },
  coach: { ...common, information: { visible: true, variant: "registered_team", actions: ["read"], order: 1 }, announcement: { visible: true, variant: "publisher", actions: ["read", "publish"], order: 2 } },
 };
-export const ROLE_LABELS: Record<AppRole, string> = { general_user: "Fan Plaza", player: "Player", family_friends: "Family & Friends", coach: "HI,\nCOACH" };
+export const ROLE_LABELS: Record<AppRole, string> = { general_user: "Fan Plaza", player: "HEY,\nPLAYER!", family_friends: "Family & Friends", coach: "HI,\nCOACH" };
 export function authorizedRole(requested: AppRole, household: { self: unknown; linkedPlayers: unknown[]; managedTeams: string[]; roles: string[] } | undefined): AppRole {
  if (requested === "general_user" || !household) return "general_user";
   if (requested === "player" && household.self && typeof household.self === 'object' && 'status' in household.self && household.self.status === 'verified') return requested;
