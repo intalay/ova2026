@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -243,14 +243,6 @@ function Results() {
 
   return (
     <AppShell title="Results" sourceLabel="Sources labeled per result">
-      <div className="flex flex-wrap gap-3 text-sm font-semibold">
-        <Link to="/" search={parentContext.search}>
-          Back to homepage
-        </Link>
-        <Link to="/announcements" search={parentContext.search}>
-          Announcements
-        </Link>
-      </div>
       {parentContext.invalid && (
         <p role="status">
           This player or team selection is no longer available. Choose an approved player or team.
@@ -267,8 +259,9 @@ function Results() {
           below.
         </p>
       )}
-      <Section title="Browse results">
+      <section aria-label="Browse results" className="min-w-0 space-y-3">
         <TeamPicker
+          compact
           teams={filters.data?.teams ?? []}
           context={filters.data ?? { divisions: [], events: [], teamEvents: [] }}
           value={team}
@@ -355,7 +348,7 @@ function Results() {
             </label>
           </details>
         </div>
-      </Section>
+      </section>
       <ResultsUpdateStatus
         compact
         eventId={selection.eventId || null}
