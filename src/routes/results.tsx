@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   CartesianGrid,
@@ -17,7 +17,8 @@ import { DemoTeamTrend } from "@/components/DemoTeamTrend";
 import { ResultsTrend } from "@/components/ResultsTrend";
 import { ResultsUpdateStatus } from "@/components/ResultsUpdateStatus";
 import { summarizeRecordedResults } from "@/lib/result-sync/normalize";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { TeamPicker } from "@/components/TeamPicker";
+import { teamDisplayName } from "@/lib/team-display";
 import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
 import {
@@ -117,18 +118,6 @@ function Results() {
   const [draft, setSelection] = useState(initialSelection);
   const [teamChosen, setTeamChosen] = useState(false);
   const [eventChosen, setEventChosen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchReady, setSearchReady] = useState(false);
-  useEffect(() => setSearchReady(true), []);
-  const [activeSearchIndex, setActiveSearchIndex] = useState(0);
-  const searchInput = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (searchOpen)
-      document
-        .getElementById(`team-search-option-${activeSearchIndex}`)
-        ?.scrollIntoView?.({ block: "nearest" });
-  }, [activeSearchIndex, searchOpen]);
   const [expanded, setExpanded] = useState(developmentPreview);
   const [metric, setMetric] = useState<"match" | "set">("match");
   const filters = useQuery({
@@ -244,33 +233,6 @@ function Results() {
   const publicLookup = filters.data
     ? { teams: filters.data.teams, events: filters.data.events }
     : null;
-  const availableTeams = filters.data?.teams.filter(
-    (option) => option.data_mode === draft.dataMode,
-  );
-  const teamOptionLabel = (option: NonNullable<typeof filters.data>["teams"][number]) => {
-    const division = filters.data?.divisions.find((d) => d.id === option.division_id)?.name;
-    const eventNames = filters.data?.teamEvents
-      .filter((relation) => relation.teamId === option.id)
-      .map((relation) => filters.data?.events.find((event) => event.id === relation.eventId)?.name)
-      .filter(Boolean);
-    const context = [...new Set([division, ...(eventNames ?? [])].filter(Boolean))];
-    const sameEntryLabels = filters.data?.teams.filter(
-      (other) => other.name === option.name && other.division_id === option.division_id,
-    );
-    const suffix =
-      (sameEntryLabels?.length ?? 0) > 1 && !eventNames?.length ? ` [${option.id.slice(-6)}]` : "";
-    return `${option.name}${suffix}${context.length ? ` · ${context.join(" · ")}` : ""} · ${sourceLabel(option.data_mode)}`;
-  };
-  const searchWords = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  const matchingTeams = (availableTeams ?? []).filter((option) => {
-    const label = teamOptionLabel(option).toLowerCase();
-    return searchWords.every((word) => label.includes(word));
-  });
-  const chooseSearchTeam = (teamId: string) => {
-    chooseTeam(teamId);
-    setSearch(availableTeams?.find((option) => option.id === teamId)?.name ?? "");
-    setSearchOpen(false);
-  };
   const updateSummary =
     competition.isSuccess && selection.eventId
       ? summarizeRecordedResults(competition.data.matches, selection.eventId, selection.dataMode)
@@ -306,143 +268,18 @@ function Results() {
         </p>
       )}
       <Section title="Browse results">
-        <Popover open={searchOpen} onOpenChange={setSearchOpen}>
-          <PopoverAnchor asChild>
-            <div>
-              <label className="block font-semibold">
-                Search teams
-                <input
-                  ref={searchInput}
-                  type="search"
-                  disabled={!searchReady}
-                  role="combobox"
-                  aria-autocomplete="list"
-                  aria-expanded={searchOpen}
-                  aria-controls={searchOpen ? "team-search-options" : undefined}
-                  aria-activedescendant={
-                    searchOpen && matchingTeams[activeSearchIndex]
-                      ? `team-search-option-${activeSearchIndex}`
-                      : undefined
-                  }
-                  className={btn.input}
-                  value={search}
-                  onFocus={() => {
-                    if (search.trim()) setSearchOpen(true);
-                  }}
-                  onChange={(event) => {
-                    setSearch(event.target.value);
-                    setActiveSearchIndex(0);
-                    setSearchOpen(!!event.target.value.trim());
-                  }}
-                  placeholder={searchReady ? "Team, division or event" : "Loading team search…"}
-                  onKeyDown={(event) => {
-                    if (event.nativeEvent.isComposing) return;
-                    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                      event.preventDefault();
-                      if (!search.trim()) return;
-                      setSearchOpen(true);
-                      setActiveSearchIndex((current) =>
-                        !searchOpen
-                          ? 0
-                          : (current +
-                              (event.key === "ArrowDown" ? 1 : -1) +
-                              Math.max(matchingTeams.length, 1)) %
-                            Math.max(matchingTeams.length, 1),
-                      );
-                    }
-                    if (event.key === "Enter" && searchOpen && matchingTeams[activeSearchIndex]) {
-                      event.preventDefault();
-                      chooseSearchTeam(matchingTeams[activeSearchIndex].id);
-                    }
-                    if (event.key === "Escape") {
-                      event.preventDefault();
-                      setSearchOpen(false);
-                    }
-                    if (event.key === "Tab") setSearchOpen(false);
-                  }}
-                />
-              </label>
-              {(searchOpen || (!!search.trim() && search.trim() !== (teamRecord?.name ?? ""))) && (
-                <p className="mt-1 text-sm" role="status">
-                  Choose a search result to change teams. Results below still show{" "}
-                  {teamRecord?.name ?? "all teams"}.
-                </p>
-              )}
-            </div>
-          </PopoverAnchor>
-          <PopoverContent
-            id="team-search-options"
-            role="listbox"
-            aria-label="Matching teams"
-            align="start"
-            side="bottom"
-            avoidCollisions={false}
-            className="z-[100] max-h-[min(24rem,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-[min(20rem,calc(100vw-2rem))] overflow-y-auto border border-black/20 bg-white p-1 text-black shadow-xl"
-            style={{ width: "var(--radix-popper-anchor-width)" }}
-            onOpenAutoFocus={(event) => event.preventDefault()}
-            onCloseAutoFocus={(event) => event.preventDefault()}
-            onInteractOutside={(event) => {
-              if (event.target === searchInput.current) event.preventDefault();
-            }}
-          >
-            <p role="status" className="px-3 py-2 text-sm text-black/70">
-              {filters.isPending
-                ? "Loading teams…"
-                : filters.isError
-                  ? "Teams could not be loaded. Try again below."
-                  : matchingTeams.length
-                    ? `${matchingTeams.length} ${matchingTeams.length === 1 ? "team matches" : "teams match"}. Use ↑ ↓ and Enter, or click a team.`
-                    : "No teams match this search in the selected results source. Try a team name, division or event, or change Results source."}
-            </p>
-            {matchingTeams.map((option, index) => (
-              <button
-                key={option.id}
-                id={`team-search-option-${index}`}
-                type="button"
-                role="option"
-                aria-selected={option.id === team}
-                className={`block w-full rounded-sm px-3 py-3 text-left hover:bg-black/5 focus:bg-black/5 ${index === activeSearchIndex ? "bg-black/5" : ""}`}
-                onPointerDown={(event) => event.preventDefault()}
-                onMouseMove={() => setActiveSearchIndex(index)}
-                onClick={() => chooseSearchTeam(option.id)}
-              >
-                <span className="block font-semibold">{option.name}</span>
-                <span className="mt-1 block text-sm text-black/60">
-                  {teamOptionLabel(option).slice(option.name.length).replace(/^ · /, "")}
-                </span>
-              </button>
-            ))}
-          </PopoverContent>
-        </Popover>
-        <label className="block font-semibold">
-          Browse team
-          <select
-            className={btn.input}
-            value={team}
-            disabled={!filters.data || filters.isError}
-            onChange={(event) => {
-              chooseTeam(event.target.value);
-              setSearch(
-                availableTeams?.find((option) => option.id === event.target.value)?.name ?? "",
-              );
-              setSearchOpen(false);
-            }}
-          >
-            <option value="">All teams · public historical results</option>
-            {availableTeams
-              ?.filter(
-                (option) =>
-                  option.id === team ||
-                  !searchOpen ||
-                  matchingTeams.some((match) => match.id === option.id),
-              )
-              .map((option) => (
-                <option key={option.id} value={option.id}>
-                  {teamOptionLabel(option)}
-                </option>
-              ))}
-          </select>
-        </label>
+        <TeamPicker
+          teams={filters.data?.teams ?? []}
+          context={filters.data ?? { divisions: [], events: [], teamEvents: [] }}
+          value={team}
+          onChange={chooseTeam}
+          eventId={selection.eventId}
+          loading={filters.isPending}
+          error={filters.isError}
+          onRetry={() => {
+            void filters.refetch();
+          }}
+        />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <label className="block font-semibold">
             Period
@@ -562,13 +399,13 @@ function Results() {
             <>
               <ResultsTrend
                 teamId={team}
-                teamName={teamRecord?.name ?? "Selected team"}
+                teamName={teamRecord ? teamDisplayName(teamRecord) : "Selected team"}
                 eventName={
                   filters.data?.events.find((event) => event.id === selection.eventId)?.name ??
                   "All selected events"
                 }
                 matches={finals}
-                teams={filters.data?.teams ?? []}
+                teams={(filters.data?.teams ?? []).map((t) => ({ ...t, name: teamDisplayName(t) }))}
                 stats={stats}
                 metric={metric}
                 daily={winTrend}
@@ -599,9 +436,14 @@ function Results() {
                         <tr key={m.id} className="border-b">
                           <td className="py-4 pr-3">{formatDateMDY(m.source_date)}</td>
                           <td className="pr-3">
-                            {filters.data?.teams.find(
-                              (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),
-                            )?.name ?? "Opponent to be determined"}
+                            {(() => {
+                              const opponent = filters.data?.teams.find(
+                                (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),
+                              );
+                              return opponent
+                                ? teamDisplayName(opponent)
+                                : "Opponent to be determined";
+                            })()}
                           </td>
                           <td className="pr-3">
                             {mine ?? "—"}–{other ?? "—"}
@@ -707,10 +549,10 @@ function Results() {
         ) : publicRows.length && publicLookup ? (
           <ul className="space-y-3">
             {publicRows.map((m) => {
-              const nameA = publicLookup.teams.find((t) => t.id === m.team_a_id)?.name ?? null;
-              const nameB = m.team_b_id
-                ? (publicLookup.teams.find((t) => t.id === m.team_b_id)?.name ?? null)
-                : null;
+              const rowTeamA = publicLookup.teams.find((t) => t.id === m.team_a_id);
+              const nameA = rowTeamA ? teamDisplayName(rowTeamA) : null;
+              const rowTeamB = publicLookup.teams.find((t) => t.id === m.team_b_id);
+              const nameB = rowTeamB ? teamDisplayName(rowTeamB) : null;
               const event = publicLookup.events.find((e) => e.id === m.event_id)?.name;
               const played = m.status === "final";
               const score =
