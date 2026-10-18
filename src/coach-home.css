@@ -15,7 +15,7 @@
 .coach-collage.home-surface header .bg-secondary { background: var(--coach-sage); color: var(--coach-ink); }
 .coach-collage.home-surface .home-content { max-width: 68rem; padding-top: 12px; font-family: var(--font-coach); color: var(--coach-white); }
 .coach-collage.home-surface .home-content > div:first-child h1 { font-family: var(--font-coach); font-size: 3.4rem; line-height: 1.05; text-transform: none; letter-spacing: -0.02em; font-weight: 700 !important; }
-@media (max-width: 639px) { .coach-collage.home-surface .home-content > div:first-child h1 { font-size: 2.5rem; } }
+@media (max-width: 639px) { .coach-collage.home-surface .home-content > div:first-child h1 { font-size: 2.5rem; } .coach-collage.home-surface .home-content > div:first-child > h1 { flex: 1 1 100%; } }
 .coach-collage.home-surface .home-content > div:first-child > span { color: var(--coach-sage); }
 .coach-collage.home-surface .home-content > div:first-child > span > span { background: var(--coach-lime); }
 .coach-intro { position: relative; min-height: 150px; margin-top: 24px; padding-bottom: 12px; }
