@@ -1,0 +1,29 @@
+/* Uploaded faces are opt-in: dense body copy retains its readable variable font. */
+@font-face {
+  font-family: "Swiss 721";
+  src: url("/__l5e/assets-v1/1ffa6688-c454-42ff-af6a-d0b2da9122be/Swiss721Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Swiss 721 Condensed";
+  src: url("/__l5e/assets-v1/9777c500-df5b-4b36-a29f-ae7a05bd7594/Swiss-721-Condensed-BT-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Swiss 721 Heavy";
+  src: url("/__l5e/assets-v1/49e117c9-00d7-422f-8adc-f3654af1ddfa/Swiss-721-Heavy-Regular.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Swiss 721 Black";
+  src: url("/__l5e/assets-v1/e217d9ae-0c2f-4238-a411-131cd38de066/Swiss721Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
