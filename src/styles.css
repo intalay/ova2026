@@ -348,11 +348,11 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-info .player-portrait { position: absolute; height: 66.6667%; width: auto; max-width: 40%; object-fit: contain; object-position: bottom right; bottom: 0; right: 3%; margin: 0; pointer-events: none; user-select: none; }
 .home-info:has(img[alt="Illustrative player portrait"]) > div { width: 54%; }
 .home-info img.player-portrait[alt="Illustrative player portrait"] { height: 75%; right: 6%; }
-.announcement-carousel .announcement-panel { height: 7.5rem; overflow: hidden; padding: .4rem .875rem .75rem; gap: .625rem; }
+.announcement-carousel .announcement-panel { height: 10.5rem; overflow: hidden; }
 .announcement-carousel .announcement-panel .text-lg { line-height: 1.2; -webkit-line-clamp: 1; }
 .announcement-carousel .announce-body { max-height: 3.5625rem; }
 .announcement-carousel .announce-body p { line-height: 1.1875rem; }
-.announcement-carousel > [aria-hidden] { bottom: .4rem; }
+.announcement-carousel > [aria-hidden] { bottom: 1rem; }
 .announce-more { position: absolute; right: 0; bottom: 0; font-size: .75rem; line-height: 1; font-weight: 600; padding: .1rem 0 .05rem .75rem; background: var(--card); }
 .home-content .announcement-carousel .announce-more { background: color-mix(in oklab, var(--ink) 90%, var(--logo-green)); }
 .home-content .announcement-carousel .announcement-panel { background: var(--ink-base); color: var(--paper-base); --muted-foreground: var(--paper-base); }
@@ -559,7 +559,7 @@ body, body * { font-weight: 500 !important; }
   .home-lottery-cta { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; }
   .home-lottery-button { font-size: .875rem; min-height: 2.75rem; padding-inline: 1rem; }
   .home-lottery-legal { font-size: .75rem; }
-  .announcement-carousel a { min-height: 0; padding: .4rem .75rem .75rem; gap: .625rem; }
+  .announcement-carousel a { min-height: 0; }
   .announcement-carousel a > span { width: 2.5rem; height: 2.5rem; }
   .announcement-carousel a > svg { width: 1.125rem; height: 1.125rem; }
   .announcement-carousel .text-lg { font-size: 1rem; }
