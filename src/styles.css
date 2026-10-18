@@ -323,9 +323,9 @@ body, body * { font-weight: 500 !important; }
 .home-angular .home-content > section :is(.home-venue, .home-result, .home-match, .rounded-lg.bg-card, .rounded-lg.bg-secondary) { box-shadow: none; }
 /* Section titles get a slanted logo-green tag, like the reference's highlighted keyword */
 .home-angular .module-heading { display: inline-block; width: fit-content; padding: 2px 22px 2px 12px; background: var(--accent); color: var(--ink); clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
-/* Information: near-black feature slab with a stepped tab cut from the top-right */
-.home-angular .home-info { position: relative; background: var(--home-feature-gradient); color: var(--court-foreground); border: 0; padding: 28px 28px 24px; clip-path: polygon(0 0, 52% 0, calc(52% + 28px) 28px, 100% 28px, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%); }
-.home-angular .home-info .text-primary { color: var(--accent); }
+/* Information keeps its existing light surface, with a stepped top-right tab. */
+.home-angular .home-info { position: relative; color: var(--foreground); border: 0; padding: 28px 28px 24px; clip-path: polygon(0 0, 52% 0, calc(52% + 28px) 28px, 100% 28px, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%); }
+.home-angular .home-info .text-primary { color: var(--primary); }
 .home-angular .home-info > div > span:first-child { border-radius: 0; background: var(--accent); color: var(--ink); clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
 .home-angular .home-info .player-portrait { margin: -28px -28px -24px auto; }
 /* Fixtures and announcements: chamfered opposite corners */
