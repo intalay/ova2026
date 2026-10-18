@@ -329,11 +329,14 @@ body, body * { font-weight: 500 !important; }
 .lottery-page .lottery-quantity { font-size: 1rem; font-weight: 700 !important; }
 .lottery-page .lottery-price { font-size: .85rem; font-weight: 700 !important; }
 .lottery-page .golden-ticket > span:first-child, .lottery-page .lottery-ticket-label { font-weight: 600 !important; }
-.lottery-page .golden-ticket > span:first-child { font-size: .45rem; line-height: 1.5; }
+.lottery-page .golden-ticket > span:first-child { font-size: .55rem; line-height: 1.5; overflow-wrap: anywhere; }
+.lottery-page .golden-ticket { --ticket-notch: 5px; -webkit-mask: radial-gradient(circle var(--ticket-notch) at 0 50%, transparent 98%, black) left / 51% 100% no-repeat, radial-gradient(circle var(--ticket-notch) at 100% 50%, transparent 98%, black) right / 51% 100% no-repeat; mask: radial-gradient(circle var(--ticket-notch) at 0 50%, transparent 98%, black) left / 51% 100% no-repeat, radial-gradient(circle var(--ticket-notch) at 100% 50%, transparent 98%, black) right / 51% 100% no-repeat; }
+.lottery-page .golden-ticket svg { width: .5rem; height: .5rem; }
 .lottery-page .golden-ticket.green { color: var(--ink); }
 .lottery-page .lotto-stage > div > p.text-sm { line-height: 1.6; }
 @media (min-width: 640px) { .lottery-page h1 { font-size: 2.4rem; } .lottery-page .jackpot { font-size: 5rem; } .lottery-page .lottery-winner { font-size: 1rem; } .lottery-page .lottery-quantity { font-size: 2.5rem; } .lottery-page .lottery-price { font-size: 1.65rem; } .lottery-page .golden-ticket > span:first-child { font-size: .7rem; } }
 @media (min-width: 1024px) { .lottery-page .jackpot { font-size: 6rem; } }
+@media (min-width: 640px) { .lottery-page .golden-ticket { --ticket-notch: 10px; } .lottery-page .golden-ticket svg { width: .75rem; height: .75rem; } }
 
 /* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
 .glass-list > * { background: var(--home-glass); border: 1px solid var(--home-glass-border); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
