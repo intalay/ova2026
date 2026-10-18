@@ -18,7 +18,7 @@ import { ResultsTrend } from "@/components/ResultsTrend";
 import { ResultsUpdateStatus } from "@/components/ResultsUpdateStatus";
 import { summarizeRecordedResults } from "@/lib/result-sync/normalize";
 import { TeamPicker } from "@/components/TeamPicker";
-import { teamDisplayName } from "@/lib/team-display";
+import { isAnonymousPair, teamDisplayName } from "@/lib/team-display";
 import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
 import {
@@ -398,7 +398,10 @@ function Results() {
                   "All selected events"
                 }
                 matches={finals}
-                teams={(filters.data?.teams ?? []).map((t) => ({ ...t, name: teamDisplayName(t) }))}
+                teams={(filters.data?.teams ?? []).map((t) => ({
+                  ...t,
+                  name: t.id !== team && isAnonymousPair(t) ? "Opponent" : teamDisplayName(t),
+                }))}
                 stats={stats}
                 metric={metric}
                 daily={winTrend}
@@ -434,7 +437,9 @@ function Results() {
                                 (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),
                               );
                               return opponent
-                                ? teamDisplayName(opponent)
+                                ? isAnonymousPair(opponent)
+                                  ? "Opponent"
+                                  : teamDisplayName(opponent)
                                 : "Opponent to be determined";
                             })()}
                           </td>
@@ -543,9 +548,17 @@ function Results() {
           <ul className="space-y-3">
             {publicRows.map((m) => {
               const rowTeamA = publicLookup.teams.find((t) => t.id === m.team_a_id);
-              const nameA = rowTeamA ? teamDisplayName(rowTeamA) : null;
+              const nameA = rowTeamA
+                ? team && rowTeamA.id !== team && isAnonymousPair(rowTeamA)
+                  ? "Opponent"
+                  : teamDisplayName(rowTeamA)
+                : null;
               const rowTeamB = publicLookup.teams.find((t) => t.id === m.team_b_id);
-              const nameB = rowTeamB ? teamDisplayName(rowTeamB) : null;
+              const nameB = rowTeamB
+                ? team && rowTeamB.id !== team && isAnonymousPair(rowTeamB)
+                  ? "Opponent"
+                  : teamDisplayName(rowTeamB)
+                : null;
               const event = publicLookup.events.find((e) => e.id === m.event_id)?.name;
               const played = m.status === "final";
               const score =
