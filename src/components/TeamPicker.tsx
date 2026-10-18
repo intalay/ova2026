@@ -370,6 +370,7 @@ export function TeamPicker({
             type="button"
             variant="ghost"
             size="sm"
+            onPointerDown={(event) => event.preventDefault()}
             disabled={pageIndex === 0}
             onClick={() => {
               setPage(pageIndex - 1);
@@ -383,6 +384,7 @@ export function TeamPicker({
             type="button"
             variant="outline"
             size="sm"
+            onPointerDown={(event) => event.preventDefault()}
             disabled={(pageIndex + 1) * PAGE_SIZE >= matches.length}
             onClick={() => {
               setPage(pageIndex + 1);

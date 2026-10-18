@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId } from "react";
 import {
   Area,
   AreaChart,
@@ -58,11 +58,9 @@ export function ResultsTrend({
   teams,
   stats,
   metric,
-  daily,
   expanded,
   onToggle,
 }: Props) {
-  const [view, setView] = useState<"matches" | "daily">("matches");
   const gradient = useId().replace(/:/g, "");
   const rows = matchResultSeries(matches, teamId, metric, dataMode).map((row) => ({
     ...row,
@@ -120,159 +118,69 @@ export function ResultsTrend({
       )}
       {expanded && (
         <>
-          <div className="my-5 flex flex-wrap gap-2" role="group" aria-label="Results chart view">
-            <button
-              type="button"
-              aria-pressed={view === "matches"}
-              onClick={() => setView("matches")}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold ${view === "matches" ? "bg-primary text-primary-foreground" : "bg-card"}`}
-            >
-              Per-match cumulative · {rows.length}
-            </button>
-            <button
-              type="button"
-              aria-pressed={view === "daily"}
-              onClick={() => setView("daily")}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold ${view === "daily" ? "bg-primary text-primary-foreground" : "bg-card"}`}
-            >
-              Daily cumulative
-            </button>
-          </div>
-          {view === "matches" ? (
-            <>
-              <h4 className="text-lg font-semibold">Cumulative win rate by displayed record</h4>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Each point adds one recorded match. Within each date, records follow stored listing
-                order. Match times and same-day playing order are unconfirmed; this is not a
-                confirmed match chronology.
-              </p>
-              {rows.some((row) => row.cumulativeWinRate !== null) ? (
-                <div className="mt-5 overflow-x-auto">
-                  <div
-                    className="h-72"
-                    style={{ minWidth: Math.max(360, rows.length * 48) }}
-                    role="img"
-                    aria-label={`Cumulative ${metric} win rate by displayed record: ${rows.map((row) => (row.cumulativeWinRate === null ? "TBD" : `${row.cumulativeWinRate}%`)).join(", ")}`}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={rows} margin={{ top: 16, right: 20, bottom: 16, left: 12 }}>
-                        <defs>
-                          <linearGradient id={`${gradient}-records`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="var(--teal)" stopOpacity={0.28} />
-                            <stop offset="100%" stopColor="var(--teal)" stopOpacity={0.025} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid
-                          vertical={false}
-                          stroke="var(--border)"
-                          strokeDasharray="4 5"
-                        />
-                        <XAxis
-                          dataKey="label"
-                          tickLine={false}
-                          axisLine={false}
-                          tick={{ fontSize: 13 }}
-                        />
-                        <YAxis
-                          domain={[0, 100]}
-                          ticks={[0, 25, 50, 75, 100]}
-                          unit="%"
-                          width={62}
-                          tickLine={false}
-                          axisLine={false}
-                          tick={{ fontSize: 13 }}
-                        />
-                        <Tooltip content={<MatchTooltip />} />
-                        <Area
-                          type="linear"
-                          dataKey="cumulativeWinRate"
-                          stroke="var(--teal)"
-                          strokeWidth={3}
-                          fill={`url(#${gradient}-records)`}
-                          dot={{ r: 5, fill: "var(--teal)", stroke: "var(--card)", strokeWidth: 2 }}
-                          isAnimationActive={false}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              ) : (
-                <p className="py-7 text-muted-foreground">
-                  No decided scores in this range. Missing scores are not plotted as zero.
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
-                {rows.map((row) => (
-                  <span key={row.id}>
-                    {row.label} · {row.date ? row.date.slice(5).replace("-", "/") : "Date TBD"} ·{" "}
-                    {row.score} · {row.result}
-                  </span>
-                ))}
+          <h4 className="text-lg font-semibold">Cumulative win rate</h4>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Recorded order; same-day match order is unconfirmed.
+          </p>
+          {rows.some((row) => row.cumulativeWinRate !== null) ? (
+            <div className="mt-5 overflow-x-auto">
+              <div
+                className="h-72"
+                style={{ minWidth: Math.max(360, rows.length * 48) }}
+                role="img"
+                aria-label={`Cumulative ${metric} win rate by displayed record: ${rows.map((row) => (row.cumulativeWinRate === null ? "TBD" : `${row.cumulativeWinRate}%`)).join(", ")}`}
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={rows} margin={{ top: 16, right: 20, bottom: 16, left: 12 }}>
+                    <defs>
+                      <linearGradient id={`${gradient}-records`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--teal)" stopOpacity={0.28} />
+                        <stop offset="100%" stopColor="var(--teal)" stopOpacity={0.025} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="4 5" />
+                    <XAxis
+                      dataKey="label"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 13 }}
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      ticks={[0, 25, 50, 75, 100]}
+                      unit="%"
+                      width={62}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 13 }}
+                    />
+                    <Tooltip content={<MatchTooltip />} />
+                    <Area
+                      type="linear"
+                      dataKey="cumulativeWinRate"
+                      stroke="var(--teal)"
+                      strokeWidth={3}
+                      fill={`url(#${gradient}-records)`}
+                      dot={{ r: 5, fill: "var(--teal)", stroke: "var(--card)", strokeWidth: 2 }}
+                      isAnimationActive={false}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-            </>
+            </div>
           ) : (
-            <>
-              <h4 className="text-lg font-semibold">
-                Cumulative {metric} win rate in selected range
-              </h4>
-              <p className="mt-1 text-sm text-muted-foreground">
-                One point per completed date. Same-day results are combined because match order is
-                unconfirmed.
-              </p>
-              {daily.length ? (
-                <div
-                  className="mt-5 h-72 min-w-0"
-                  role="img"
-                  aria-label={`Cumulative ${metric} win rate in selected range: ${daily.map((point) => (point.winRate === null ? "TBD" : `${point.winRate}%`)).join(", ")}`}
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={daily} margin={{ top: 14, right: 20, bottom: 12, left: 12 }}>
-                      <defs>
-                        <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--teal)" stopOpacity={0.28} />
-                          <stop offset="100%" stopColor="var(--teal)" stopOpacity={0.025} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid
-                        vertical={false}
-                        stroke="var(--border)"
-                        strokeDasharray="4 5"
-                      />
-                      <XAxis
-                        dataKey="date"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 13 }}
-                      />
-                      <YAxis
-                        domain={[0, 100]}
-                        ticks={[0, 25, 50, 75, 100]}
-                        width={62}
-                        unit="%"
-                        tickLine={false}
-                        axisLine={false}
-                        tick={{ fontSize: 13 }}
-                      />
-                      <Tooltip formatter={(value) => [`${value}%`, "Win rate"]} />
-                      <Area
-                        type="linear"
-                        dataKey="winRate"
-                        fill={`url(#${gradient})`}
-                        stroke="var(--teal)"
-                        strokeWidth={3}
-                        dot={{ r: 5, fill: "var(--teal)", stroke: "var(--card)", strokeWidth: 2 }}
-                        isAnimationActive={false}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <p className="py-7 text-muted-foreground">
-                  No dated, decided results in this period. No win-rate data available.
-                </p>
-              )}
-            </>
+            <p className="py-7 text-muted-foreground">
+              No decided scores in this range. Missing scores are not plotted as zero.
+            </p>
           )}
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            {rows.map((row) => (
+              <span key={row.id}>
+                {row.label} · {row.date ? row.date.slice(5).replace("-", "/") : "Date TBD"} ·{" "}
+                {row.score} · {row.result}
+              </span>
+            ))}
+          </div>
         </>
       )}
     </div>
