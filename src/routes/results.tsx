@@ -354,7 +354,7 @@ function Results() {
                   }}
                 />
               </label>
-              {searchOpen && (
+              {(searchOpen || (!!search.trim() && search.trim() !== (teamRecord?.name ?? ""))) && (
                 <p className="mt-1 text-sm" role="status">
                   Choose a search result to change teams. Results below still show{" "}
                   {teamRecord?.name ?? "all teams"}.
