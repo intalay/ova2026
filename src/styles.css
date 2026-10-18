@@ -314,3 +314,28 @@ body, body * { font-weight: 500 !important; }
 
 /* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
 .glass-list > * { background: var(--home-glass); border: 1px solid var(--home-glass-border); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
+
+/* Coach & Player customized homepage trial: angular, polygonal language (no rounded corners).
+   Scoped to .home-angular only; colours unchanged; the 50/50 module is intentionally excluded. */
+.home-angular { --cut: 22px; }
+.home-angular .home-content :is(.rounded-lg, .rounded-md, .home-venue, .home-result, .home-match, select, button, a.inline-flex):not(.home-lottery):not(.home-lottery *) { border-radius: 0; }
+.home-angular .home-content > section:not(:has(.home-lottery)) { filter: drop-shadow(0 10px 18px color-mix(in oklab, var(--ink) 10%, transparent)); }
+.home-angular .home-content > section :is(.home-venue, .home-result, .home-match, .rounded-lg.bg-card, .rounded-lg.bg-secondary) { box-shadow: none; }
+/* Section titles get a slanted logo-green tag, like the reference's highlighted keyword */
+.home-angular .module-heading { display: inline-block; width: fit-content; padding: 2px 22px 2px 12px; background: var(--accent); color: var(--ink); clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+/* Information keeps its existing light surface, with a stepped top-right tab. */
+.home-angular .home-info { position: relative; color: var(--foreground); border: 0; padding: 28px 28px 24px; clip-path: polygon(0 0, 52% 0, calc(52% + 28px) 28px, 100% 28px, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%); }
+.home-angular .home-info .text-primary { color: var(--primary); }
+.home-angular .home-info > div > span:first-child { border-radius: 0; background: var(--accent); color: var(--ink); clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px); }
+.home-angular .home-info .player-portrait { margin: -28px -28px -24px auto; }
+/* Fixtures and announcements: chamfered opposite corners */
+.home-angular .home-match, .home-angular .announcement-carousel .rounded-lg.bg-card, .home-angular .home-content .rounded-lg.bg-card { clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut)); }
+.home-angular .home-match { border-left: 6px solid var(--accent); }
+/* Venue: large bottom-left notch and a slanted photo */
+.home-angular .home-venue { clip-path: polygon(0 0, calc(100% - 40px) 0, 100% 40px, 100% 100%, 48px 100%, 0 calc(100% - 48px)); }
+.home-angular .home-venue-photo { border-radius: 0; clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%); }
+/* Results: stepped top edge with a logo-green score wedge */
+.home-angular .home-result { position: relative; clip-path: polygon(0 18px, 38% 18px, calc(38% + 18px) 0, 100% 0, 100% 100%, var(--cut) 100%, 0 calc(100% - var(--cut))); padding-top: 34px; }
+.home-angular .home-result::after { content: ""; position: absolute; right: 0; bottom: 0; width: 56px; height: 56px; background: var(--accent); clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.home-angular .home-content select { background: var(--muted); }
+@media (max-width: 639px) { .home-angular { --cut: 16px; } .home-angular .home-info { padding: 32px 20px 20px; } .home-angular .home-info .player-portrait { margin: -32px -20px -20px auto; } .home-angular .home-result::after { width: 36px; height: 36px; } }
