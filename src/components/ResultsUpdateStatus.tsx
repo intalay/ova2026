@@ -11,6 +11,7 @@ import type {
 import { eventResultSource, validateOfficialResultsUrl } from "@/lib/result-sync/sources";
 
 export type ResultsUpdateStatusProps = {
+  compact?: boolean;
   eventId?: string | null;
   dataMode?: "real" | "synthetic" | "all";
   /** Explicit reviewed event binding. Omit to use the checked local catalog. */
@@ -26,6 +27,7 @@ function validInstant(value: string | null | undefined): value is string {
 }
 
 export function ResultsUpdateStatus({
+  compact = false,
   eventId,
   dataMode = "real",
   source: suppliedSource,
@@ -95,6 +97,30 @@ export function ResultsUpdateStatus({
           : lastSuccessAt
             ? "Showing results from the last successful sync. Official results may be newer."
             : "Recorded results remain available. The latest successful sync cannot be confirmed.";
+
+  if (compact) {
+    return (
+      <section
+        aria-label="Results information"
+        className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground"
+      >
+        <span>{demo ? "Demo results · Not live" : "Historical results · Not live"}</span>
+        {matchDate && <time dateTime={matchDate}>Latest match · {formatDate(matchDate)}</time>}
+        {officialUrl && (
+          <a
+            href={officialUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center gap-1 underline underline-offset-4"
+            aria-label={`View official results · ${source?.provider.toUpperCase()} (opens in a new tab)`}
+          >
+            View official results
+            <ArrowUpRight className="size-3.5" aria-hidden="true" />
+          </a>
+        )}
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby={headingId} className="min-w-0">

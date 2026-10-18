@@ -15,7 +15,7 @@ const NAV = [
  { to: "/explore", label: "Explore", icon: Compass },
  { to: "/shop", label: "Shop", icon: ShoppingBag },
 ] as const;
-export function AppShell({ children, title, action, sourceLabel = 'Synthetic competition data', contentClassName = '' }: { children: ReactNode; title: string; action?: ReactNode; sourceLabel?: string; contentClassName?: string }) {
+export function AppShell({ children, title, action, sourceLabel = 'Competition information', contentClassName = '' }: { children: ReactNode; title: string; action?: ReactNode; sourceLabel?: string; contentClassName?: string }) {
  return <div className="app-shell min-h-dvh pb-28">
   <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:bg-accent focus:px-4 focus:py-2">Skip to content</a>
   <header className="app-header bg-background">
