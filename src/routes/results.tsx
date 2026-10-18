@@ -109,12 +109,21 @@ function Results() {
           ? (hh?.linkedPlayers.flatMap((p) => (p.team_id ? [p.team_id] : [])) ?? [])
           : [];
   const [chosen, setChosen] = useState("");
-  const selectableTeams = teamIds.length ? [...new Set(teamIds)] : developmentPreview ? [AMANDA_PREVIEW_TEAM.id] : [];
+  const loaded = Route.useLoaderData();
+  // Public history can be inspected without creating account associations.
+  const householdFilters = useQuery({
+    ...filtersQuery("all"),
+    initialData: () => loaded.filters ?? undefined,
+  });
+  const defaultTeams = teamIds.length ? teamIds : developmentPreview ? [AMANDA_PREVIEW_TEAM.id] : [];
+  const selectableTeams = [...new Set([
+    ...defaultTeams,
+    ...(householdFilters.data?.teams.filter((t) => t.data_mode === "real").map((t) => t.id) ?? []),
+  ])];
   const team = selectableTeams.includes(chosen) ? chosen : selectableTeams[0];
   const [expanded, setExpanded] = useState(developmentPreview);
   const [months, setMonths] = useState(3);
   const [selection, setSelection] = useState(initialSelection);
-  const loaded = Route.useLoaderData();
   const changeFilters = (patch: Partial<Omit<ResultsSelection, "page">>) =>
     setSelection((current) => ({ ...current, ...patch, page: 1 }));
   const validDateRange =
@@ -129,11 +138,6 @@ function Results() {
     initialData: () => (selection.dataMode === "all" ? (loaded.filters ?? undefined) : undefined),
   });
   // Household history has its own source lookup and query; public filters never change it.
-  const householdFilters = useQuery({
-    ...filtersQuery("all"),
-    enabled: !!team,
-    initialData: () => loaded.filters ?? undefined,
-  });
   const teamRecord = householdFilters.data?.teams.find((t) => t.id === team);
   const teamMode = teamRecord?.data_mode;
   const history = useQuery({
