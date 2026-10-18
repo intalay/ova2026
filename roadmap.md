@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Align core colours with uploaded OVA 2026 guidelines without changing layout; retain current font fallbacks until licensed Swiss 721 files are supplied. Compare six public pages before/after on phone and desktop.
 - [x] Atomically import TIMU (32 rows, 21 matches) and MyTeam (37 rows, 23 matches), preserving existing rows and account associations. All source fields match database digests; historical/real combined filters, inclusive dates, four-page totals/last pages, reset and empty results pass in the live preview. Real Pakmen and Pair01 statistics/trends verified; 109 tests pass, one identity integration test skipped, preview build OK. Existing team selector reads public real teams independently; no layout/schema/auth changes or publishing.
 - [ ] Import AES in dependency-ordered atomic batches (15 divisions, 446 teams, 1 event, 1792 matches, 422 unconfirmed rankings), validating full JSON, IDs, foreign keys and conflicts; retain TIMU/MyTeam.
 - [ ] Default Results/team analysis to real records; synthetic data only in explicit Demo mode, with original records preserved.
