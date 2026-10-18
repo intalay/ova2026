@@ -2,16 +2,17 @@
 @source "../src";
 @import "tw-animate-css";
 @import "./assets/fonts/unsii.css";
+@import "./assets/fonts/montserrat.css";
 @import "./coach-home.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
-  --font-display: "UNSII", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
-  --font-home: "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-sans: "Montserrat", "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "UNSII", "Montserrat", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
+  --font-home: "Montserrat", "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-lottery-numeric: "Sora", system-ui, sans-serif;
-  --font-lottery-editorial: "Manrope", system-ui, sans-serif;
+  --font-lottery-editorial: "Montserrat", "Manrope", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -41,3 +41,4 @@
 - [x] Split the homepage slogan into two stacked lines ("Your game." / "Your community.") with auto-fit scaling; verified at 1280/822/390/360 with no clipping or horizontal overflow, 47 tests pass.
 
 - [x] Enlarge the Coach homepage page title (coach-collage only): 3.4rem desktop / 2.5rem phone, Inter 700, data label moved onto its own line on phones; verified signed-in at 1280/390 with no clipping or horizontal overflow, build OK, 47 tests pass.
+- [x] Switch the whole app to the uploaded Montserrat variable font (body, UI labels, homepage modules, 50/50 editorial text, coach pages); UNSII titles and Sora lottery numerals kept. Verified in the preview at 1280: Montserrat loads and renders on homepage/results/50/50, coach style checked with a visual mock, build OK, 47 tests pass. Real coach-session verification of the coach pages remains blocked (injected account is not a coach; specific-user minting needs workspace admin).

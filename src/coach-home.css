@@ -6,7 +6,7 @@
  --coach-grid: color-mix(in oklab, var(--coach-forest) 6%, transparent);
  --coach-sticker-shadow: 0 8px 12px color-mix(in oklab, var(--coach-ink) 22%, transparent);
  --coach-dock-shadow: 0 8px 30px color-mix(in oklab, var(--coach-ink) 18%, transparent);
- --font-coach: "Inter", system-ui, sans-serif;
+ --font-coach: "Montserrat", "Inter", system-ui, sans-serif;
  background: var(--coach-ink);
 }
 .coach-collage.home-surface header { background: var(--coach-ink); }
