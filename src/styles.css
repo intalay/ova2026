@@ -353,8 +353,10 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
-/* Fixture matchups stay bold on top of the global medium-weight preference (Penny request). */
-.home-match-teams, .home-match-versus, .match-teams, .match-teams > span { font-weight: 700 !important; }
+/* Fixture matchups stay bold on top of the global medium-weight preference (Penny request).
+   HomeLine wraps its children in an unstyled span, so the bold has to reach that span too. */
+.home-match-teams span:not(.home-unknown), .match-teams, .match-teams > span:not(.home-unknown) { font-weight: 700 !important; }
+
 
 
 
