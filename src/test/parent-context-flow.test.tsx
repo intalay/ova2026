@@ -2,7 +2,7 @@ vi.mock("@/hooks/use-team-announcements", () => ({
   useTeamAnnouncements: () => ({ data: [], isError: false }),
 }));
 vi.mock("@/hooks/use-home-data-mode", () => ({
-  useHomeDataMode: () => ({ mode: "real", setMode: vi.fn(), ready: true }),
+  useHomeDataMode: () => ({ mode: mocks.homeMode, setMode: vi.fn(), ready: true }),
 }));
 import type { FunctionComponent, ReactNode } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -21,6 +21,7 @@ import { useParentContext, type ParentIdentity } from "@/hooks/use-parent-contex
 import { validateBrowseSearch } from "@/lib/parent-context";
 import { useRole } from "@/hooks/use-role";
 const mocks = vi.hoisted(() => ({
+  homeMode: "real",
   identity: {} as ParentIdentity,
   data: {} as Record<string, unknown>,
   update: vi.fn(),
@@ -172,6 +173,7 @@ const announcement = (id: string, team_id: string | null) => ({
   data_mode: "real",
 });
 beforeEach(() => {
+  mocks.homeMode = "real";
   sessionStorage.clear();
   vi.clearAllMocks();
   mocks.insert.mockResolvedValue({ error: null });
@@ -430,3 +432,46 @@ it("publishes a new explicit community audience only with existing staff permiss
     ),
   );
 });
+
+it.each(["family_friends", "player"])(
+  "keeps Alex Demo homepage and View all / All results context for %s",
+  async (role) => {
+    mocks.homeMode = "synthetic";
+    const hh = parentHousehold();
+    const alex = { ...hh.linkedPlayers[0]!, team_id: "demo-sand", data_mode: "synthetic" };
+    hh.linkedPlayers = [alex];
+    if (role === "player") hh.self = alex;
+    mocks.identity = {
+      ...mocks.identity,
+      role: role as ParentIdentity["role"],
+      user: { id: role === "player" ? alex.user_id! : "parent" },
+      household: { data: hh },
+    };
+    mocks.data = {
+      ...mocks.data,
+      teams: [{ id: "demo-sand", name: "Sand & Sky", data_mode: "synthetic" }],
+      announcements: [
+        { ...announcement("Demo welcome", null), data_mode: "synthetic" },
+        announcement("Real bulletin", null),
+      ],
+    };
+    const router = routerAt("/?player=child-a&team=demo-sand");
+    render(<RouterProvider router={router} />);
+    await screen.findByText("Demo welcome content");
+    expect(screen.queryByText("Real bulletin content")).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Information" })).toHaveTextContent("Sand & Sky");
+    expect(screen.getByRole("link", { name: "All results" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("team=demo-sand"),
+    );
+    fireEvent.click(screen.getByRole("link", { name: "View all" }));
+    expect(await screen.findByText("Alex · Sand & Sky")).toBeInTheDocument();
+    expect(screen.getByText("Demo welcome content")).toBeInTheDocument();
+    expect(screen.queryByText("Real bulletin content")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("link", { name: "Back to homepage" }));
+    await screen.findByRole("region", { name: "Information" });
+    fireEvent.click(screen.getByRole("link", { name: "All results" }));
+    expect(await screen.findByText("Browsing: Alex · demo-sand")).toBeInTheDocument();
+    expect(router.state.location.search).toEqual({ player: "child-a", team: "demo-sand" });
+  },
+);

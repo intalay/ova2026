@@ -2,13 +2,15 @@ vi.mock("@/hooks/use-team-announcements", () => ({
   useTeamAnnouncements: () => ({ data: [], isError: false }),
 }));
 vi.mock("@/hooks/use-home-data-mode", () => ({
-  useHomeDataMode: () => ({ mode: mocks.homeMode, setMode: vi.fn(), ready: true }),
+  useHomeDataMode: () => ({ mode: mocks.homeMode, setMode: mocks.selectMode, ready: true }),
 }));
 import type { ComponentType, ReactNode } from "react";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Match } from "@/lib/queries";
 const mocks = vi.hoisted(() => ({
+  selectMode: vi.fn(),
+  announcements: [] as Record<string, unknown>[],
   matches: [] as Match[],
   role: "coach",
   demoPlayer: false,
@@ -54,7 +56,7 @@ vi.mock("@tanstack/react-query", () => ({
         },
       ],
       matches: mocks.matches,
-      announcements: [],
+      announcements: mocks.announcements,
       rankings: [],
       divisions: [],
     },
@@ -67,9 +69,22 @@ vi.mock("@/hooks/use-role", () => ({
     household: {
       data: {
         roles: [],
-        familyLinks: [],
+        familyLinks: mocks.demoPlayer
+          ? [{ family_user_id: "review-user", player_id: "demo-player", status: "approved" }]
+          : [],
         managedTeams: ["mine"],
-        linkedPlayers: [],
+        linkedPlayers: mocks.demoPlayer
+          ? [
+              {
+                id: "demo-player",
+                user_id: "alex-account",
+                display_name: "Alex",
+                team_id: "demo-sand",
+                status: "verified",
+                data_mode: "synthetic",
+              },
+            ]
+          : [],
         self: mocks.demoPlayer
           ? {
               id: "demo-player",
@@ -120,6 +135,8 @@ const match = (patch: Partial<Match> = {}): Match => ({
   ...patch,
 });
 afterEach(() => {
+  mocks.announcements = [];
+  mocks.selectMode.mockClear();
   cleanup();
   vi.useRealTimers();
   mocks.matches = [];
@@ -247,7 +264,7 @@ it("does not silently switch to Demo for a bound synthetic player in Real mode",
   ];
   render(<Home />);
   expect(screen.getByRole("heading", { name: "Alex" })).toBeInTheDocument();
-  expect(screen.getByRole("status")).toHaveTextContent("no recorded real competition data");
+  expect(screen.getByRole("status")).toHaveTextContent("Select Demo data above");
   expect(screen.getByRole("region", { name: "Next Match" })).toHaveTextContent(
     "No upcoming match is published.",
   );
@@ -310,3 +327,44 @@ it("preserves the recorded Demo venue directory after all simulated fixtures are
     "/venue/demo-venue",
   );
 });
+
+for (const role of ["player", "family_friends"]) {
+  it(`shows the exact Alex Demo team schedule, venue, announcement and existing results for ${role}`, () => {
+    vi.setSystemTime(new Date("2026-10-18T02:00:00Z"));
+    mocks.role = role;
+    mocks.demoPlayer = true;
+    mocks.homeMode = "synthetic";
+    mocks.matches = [
+      match({
+        id: "sand-scheduled",
+        team_a_id: "demo-sand",
+        venue_id: "demo-venue",
+        data_mode: "synthetic",
+      }),
+    ];
+    const { rerender } = render(<Home />);
+    expect(screen.getByRole("region", { name: "Information" })).toHaveTextContent("Sand & Sky");
+    expect(screen.getByRole("region", { name: "Next Match" })).toHaveTextContent("Sand & Sky");
+    expect(screen.getByRole("region", { name: "Venue" })).toHaveTextContent("Demo venue");
+    expect(screen.getByRole("region", { name: "Recent Competition Results" })).toHaveTextContent(
+      "Latest of 4 existing sample matches",
+    );
+    expect(screen.getByRole("region", { name: "Recent Competition Results" })).toHaveTextContent(
+      "Demo opponent 4",
+    );
+    fireEvent.change(screen.getByLabelText("Homepage data"), { target: { value: "real" } });
+    expect(mocks.selectMode).toHaveBeenLastCalledWith("real");
+    mocks.homeMode = "real";
+    rerender(<Home />);
+    expect(screen.getByRole("region", { name: "Information" })).toHaveTextContent("Sand & Sky");
+    expect(screen.queryByText(/Latest of 4 existing/)).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Next Match" })).toHaveTextContent(
+      "No upcoming match is published",
+    );
+    mocks.homeMode = "synthetic";
+    rerender(<Home />);
+    expect(screen.getByRole("region", { name: "Recent Competition Results" })).toHaveTextContent(
+      "Demo opponent 4",
+    );
+  });
+}
