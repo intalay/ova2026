@@ -42,3 +42,4 @@
 
 - [x] Enlarge the Coach homepage page title (coach-collage only): 3.4rem desktop / 2.5rem phone, Inter 700, data label moved onto its own line on phones; verified signed-in at 1280/390 with no clipping or horizontal overflow, build OK, 47 tests pass.
 - [x] Switch the whole app to the uploaded Montserrat variable font (body, UI labels, homepage modules, 50/50 editorial text, coach pages); UNSII titles and Sora lottery numerals kept. Verified in the preview at 1280: Montserrat loads and renders on homepage/results/50/50, coach style checked with a visual mock, build OK, 47 tests pass. Real coach-session verification of the coach pages remains blocked (injected account is not a coach; specific-user minting needs workspace admin).
+- [x] Swap the Schedule page sections so "Follow teams & divisions" now appears above "Upcoming matches"; verified signed-in at 1280 with build OK.
