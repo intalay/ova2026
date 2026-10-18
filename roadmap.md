@@ -1,4 +1,5 @@
 # OVA modular build
+- [x] Refine only 50/50 typography/logo/150-ticket colour and the homepage lottery block; 1280/390/360 layouts checked, Sora weights and logo proportions confirmed, 150 tickets selects $100 CAD, official link unchanged, flowing homepage background respects reduced motion, 14 tests pass.
 - [x] Polygon trial on Coach/Player homepages reverted at user request.
 - [x] Preserve the dedicated 50/50 silky animated lottery treatment with independent premium-gold tokens and restored grid/glow/metallic sweep. Desktop/mobile checked: 150-ticket selection updates to $100 CAD, official checkout link retained, no overflow/runtime errors, reduced motion disables animation; three routing tests pass.
 - [x] Apply the uploaded UNSII font selectively to headings and score/prize numerals; preserve readable body fonts, bold uppercase page/section titles and current colours. Seven public pages checked at desktop/mobile: font loads, no overflow/runtime errors, homepage lines remain intact; 14 existing tests pass. The other upload contains logos, not a second font; second font awaits upload.

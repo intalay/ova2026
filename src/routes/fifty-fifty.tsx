@@ -6,18 +6,18 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/ova-5050.png.asset.json";
 import { TICKET_TIERS, LOTTERY_URL, RULES_URL } from "@/lib/lottery";
 export const Route=createFileRoute('/fifty-fifty')({head:()=>({meta:[{title:'50/50 Lottery — OVA Companion'},{name:'description',content:'Official OVA 50/50 ticket options and rules.'},{property:'og:title',content:'OVA 50/50 Lottery'},{property:'og:description',content:'Support Ontario volleyball through the official OVA draw.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:Lottery});
-const STYLE: Record<number,{label?:string;cls:string}>={400:{label:'Best value',cls:''},150:{label:'Fan favourite',cls:'rose'}};
+const STYLE: Record<number,{label?:string;cls:string}>={400:{label:'Best value',cls:''},150:{label:'Fan favourite',cls:'green'}};
 function Lottery(){
  const tiers=[...TICKET_TIERS].sort((a,b)=>b.tickets-a.tickets);
  const [sel,setSel]=useState(400);
  const chosen=tiers.find(t=>t.tickets===sel);
  if(!chosen) return null;
- return <AppShell title="50/50 Lottery">
+ return <AppShell title="50/50 Lottery" contentClassName="lottery-page">
   <section aria-labelledby="draw" className="lotto-stage px-4 py-10 text-center sm:px-8">
    <div className="relative space-y-3">
-    <img src={logo.url} alt="OVA 50/50" width={200} height={70} className="mx-auto h-14 w-44 object-contain"/>
-    <h2 id="draw" className="text-lg font-semibold uppercase tracking-[0.3em]">Last Fall Classic winner took home</h2>
-    <p className="jackpot font-display text-7xl font-semibold leading-none sm:text-9xl">$14,835</p>
+    <img src={logo.url} alt="OVA 50/50" width={1024} height={284} className="lottery-logo mx-auto w-60"/>
+    <h2 id="draw" className="lottery-winner uppercase">Last Fall Classic winner took home</h2>
+    <p className="jackpot leading-none">$14,835</p>
     <p className="text-sm font-semibold">18+ · Must be in Ontario to purchase</p>
    </div>
    <div className="relative mt-10">
@@ -29,10 +29,10 @@ function Lottery(){
         <span className="min-h-8 text-center text-[0.6rem] leading-tight sm:text-[0.7rem] font-semibold uppercase">{s.label??'OVA 50/50'}</span>
          <div className="flex w-full flex-col items-center gap-2 border-y-2 border-dashed border-current/40 py-3">
          <span className="flex gap-0.5" aria-hidden>{[0,1,2].map(i=><Star key={i} className="size-3 fill-current"/>)}</span>
-         <span className="font-display text-3xl font-semibold leading-none sm:text-5xl">{t.tickets}</span>
-         <span className="mt-1 text-[0.6rem] font-semibold uppercase sm:text-xs sm:tracking-[0.3em]">Tickets</span>
+         <span className="lottery-quantity leading-none">{t.tickets}</span>
+         <span className="lottery-ticket-label mt-2 text-[0.6rem] uppercase sm:text-xs">Tickets</span>
         </div>
-        <span className="font-display text-2xl font-semibold sm:text-3xl">${t.price}</span>
+        <span className="lottery-price">${t.price}</span>
        </div>
       </Button></li>;})}
     </ul>
