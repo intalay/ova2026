@@ -21,6 +21,10 @@ export const Route = createFileRoute("/venue/$id")({
       { property: "og:description", content: "Venue map, directions and parking." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      ...(loaderData?.name && venueMedia(loaderData.name)?.url.startsWith('https://') ? [
+        { property: "og:image", content: venueMedia(loaderData.name)?.url },
+        { name: "twitter:image", content: venueMedia(loaderData.name)?.url },
+      ] : []),
     ],
   }),
   component: Venue,
