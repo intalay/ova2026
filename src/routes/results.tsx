@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ChartNoAxesCombined } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   CartesianGrid,
   Line,
@@ -13,6 +13,8 @@ import {
 } from "recharts";
 import { AppShell, Section, Card, btn, Tbd } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { DemoTeamTrend } from "@/components/DemoTeamTrend";
+import { ResultsTrend } from "@/components/ResultsTrend";
 import { ResultsUpdateStatus } from "@/components/ResultsUpdateStatus";
 import { summarizeRecordedResults } from "@/lib/result-sync/normalize";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
@@ -558,35 +560,21 @@ function Results() {
             <p role="status">Loading complete team history…</p>
           ) : (
             <>
-              {stats && stats.played > 0 && (
-                <div className="results-stats grid grid-cols-2">
-                  {[
-                    [metric === "set" ? "Sets won" : "Wins", stats.wins],
-                    [metric === "set" ? "Sets lost" : "Losses", stats.losses],
-                    ["Win rate", stats.winRate === null ? "—" : stats.winRate + "%"],
-                    ["Loss rate", stats.lossRate === null ? "—" : stats.lossRate + "%"],
-                  ].map(([label, value]) => (
-                    <div key={label} className="results-stat">
-                      <p className="results-stat-label">{label}</p>
-                      <p
-                        className={`results-stat-value${value === "—" ? " results-stat-missing" : ""}`}
-                      >
-                        {typeof value === "string" && value.endsWith("%") ? (
-                          <>
-                            {value.slice(0, -1)}
-                            <span className="results-stat-percent">%</span>
-                          </>
-                        ) : (
-                          value
-                        )}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {stats && stats.played === 0 && (
-                <p>No decided scores are available for statistics in this range.</p>
-              )}
+              <ResultsTrend
+                teamId={team}
+                teamName={teamRecord?.name ?? "Selected team"}
+                eventName={
+                  filters.data?.events.find((event) => event.id === selection.eventId)?.name ??
+                  "All selected events"
+                }
+                matches={finals}
+                teams={filters.data?.teams ?? []}
+                stats={stats}
+                metric={metric}
+                daily={winTrend}
+                expanded={expanded}
+                onToggle={() => setExpanded(!expanded)}
+              />
               <p className="text-sm text-muted-foreground">
                 {sourceLabel(displayMode ?? "")} · Recorded final matches in the selected range for
                 this team from the same source mode. Rates exclude missing scores and tied results.
@@ -638,58 +626,17 @@ function Results() {
               </div>
             </>
           )}
-          <Button variant="outline" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-            <ChartNoAxesCombined aria-hidden />
-            {expanded ? "Hide results trend" : "View results trend"}
-          </Button>
+          {teamError && (
+            <Button
+              variant="outline"
+              aria-expanded={expanded}
+              onClick={() => setExpanded(!expanded)}
+            >
+              View results trend
+            </Button>
+          )}
           {expanded && validDateRange && (
             <div className="space-y-4">
-              {validDateRange && !teamLoading && !teamError && winTrend.length > 0 && (
-                <>
-                  <p>Cumulative {metric} win rate in selected range</p>
-                  {winTrend.length === 1 && (
-                    <p>
-                      {winTrend[0]?.date} · {winTrend[0]?.winRate}%
-                    </p>
-                  )}
-                  <div
-                    className="h-64 min-w-0"
-                    role="img"
-                    aria-label={`Cumulative ${metric} win rate in selected range: ${winTrend.map((point) => (point.winRate === null ? "TBD" : `${point.winRate}%`)).join(", ")}`}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={winTrend}
-                        margin={{ top: 12, right: 20, bottom: 8, left: 0 }}
-                      >
-                        <CartesianGrid
-                          stroke="var(--border)"
-                          strokeDasharray="3 3"
-                          vertical={false}
-                        />
-                        <XAxis dataKey="date" stroke="var(--muted-foreground)" />
-                        <YAxis
-                          domain={[0, 100]}
-                          unit="%"
-                          width={48}
-                          stroke="var(--muted-foreground)"
-                        />
-                        <Tooltip formatter={(value) => [`${value}%`, "Win rate"]} />
-                        <Line
-                          dataKey="winRate"
-                          stroke="var(--chart-1)"
-                          strokeWidth={3}
-                          dot={{ r: 4 }}
-                          isAnimationActive={false}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </>
-              )}
-              {validDateRange && !teamLoading && !teamError && !winTrend.length && (
-                <p>No dated, decided results in this period. No win-rate data available.</p>
-              )}
               {teamError ? (
                 <p>Complete team history is unavailable. Retry team history to view placements.</p>
               ) : teamLoading ? (
@@ -734,6 +681,7 @@ function Results() {
           Select a team to view statistics and trends for the same results range.
         </p>
       )}
+      <DemoTeamTrend data={competition.data} />
       <Section title="All results">
         {!validDateRange ? (
           <p role="alert">From date must be on or before To date.</p>
