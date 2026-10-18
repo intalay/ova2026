@@ -9,9 +9,13 @@ const mocks = vi.hoisted(() => ({
   history: vi.fn(),
   role: "general_user",
   householdLoaded: true,
+  contextSearch: {} as Record<string, unknown>,
+  family: false,
 }));
 
 vi.mock("@tanstack/react-router", () => ({
+  useSearch: () => mocks.contextSearch,
+  useNavigate: () => vi.fn(),
   // Loader prefetch is absent in unit tests, so the page starts from its query mocks.
   createFileRoute: () => (options: { component: ComponentType }) => ({
     options,
@@ -56,14 +60,27 @@ vi.mock("@/lib/results.functions", () => ({
 vi.mock("@/hooks/use-role", () => ({
   useRole: () => ({
     role: mocks.role,
+    user: mocks.role === "general_user" ? null : { id: mocks.family ? "parent" : "test-user" },
+    ready: true,
     household: {
       data: mocks.householdLoaded
-        ? { managedTeams: ["team-a", "team-b"], linkedPlayers: [], self: null }
+        ? mocks.family
+          ? parentHousehold()
+          : {
+              managedTeams: ["team-a", "team-b"],
+              linkedPlayers: [],
+              self: null,
+              roles: [],
+              familyLinks: [],
+            }
         : undefined,
+      isPending: !mocks.householdLoaded,
+      isError: false,
     },
   }),
 }));
 
+import { parentHousehold } from "./parent-context.fixture";
 import { Route } from "@/routes/results";
 const ResultsPage = Route.options.component as ComponentType;
 const match = (overrides = {}) => ({
@@ -186,6 +203,9 @@ beforeEach(() => {
     },
   );
   vi.unstubAllEnvs();
+  sessionStorage.clear();
+  mocks.contextSearch = {};
+  mocks.family = false;
   mocks.role = "general_user";
   mocks.householdLoaded = true;
   mocks.page.mockImplementation(async () => ({ matches: [match()], total: 7 }));
@@ -216,6 +236,41 @@ afterEach(() => {
 });
 
 describe("Results history page", () => {
+  it("uses the approved second child's actual team without replacing it with the first child", async () => {
+    mocks.role = "family_friends";
+    mocks.family = true;
+    mocks.contextSearch = { player: "child-b", team: "team-b" };
+    renderPage();
+    await loaded();
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-b"));
+    expect(screen.getByText(/Linked player: Blair/)).toBeInTheDocument();
+    expect(mocks.history).toHaveBeenLastCalledWith({
+      data: { teamId: "team-b", dataMode: "real" },
+    });
+    change("Search teams", "May historical");
+    fireEvent.click(
+      within(screen.getByRole("listbox", { name: "Matching teams" })).getByRole("option", {
+        name: /Alpha.*May historical/,
+      }),
+    );
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+    expect(mocks.contextSearch).toEqual({ player: "child-b", team: "team-b" });
+  });
+  it("keeps an invalid child-team parameter unassociated while allowing explicit public browsing", async () => {
+    mocks.role = "family_friends";
+    mocks.family = true;
+    mocks.contextSearch = { player: "child-b", team: "team-a" };
+    renderPage();
+    await loaded();
+    expect(
+      screen.getByText(/This player or team selection is no longer available/),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Browse team")).toHaveValue("");
+    expect(mocks.history).not.toHaveBeenCalled();
+    change("Browse team", "team-c");
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+  });
+
   it("never displays synthetic rows returned alongside recorded public results", async () => {
     mocks.page.mockResolvedValue({
       matches: [
@@ -755,6 +810,9 @@ describe("Results history page", () => {
   });
 
   it("freezes public pagination against late household team/event defaults", async () => {
+    sessionStorage.clear();
+    mocks.contextSearch = {};
+    mocks.family = false;
     mocks.role = "general_user";
     mocks.householdLoaded = false;
     mocks.page.mockImplementation(

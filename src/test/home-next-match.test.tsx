@@ -2,14 +2,15 @@ import type { ComponentType, ReactNode } from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Match } from '@/lib/queries';
-const mocks = vi.hoisted(()=>({ matches: [] as Match[], role: 'coach' }));
+const mocks = vi.hoisted(()=>({ matches: [] as Match[], role: 'coach', demoPlayer: false }));
 vi.mock('@tanstack/react-router',()=>({
+ useSearch:()=>({}),useNavigate:()=>()=>{},
  createFileRoute: ()=>(options:unknown)=>({options}),
  Link: ({to,params,children,...rest}:{to:string;params?:{id:string};children:ReactNode})=><a {...rest} href={to.replace('$id',params?.id??'')}>{children}</a>,
 }));
-vi.mock('@tanstack/react-query',()=>({useSuspenseQuery:()=>({data:{teams:[{id:'mine',name:'My team'},{id:'other',name:'Opponents'}],events:[{id:'event',name:'Actual event'}],venues:[{id:'known-venue',name:'Known venue',address:'Recorded address'}],matches:mocks.matches,announcements:[],rankings:[],divisions:[]}})}));
+vi.mock('@tanstack/react-query',()=>({useSuspenseQuery:()=>({data:{teams:[{id:'mine',name:'My team'},{id:'other',name:'Opponents'},...(mocks.demoPlayer?[{id:'demo-sand',name:'Sand & Sky',data_mode:'synthetic'}]:[])],events:[{id:'event',name:'Actual event'}],venues:[{id:'known-venue',name:'Known venue',address:'Recorded address'}],matches:mocks.matches,announcements:[],rankings:[],divisions:[]}})}));
 vi.mock('@/lib/queries',()=>({competitionQuery:{}}));
-vi.mock('@/hooks/use-role',()=>({useRole:()=>({role:mocks.role,household:{data:{managedTeams:['mine'],linkedPlayers:[],self:null,profile:null}},user:{id:'review-user'}})}));
+vi.mock('@/hooks/use-role',()=>({useRole:()=>({role:mocks.role,household:{data:{roles:[],familyLinks:[],managedTeams:['mine'],linkedPlayers:[],self:mocks.demoPlayer?{id:'demo-player',user_id:'review-user',display_name:'Alex',team_id:'demo-sand',status:'verified',data_mode:'synthetic'}:null,profile:null}},user:{id:'review-user'}})}));
 vi.mock('@/components/AppShell',()=>({
  AppShell:({children}:{children:ReactNode})=><main>{children}</main>,
  Section:({title,children}:{title:string;children:ReactNode})=><section aria-label={title}>{children}</section>,
@@ -22,7 +23,7 @@ vi.mock('@/components/LotteryModule',()=>({LotteryModule:()=>null}));
 import {Route} from '@/routes/index';
 const Home=Route.options.component as ComponentType;
 const match=(patch:Partial<Match>={}):Match=>({id:'match',event_id:'event',division_id:'division',team_a_id:'mine',team_b_id:'other',venue_id:null,source_date:'2026-10-17',starts_at:null,court:null,status:'scheduled',score_a:null,score_b:null,sets:null,data_mode:'real',...patch});
-afterEach(()=>{cleanup();vi.useRealTimers();mocks.matches=[];});
+afterEach(()=>{cleanup();vi.useRealTimers();mocks.matches=[];mocks.role='coach';mocks.demoPlayer=false;});
 describe('independent next-match DOM regression',()=>{
  it('renders Toronto today with unknown time, isolates real/team records and supplies no venue navigation',()=>{
   vi.setSystemTime(new Date('2026-10-18T02:00:00Z'));
@@ -49,4 +50,24 @@ describe('independent next-match DOM regression',()=>{
   expect(screen.getByRole('region',{name:'Next Match'})).toHaveTextContent('No upcoming match is published.');
   expect(screen.getByRole('region',{name:'Venue'})).toHaveTextContent('Venue to be determined');
  });
+});
+
+it('restores explicitly labelled homepage Demo cards without adding them to real Results',()=>{
+  vi.setSystemTime(new Date('2026-10-18T02:00:00Z'));
+  mocks.role='general_user';
+  mocks.matches=[match({id:'demo-upcoming',data_mode:'synthetic'}),match({id:'demo-result',data_mode:'synthetic',status:'final',score_a:2,score_b:1,source_date:'2026-10-10'})];
+  render(<Home/>);
+  expect(screen.getByRole('region',{name:'Upcoming matches'})).toHaveTextContent('Demo match · Illustrative schedule');
+  expect(screen.getByRole('region',{name:'Recent Competition Results'})).toHaveTextContent('Demo result · Not real results');
+});
+
+it('keeps the verified demo player Alex attached to the exact Sand & Sky ID on homepage',()=>{
+  vi.setSystemTime(new Date('2026-10-18T02:00:00Z'));
+  mocks.role='player';mocks.demoPlayer=true;
+  mocks.matches=[match({id:'alex-demo',data_mode:'synthetic',team_a_id:'demo-sand'})];
+  render(<Home/>);
+  expect(screen.getByRole('heading',{name:'Alex'})).toBeInTheDocument();
+  expect(screen.getByRole('region',{name:'Information'})).toHaveTextContent('Sand & Sky');
+  expect(screen.getByText('Demo profile and competition data · Not real results')).toBeInTheDocument();
+  expect(screen.getByRole('region',{name:'Next Match'})).toHaveTextContent('Demo match · Illustrative schedule');
 });
