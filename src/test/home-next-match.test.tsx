@@ -272,7 +272,7 @@ it("shows source-linked Fan event overviews without any match records or team se
   mocks.matches = [];
   render(<Home />);
   const events = within(screen.getByRole("region", { name: "Upcoming events" }));
-  expect(events.getAllByRole("link")).toHaveLength(6);
+  expect(events.getAllByRole("link")).toHaveLength(3);
   expect(events.getByRole("heading", { name: "Fall Classic · Event 1" })).toBeInTheDocument();
   expect(events.getByText(/not the complete OVA calendar/)).toBeInTheDocument();
   expect(screen.getByRole("region", { name: "Upcoming matches" })).toHaveTextContent(
