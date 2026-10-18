@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin } from "lucide-react";
+import { MapPin, ArrowUpRight } from "lucide-react";
 import type { Match } from "@/lib/queries";
 import { formatDateTime, teamLabel, TBD } from "@/lib/format";
 import { Card, Tbd } from "./AppShell";
@@ -7,14 +7,14 @@ import { HomeLine } from './HomeLine';
 
 type Lookup = { teams: { id: string; name: string }[]; events: { id: string; name: string }[]; venues: { id: string; name: string }[] };
 
-export function MatchCard({ m, data, focusTeam, compact = false }: { m: Match; data: Lookup; focusTeam?: string | undefined; compact?: boolean }) {
+export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = false }: { m: Match; data: Lookup; focusTeam?: string | undefined; compact?: boolean; fullSchedule?: boolean }) {
   const name = (id: string | null) => data.teams.find((t) => t.id === id)?.name ?? null;
   const event = data.events.find((e) => e.id === m.event_id)?.name;
   const venue = data.venues.find((v) => v.id === m.venue_id);
   const final = m.status === "final";
   const won = final && focusTeam && m.score_a !== null && m.score_b !== null ? (focusTeam === m.team_a_id ? m.score_a > m.score_b : m.score_b > m.score_a) : null;
   if (compact && !final) return (
-    <Card className="home-match">
+    <Card className={`home-match${fullSchedule ? " home-match--linked" : ""}`}>
       {event && <HomeLine className="home-match-event">{event}</HomeLine>}
       <HomeLine className="home-match-teams">
         {name(m.team_a_id) ?? <span className="home-unknown">{teamLabel(null)}</span>}
@@ -25,6 +25,7 @@ export function MatchCard({ m, data, focusTeam, compact = false }: { m: Match; d
       <div className="home-match-location"><MapPin aria-hidden className="size-4 shrink-0"/>
         <HomeLine>{venue ? <Link to="/venue/$id" params={{id:venue.id}} className="font-semibold underline underline-offset-4">{venue.name}{m.court ? ` · ${m.court}` : ''}</Link> : <span className="home-unknown">Venue {TBD.toLowerCase()}</span>}</HomeLine>
       </div>
+      {fullSchedule && <Link to="/schedule" className="home-match-full">Full schedule<ArrowUpRight aria-hidden className="size-4 shrink-0"/></Link>}
     </Card>
   );
   return (
