@@ -18,7 +18,7 @@ import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/
 import { resultStats, RESULTS_PAGE_SIZE } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
 import { formatDate, formatDateTime } from "@/lib/format";
-import { AMANDA_PREVIEW_TEAM, amandaPreviewMatches } from "@/lib/amanda-results-preview";
+import { AMANDA_PREVIEW_TEAM, amandaPreviewMatches, previewOpponentName } from "@/lib/amanda-results-preview";
 
 type DataMode = "all" | "real" | "synthetic";
 type ResultsSelection = {
@@ -283,7 +283,7 @@ function Results() {
                           <td className="pr-3">
                             {householdFilters.data?.teams.find(
                               (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),
-                            )?.name ?? (simulatedTeam ? `Demo opponent ${Number(m.id.split("-").at(-1)) + 1}` : "Opponent to be determined")}
+                            )?.name ?? (simulatedTeam ? previewOpponentName(m) : "Opponent to be determined")}
                           </td>
                           <td className="pr-3">
                             {mine ?? "—"}–{other ?? "—"}
