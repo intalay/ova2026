@@ -1,3 +1,6 @@
+vi.mock("@/hooks/use-home-data-mode", () => ({
+  useHomeDataMode: () => ({ mode: "real", setMode: vi.fn(), ready: true }),
+}));
 import type { FunctionComponent, ReactNode } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

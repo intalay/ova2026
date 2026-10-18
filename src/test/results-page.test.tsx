@@ -1,9 +1,13 @@
+vi.mock("@/hooks/use-home-data-mode", () => ({
+  useHomeDataMode: () => ({ mode: "real", setMode: mocks.homeMode, ready: true }),
+}));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ComponentType, ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  homeMode: vi.fn(),
   page: vi.fn(),
   filters: vi.fn(),
   history: vi.fn(),
@@ -842,4 +846,16 @@ describe("Results history page", () => {
     const [, current, total] = marker.textContent!.match(/Page (\d+) of (\d+)/)!;
     expect(Number(current)).toBeLessThanOrEqual(Number(total));
   });
+});
+
+it("the Homepage data dropdown cannot switch historical queries to Demo", async () => {
+  renderPage();
+  await loaded();
+  change("Homepage data", "synthetic");
+  expect(mocks.homeMode).toHaveBeenCalledWith("synthetic");
+  expect(screen.getByText(/Changes the homepage only/)).toBeInTheDocument();
+  expect(mocks.page.mock.calls.every(([request]) => request.data.dataMode === "real")).toBe(true);
+  expect(mocks.filters.mock.calls.every(([request]) => request.data.dataMode === "real")).toBe(
+    true,
+  );
 });
