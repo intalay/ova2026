@@ -52,6 +52,8 @@ vi.mock("@/lib/results.functions", () => ({
   getResultsFilters: mocks.filters,
   getTeamResultsHistory: mocks.history,
 }));
+// Preview graphics are exercised in the browser; these tests cover live results queries.
+vi.mock("@/components/AmandaResultsPreview", () => ({ AmandaResultsPreview: () => null }));
 vi.mock("@/hooks/use-role", () => ({
   useRole: () => ({
     role: mocks.role,

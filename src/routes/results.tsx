@@ -18,6 +18,7 @@ import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/
 import { resultStats, RESULTS_PAGE_SIZE } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
 import { formatDate, formatDateTime } from "@/lib/format";
+import { AmandaResultsPreview } from "@/components/AmandaResultsPreview";
 
 type DataMode = "all" | "real" | "synthetic";
 type ResultsSelection = {
@@ -107,6 +108,7 @@ function Results() {
           ? (hh?.linkedPlayers.flatMap((p) => (p.team_id ? [p.team_id] : [])) ?? [])
           : [];
   const [chosen, setChosen] = useState("");
+  const [amandaPreview, setAmandaPreview] = useState(import.meta.env.DEV);
   const team = teamIds.includes(chosen) ? chosen : teamIds[0];
   const [expanded, setExpanded] = useState(false);
   const [months, setMonths] = useState(3);
@@ -194,6 +196,14 @@ function Results() {
 
   return (
     <AppShell title="Results" sourceLabel="Sources labeled per result">
+      {import.meta.env.DEV && (
+        <>
+          <Button variant="outline" aria-pressed={amandaPreview} onClick={() => setAmandaPreview(!amandaPreview)}>
+            {amandaPreview ? "Hide Amanda preview" : "Preview Amanda’s team"}
+          </Button>
+          {amandaPreview && <AmandaResultsPreview />}
+        </>
+      )}
       {role !== "general_user" && team && (
         <Section title="Your team">
           <label className="block font-semibold">
