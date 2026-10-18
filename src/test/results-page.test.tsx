@@ -216,6 +216,24 @@ afterEach(() => {
 });
 
 describe("Results history page", () => {
+  it.each(["Escape", "Tab"])(
+    "keeps the current team's attribution after an unselected search closes with %s",
+    async (key) => {
+      renderPage();
+      await loaded();
+      change("Browse team", "team-a");
+      await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-a"));
+      change("Search teams", "Beta");
+      fireEvent.keyDown(screen.getByLabelText("Search teams"), { key });
+      expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
+      expect(
+        screen.getByText("Choose a search result to change teams. Results below still show Alpha."),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText("Browse team")).toHaveValue("team-a");
+      expect(screen.getByLabelText("Search teams")).toHaveValue("Beta");
+    },
+  );
+
   it("opens the white listbox and navigates distinct same-name teams with arrows and Enter", async () => {
     renderPage();
     await loaded();
