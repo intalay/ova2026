@@ -33,4 +33,5 @@
 - Identity approvals are owner-scoped RPCs: managing coaches review players, verified players review family links; only approved links to verified players can read private team content. Existing family links are preserved as approved during the additive transition. Why: redeeming an invitation must not grant private access by itself.
 
 - Startup uses an SSR-safe root overlay with a one-shot timer and CSS motion while routes load underneath. Why: navigation must not replay it or change identity logic.
-- Information portraits use panel-relative sizing; announcement previews use fixed-height frames linking to full content. Why: text length must not change visual proportions or access.
+- Portraits scale to panels; announcements use fixed previews. Why: text length cannot alter proportions.
+- Signup drafts are account-bound; auth metadata is presentation only. Account checks getUser email confirmation and shares the session listener before resuming setup. Why: cross-tab recovery must not grant approval.
