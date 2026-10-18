@@ -10,7 +10,6 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- Coach and Player homepage shape treatments are scoped through a role-selected wrapper class, excluding the lottery module and shared navigation. Why: visual trials must not change other audiences, pages or lottery presentation.
 - The 50/50 stage uses independent lottery semantic tokens and scoped effects rather than global accent/card colours. Why: app-wide theme changes must not flatten or recolour its dedicated lottery presentation.
 - Uploaded web fonts are CDN assets loaded through a local font-face stylesheet imported by the global theme; heading and body font tokens stay separate. Why: brand typography can change independently without making dense content hard to read or embedding binary files in source.
 - Homepage match cards use the optional compact MatchCard variant and HomeLine container fitting; other match views keep their existing layout. Why: complete single-line homepage information must fit without changing schedules or hiding unknown values.
