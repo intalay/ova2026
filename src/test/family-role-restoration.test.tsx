@@ -1,4 +1,4 @@
-import { render, screen, cleanup, act } from '@testing-library/react';
+import { render, screen, cleanup, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, afterEach, it, expect, vi } from 'vitest';
 import type { ReactNode } from 'react';
@@ -31,7 +31,7 @@ it('restores family when approval arrives without another identity selection', a
  qc.setQueryData(['household','family-account'],empty);mount(qc);
  expect(screen.getByLabelText('Resolved homepage identity')).toHaveTextContent('general_user');
  await act(async()=>{qc.setQueryData(['household','family-account'],approved);});
- expect(screen.getByLabelText('Resolved homepage identity')).toHaveTextContent('family_friends');
+ await waitFor(()=>expect(screen.getByLabelText('Resolved homepage identity')).toHaveTextContent('family_friends'));
 });
 it('restores after sign-in but never uses the previous accounts approval', async()=>{
  const qc=new QueryClient({defaultOptions:{queries:{staleTime:Infinity,retry:false}}});
