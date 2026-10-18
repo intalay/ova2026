@@ -32,8 +32,9 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
   return (
     <Card className={pending ? "match-pending" : ""}>
       <p className="text-base text-muted-foreground">{event}</p>
-      <p className="mt-1 text-xl font-semibold">
-        {name(m.team_a_id)} <span className="font-normal text-muted-foreground">vs</span>{" "}
+      <p className="match-teams mt-1 text-xl font-bold">
+        {name(m.team_a_id)} <span className="font-bold text-muted-foreground">vs</span>{" "}
+
         {m.team_b_id ? name(m.team_b_id) : <Tbd>{teamLabel(null)}</Tbd>}
       </p>
       {final ? (
@@ -43,7 +44,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
           {m.sets && <span className="ml-2 text-muted-foreground">({m.sets.map((s) => `${s.a}-${s.b}`).join(", ")})</span>}
         </p>
       ) : (
-        <p className="mt-1 text-lg">{m.starts_at ? formatDateTime(m.starts_at) : <Tbd>{formatDateTime(null, m.source_date)}</Tbd>}</p>
+        <p className="match-date mt-1 text-lg">{m.starts_at ? formatDateTime(m.starts_at) : <Tbd>{formatDateTime(null, m.source_date)}</Tbd>}</p>
       )}
       {!final && (
         <p className="mt-1 flex items-center gap-1.5 text-base">

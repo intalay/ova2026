@@ -101,6 +101,8 @@
   --home-shadow-pressed: 0 2px 8px color-mix(in oklab, var(--ink) 12%, transparent);
   --logo-green: oklch(0.72 0.16 131); /* exact OVA logo green #80B840 */
   --brand-green: var(--logo-green);
+  --match-time: oklch(0.5 0.14 131); /* logo-green hue darkened for readable small text on light cards */
+
   --brand-grey: var(--ink);
   --home-prize-glow: none;
   --home-lottery-gradient: linear-gradient(125deg, var(--ink) 25%, color-mix(in oklab, var(--ink) 86%, var(--logo-green)));
@@ -311,10 +313,11 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-matches { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
-.home-match-teams { font-size: 1.1rem; font-weight: 600; line-height: 1.5; }
+.home-match-teams { font-size: 1.1rem; font-weight: 700; line-height: 1.5; }
 .home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
-.home-match-versus { font-size: .85em; font-weight: 500; color: var(--muted-foreground); padding: 0 .25em; }
-.home-match-date { font-size: .9rem; margin-top: 3px; }
+.home-match-versus { font-size: .85em; font-weight: 700; color: var(--muted-foreground); padding: 0 .25em; }
+.home-match-date { font-size: .9rem; margin-top: 3px; color: var(--match-time); }
+
 .home-match-location { display: flex; align-items: center; gap: 6px; font-size: .85rem; margin-top: 3px; }
 .home-match--linked { position: relative; }
 .home-match-full { display: flex; width: 100%; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 10px; font-size: .85rem; font-weight: 600; color: var(--primary); }
@@ -350,6 +353,12 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
+/* Fixture matchups stay bold on top of the global medium-weight preference (Penny request).
+   HomeLine wraps its children in an unstyled span, so the bold has to reach that span too. */
+.home-match-teams span:not(.home-unknown), .match-teams, .match-teams > span:not(.home-unknown) { font-weight: 700 !important; }
+
+
+
 
 /* Page-only editorial hierarchy; other pages retain their medium-weight rule. */
 .lottery-logo { display: block; height: auto; max-width: 100%; object-fit: contain; }
@@ -375,6 +384,10 @@ body, body * { font-weight: 500 !important; }
 .glass-list .match-pending { background: var(--home-feature-gradient); border: 1px solid color-mix(in oklab, var(--logo-green) 45%, transparent); color: var(--court-foreground); --card-foreground: var(--court-foreground); --muted-foreground: var(--court-foreground); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
 .glass-list .match-pending .text-primary { color: var(--logo-green); }
 .glass-list .match-pending .home-unknown { color: color-mix(in oklab, var(--teal) 45%, var(--paper-base)); }
+/* Pending cards sit on the dark feature gradient, so the date keeps the bright logo green. */
+.glass-list .match-pending { --match-time: var(--logo-green); }
+.match-date { color: var(--match-time); }
+
 
 /* Coach homepage: black/white inverted palette, isolated under the role-gated wrapper */
 .coach-invert {
@@ -416,7 +429,9 @@ body, body * { font-weight: 500 !important; }
   --navigation-muted: var(--ink);
   --navigation-highlight: var(--accent);
   --coach-green-ink: color-mix(in oklab, var(--logo-green) 58%, var(--ink-base));
+  --match-time: var(--logo-green); /* inverted homepage cards are dark, so dates use the bright logo green */
 }
+
 .coach-invert *, .coach-invert *::before, .coach-invert *::after { border-color: var(--border); }
 .coach-invert :focus-visible { outline-color: var(--ring); }
 .coach-invert header a > img { background: var(--paper-base); }
