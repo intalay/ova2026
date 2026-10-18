@@ -34,34 +34,48 @@ function type(text: string) {
   return input;
 }
 afterEach(cleanup);
-describe("search-first team picker", () => {
+describe("browsable team picker", () => {
+  it("opens all discoverable teams without typing and pages with keyboard selection", () => {
+    const { onChange } = fixture({ compact: true });
+    const input = screen.getByRole("combobox", { name: "Search teams" });
+    fireEvent.focus(input);
+    expect(screen.getAllByRole("option")).toHaveLength(10);
+    expect(screen.getByText("Page 1 of 5")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next teams" }));
+    expect(screen.getByText("Page 2 of 5")).toBeInTheDocument();
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(onChange).toHaveBeenCalledWith("club-10");
+    expect(screen.getByRole("group", { name: "Browse team" })).toBeInTheDocument();
+  });
+
   it("starts with concise guidance and no recommendations or native team dropdown", () => {
     fixture();
     expect(screen.getByText("All teams")).toBeInTheDocument();
-    expect(screen.getByText(/Start with a team name/)).toBeInTheDocument();
+    expect(screen.getByText(/Search closed/)).toBeInTheDocument();
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     expect(screen.queryAllByRole("option")).toHaveLength(0);
     expect(screen.getAllByRole("combobox")).toHaveLength(1);
     expect(screen.getByRole("combobox")).toHaveAttribute("aria-expanded", "false");
   });
-  it("shows exact counts and at most six candidates with name first and scope second", () => {
+  it("shows exact counts and at most ten candidates with name first and scope second", () => {
     const { onChange } = fixture();
     type("volleyball");
-    expect(screen.getByRole("status")).toHaveTextContent("50 results · Showing 1–6");
+    expect(screen.getByRole("status")).toHaveTextContent("50 results · Showing 1–10");
     const list = screen.getByRole("listbox", { name: "Matching teams" });
-    expect(within(list).getAllByRole("option")).toHaveLength(6);
+    expect(within(list).getAllByRole("option")).toHaveLength(10);
     expect(within(list).getByText("Volleyball Club 00")).toBeInTheDocument();
-    expect(within(list).getAllByText(/15U Girls Division 1 · Spring Cup/)).toHaveLength(6);
+    expect(within(list).getAllByText(/15U Girls Division 1 · Spring Cup/)).toHaveLength(10);
     expect(onChange).not.toHaveBeenCalled();
   });
   it("pages instead of appending hundreds of options, then resets pagination for a new query", () => {
     fixture();
     type("volleyball");
-    fireEvent.click(screen.getByRole("button", { name: "Show more teams" }));
-    expect(screen.getByRole("status")).toHaveTextContent("Showing 7–12");
-    expect(screen.getByText("Volleyball Club 06")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next teams" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Showing 11–20");
+    expect(screen.getByText("Volleyball Club 10")).toBeInTheDocument();
     expect(screen.queryByText("Volleyball Club 00")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("option")).toHaveLength(6);
+    expect(screen.getAllByRole("option")).toHaveLength(10);
     type("Club 00");
     expect(screen.getByRole("status")).toHaveTextContent("1 result · Showing 1–1");
     expect(screen.getAllByRole("option")).toHaveLength(1);
@@ -150,13 +164,14 @@ describe("search-first team picker", () => {
     fireEvent.click(screen.getByRole("button", { name: "All teams" }));
     expect(screen.getByText("All teams")).toBeInTheDocument();
   });
-  it("clears the query to a quiet empty state and keeps all public data unchanged", () => {
+  it("clears the query back to the first browse page and keeps all public data unchanged", () => {
     const before = JSON.stringify({ teams, context });
     fixture();
     type("club");
     fireEvent.click(screen.getByRole("button", { name: "Clear team search" }));
     expect(screen.getByRole("combobox")).toHaveValue("");
-    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getAllByRole("option")).toHaveLength(10);
     expect(JSON.stringify({ teams, context })).toBe(before);
   });
   it("has an actionable no-results state without fabricated suggestions", () => {

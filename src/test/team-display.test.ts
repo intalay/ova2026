@@ -97,7 +97,8 @@ describe("reviewed team display and simple search", () => {
   });
   it("does not interpret unknown Entry-like text or copied synthetic IDs as reviewed real aliases", () => {
     const unknown = { ...defensaA, id: "unreviewed-entry" };
-    expect(teamPresentation(unknown, context).primary).toBe(unknown.name);
+    expect(teamPresentation(unknown, context).primary).toBe("Defensa");
+    expect(teamPresentation(unknown, context).entryLabel).toBe("");
     expect(isAnonymousPair({ ...pair, data_mode: "synthetic" })).toBe(false);
     expect(teamDisplayName({ ...pair, data_mode: "synthetic" })).toBe("Pair01");
   });
