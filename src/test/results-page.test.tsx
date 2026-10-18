@@ -195,6 +195,7 @@ afterEach(() => {
 
 describe("Results history page", () => {
   it("uses the four Sand & Sky simulated matches inside team statistics without writing them to public caches", async () => {
+    vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
     vi.stubEnv("MODE", "development");
     const client = renderPage();
     const section = within(screen.getByRole("region", { name: "Your team" }));
@@ -207,6 +208,7 @@ describe("Results history page", () => {
     expect(mocks.history).not.toHaveBeenCalled();
     expect(client.getQueryData(["team-results-history", "demo-sand", undefined])).toBeUndefined();
     expect(client.getQueryData(["results-page", defaultRequest])).toEqual({ matches: [match()], total: 7 });
+    vi.unstubAllGlobals();
   });
 
   it("keeps the recent/all default and shows complete independent names, source and source date", async () => {
