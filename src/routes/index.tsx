@@ -13,7 +13,7 @@ import { competitionQuery } from "@/lib/queries";
 import { useRole } from "@/hooks/use-role";
 import { MODULES, ROLE_LABELS } from "@/lib/modules";
 import court from "@/assets/volleyball-court.jpg";
-import playerPortrait from "@/assets/player-portrait.png";
+import playerPortrait from "@/assets/player-portrait-silhouette.png";
 import { TBD, teamLabel } from '@/lib/format';
 import { venueMedia } from '@/lib/venue-media';
 export const Route=createFileRoute('/')({head:()=>({meta:[{title:'Fan Plaza — OVA Companion'},{name:'description',content:'Ontario volleyball schedules, team announcements, results and official OVA 50/50.'},{property:'og:title',content:'OVA Companion Fan Plaza'},{property:'og:description',content:'Your Ontario volleyball community, in one place.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>context.queryClient.ensureQueryData(competitionQuery),component:Home});
