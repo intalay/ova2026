@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Coach homepage visual overrides are isolated under a role-gated outer wrapper and dedicated coach tokens. Why: shared homepage modules and navigation must retain their existing presentation for every other role and route.
 - The 50/50 stage uses independent lottery semantic tokens and scoped effects rather than global accent/card colours. Why: app-wide theme changes must not flatten or recolour its dedicated lottery presentation.
 - Lottery typography overrides are scoped to its page wrapper, with independent numeric and editorial font tokens. Why: lottery hierarchy must not override other pages' typography or the global weight preference.
 - Uploaded web fonts are CDN assets loaded through a local font-face stylesheet imported by the global theme; heading and body font tokens stay separate. Why: brand typography can change independently without making dense content hard to read or embedding binary files in source.
