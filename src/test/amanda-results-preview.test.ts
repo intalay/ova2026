@@ -26,7 +26,7 @@ describe("Amanda's isolated preview", () => {
   it("keeps set scores consistent with the recorded set count", () => {
     for (const match of amandaPreviewMatches) {
       const sets = match.sets ?? [];
-      expect(sets.length).toBe(Math.max(match.score_a ?? 0, match.score_b ?? 0));
+      expect(sets.length).toBe((match.score_a ?? 0) + (match.score_b ?? 0));
       expect(sets.filter((s) => s.a > s.b).length).toBe(match.score_a);
       expect(sets.filter((s) => s.b > s.a).length).toBe(match.score_b);
     }
