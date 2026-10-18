@@ -159,7 +159,8 @@
     background-size: 44px 44px;
     background-attachment: fixed;
   }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0; line-height: 1.15; }
+  h1 { font-family: var(--font-display); font-synthesis: none; letter-spacing: 0; line-height: 1.15; }
+  h2, h3 { font-family: var(--font-score); letter-spacing: 0; line-height: 1.15; }
   :focus-visible { outline: 3px solid var(--color-ring); outline-offset: 3px; border-radius: 4px; box-shadow: 0 0 0 3px var(--background); }
 }
 
