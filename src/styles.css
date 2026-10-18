@@ -208,6 +208,9 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .shop-product:hover .shop-image img { transform: scale(1.04); }
 .shop-image--horizontal img { position: absolute; width: calc(100cqh - 36px); height: calc(100cqw - 36px); transform: rotate(90deg); }
 .shop-product:hover .shop-image--horizontal img { transform: rotate(90deg) scale(1.04); }
+.shop-image--scoresheet img, .shop-scoresheet-detail { transform: rotate(180deg); }
+.shop-product:hover .shop-image--scoresheet img { transform: rotate(180deg) scale(1.04); }
+@media (prefers-reduced-motion: reduce) { .shop-product:hover .shop-image--scoresheet img { transform: rotate(180deg); } }
 .shop-unavailable { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, var(--card) 62%, transparent); backdrop-filter: blur(6px) saturate(70%); color: var(--foreground); font-weight: 700; font-size: 1rem; }
 @media (min-width: 640px) { .shop-grid { gap: 22px; } .shop-image { height: 180px; } }
 @media (prefers-reduced-motion: reduce) { .shop-product:hover, .shop-product:focus-visible, .shop-product:active, .shop-product:hover .shop-image img { transform: none; } .shop-product:hover .shop-image--horizontal img { transform: rotate(90deg); } }

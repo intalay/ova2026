@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { PRODUCTS } from "@/lib/catalog";
 
 const CATEGORIES = ['Game Day', 'Coaching & Development', 'Support OVA'] as const;
-const HORIZONTAL_IMAGES = ['6v6-volleyball-scoresheets', '4v4-scoresheets-book-of-30', 'officials-sanction-card-set'];
+const SCORESHEET_IMAGES = ['6v6-volleyball-scoresheets', '4v4-scoresheets-book-of-30'];
+const HORIZONTAL_IMAGES = ['officials-sanction-card-set'];
 
 export const Route = createFileRoute('/shop')({
   head: () => ({
@@ -25,7 +26,7 @@ export const Route = createFileRoute('/shop')({
 function ProductCard({ p }: { p: (typeof PRODUCTS)[number] }) {
   return (
     <Link to="/shop/$id" params={{ id: p.id }} className="shop-product group flex min-w-0 flex-col overflow-hidden rounded-lg border bg-card">
-      <div className={`shop-image${HORIZONTAL_IMAGES.includes(p.id) ? ' shop-image--horizontal' : ''}`}>
+      <div className={`shop-image${SCORESHEET_IMAGES.includes(p.id) ? ' shop-image--scoresheet' : HORIZONTAL_IMAGES.includes(p.id) ? ' shop-image--horizontal' : ''}`}>
         {p.image ? <img src={p.image} alt={p.title} loading="lazy" width={400} height={400} /> : <ShoppingBag aria-hidden className="size-12 text-muted-foreground" />}
         {!p.available && <span className="shop-unavailable">unavailable</span>}
       </div>
