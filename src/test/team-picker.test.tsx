@@ -37,6 +37,10 @@ afterEach(cleanup);
 describe("browsable team picker", () => {
   it("opens all discoverable teams without typing and pages with keyboard selection", () => {
     const { onChange } = fixture({ compact: true });
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Search filters" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Browse team" }));
     const input = screen.getByRole("combobox", { name: "Search teams" });
     fireEvent.focus(input);
     expect(screen.getAllByRole("option")).toHaveLength(10);
@@ -46,7 +50,26 @@ describe("browsable team picker", () => {
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "Enter" });
     expect(onChange).toHaveBeenCalledWith("club-10");
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Browse team" })).toHaveFocus();
     expect(screen.getByRole("group", { name: "Browse team" })).toBeInTheDocument();
+  });
+
+  it("closes the compact browser on Escape, outside pointer and focus leaving", () => {
+    fixture({ compact: true, value: "club-1" });
+    const trigger = screen.getByRole("button", { name: "Browse team: Volleyball Club 01" });
+    fireEvent.click(trigger);
+    expect(screen.getByRole("combobox")).toHaveFocus();
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(trigger).toHaveFocus();
+    fireEvent.click(trigger);
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    fireEvent.click(trigger);
+    fireEvent.blur(screen.getByRole("combobox"), { relatedTarget: document.body });
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "All teams" })).toBeInTheDocument();
   });
 
   it("starts with concise guidance and no recommendations or native team dropdown", () => {

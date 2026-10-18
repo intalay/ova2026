@@ -8,6 +8,7 @@ import {
 } from "@/lib/results-query";
 
 import { mockClient, type Row } from "./results-client";
+import { REVIEWED_TEAM_DISPLAY_ALIASES } from "@/lib/team-display-aliases";
 
 function match(id: string, fields: Partial<Row> = {}): Row {
   return {
@@ -80,11 +81,13 @@ describe("Results input validation", () => {
 
 describe("public Results page query", () => {
   it("reads old real matches by default without silently including demo or applying a recent window", async () => {
-    const { client, calls } = mockClient({ matches: [match("historical-real"), match("demo", { data_mode: "synthetic" })] });
+    const { client, calls } = mockClient({
+      matches: [match("historical-real"), match("demo", { data_mode: "synthetic" })],
+    });
     const result = await loadResultsPage(client, { page: 1, pageSize: 6 }, now);
-    expect(result.matches.map(row => row.id)).toEqual(["historical-real"]);
+    expect(result.matches.map((row) => row.id)).toEqual(["historical-real"]);
     expect(calls[0]?.operations).toContainEqual({ method: "eq", args: ["data_mode", "real"] });
-    expect(calls[0]?.operations.some(operation => operation.method === "gte")).toBe(false);
+    expect(calls[0]?.operations.some((operation) => operation.method === "gte")).toBe(false);
   });
   it("preserves an explicitly selected inclusive recent window and all source modes", async () => {
     const { client, calls } = mockClient({
@@ -97,7 +100,11 @@ describe("public Results page query", () => {
         match("unfinished", { source_date: "2026-09-01", status: "scheduled" }),
       ],
     });
-    const result = await loadResultsPage(client, { page: 1, pageSize: 6, period: "recent", dataMode: "all" }, now);
+    const result = await loadResultsPage(
+      client,
+      { page: 1, pageSize: 6, period: "recent", dataMode: "all" },
+      now,
+    );
     expect(result.matches.map((row) => row.id)).toEqual(["end", "start"]);
     expect(result.total).toBe(2);
     expect(calls[0]?.operations).toContainEqual({
@@ -433,3 +440,81 @@ describe("independent team Results history", () => {
   });
 });
 
+describe("reviewed anonymous match discovery", () => {
+  const pairIds = Object.entries(REVIEWED_TEAM_DISPLAY_ALIASES)
+    .filter(([, alias]) => alias.kind === "anonymous_pair")
+    .map(([id]) => id);
+  const [pairA, pairB] = pairIds;
+  const anonymous = (id: string) => match(id, { team_a_id: pairA, team_b_id: pairB });
+  it("excludes reviewed anonymous versus anonymous before exact count and every page", async () => {
+    const rows = [
+      anonymous("00-hidden"),
+      match("01-aes"),
+      anonymous("02-hidden"),
+      match("03-timu"),
+      match("04-named-Pair-club"),
+    ];
+    const { client } = mockClient({ matches: rows });
+    const first = await loadResultsPage(client, { page: 1, pageSize: 2 }, now);
+    const second = await loadResultsPage(client, { page: 2, pageSize: 2 }, now);
+    expect(first.total).toBe(3);
+    expect(second.total).toBe(3);
+    expect(first.matches.map((m) => m.id)).toEqual(["01-aes", "03-timu"]);
+    expect(second.matches.map((m) => m.id)).toEqual(["04-named-Pair-club"]);
+    expect(rows).toHaveLength(5);
+  });
+  it("retains mixed named/anonymous and missing opponents, independent of a club's text name", async () => {
+    const { client } = mockClient({
+      matches: [
+        anonymous("hidden"),
+        match("named-v-anonymous", { team_b_id: pairA }),
+        match("unknown-v-anonymous", { team_a_id: null, team_b_id: pairA }),
+        match("Pair-Volleyball-Club"),
+      ],
+    });
+    const result = await loadResultsPage(client, { page: 1, pageSize: 6 }, now);
+    expect(result.matches.map((m) => m.id)).toEqual([
+      "named-v-anonymous",
+      "Pair-Volleyball-Club",
+      "unknown-v-anonymous",
+    ]);
+  });
+  it("keeps explicit team browsing and history complete, including existing anonymous selections", async () => {
+    const rows = [anonymous("recorded-final")];
+    const { client } = mockClient({ matches: rows, rankings: [] });
+    const result = await loadResultsPage(client, { page: 1, pageSize: 6, teamId: pairA }, now);
+    const history = await loadTeamResultsHistory(client, { teamId: pairA!, dataMode: "real" });
+    expect(result.total).toBe(1);
+    expect(history.matches).toHaveLength(1);
+  });
+  it("applies discovery filtering with event/date ranges while leaving synthetic mode untouched", async () => {
+    const { client } = mockClient({
+      matches: [
+        anonymous("hidden"),
+        match("visible"),
+        { ...anonymous("synthetic"), data_mode: "synthetic" },
+      ],
+    });
+    expect(
+      (
+        await loadResultsPage(
+          client,
+          {
+            page: 1,
+            pageSize: 6,
+            eventId: "event_real",
+            dateFrom: "2026-03-01",
+            dateTo: "2026-03-31",
+          },
+          now,
+        )
+      ).total,
+    ).toBe(1);
+    expect(
+      (await loadResultsPage(client, { page: 1, pageSize: 6, dataMode: "synthetic" }, now)).total,
+    ).toBe(1);
+    expect(
+      (await loadResultsPage(client, { page: 1, pageSize: 6, dataMode: "all" }, now)).total,
+    ).toBe(2);
+  });
+});

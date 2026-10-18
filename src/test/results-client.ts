@@ -50,8 +50,23 @@ export function mockClient(
         },
         or(expression: string) {
           operations.push({ method: "or", args: [expression] });
-          const clauses = expression.split(",").map((clause) => clause.split(".eq."));
-          filters.push((row) => clauses.some(([field, value]) => field && row[field] === value));
+          const clauses = expression.match(/[^,()]+(?:\([^)]*\))?/g) ?? [];
+          filters.push((row) =>
+            clauses.some((clause) => {
+              const [field, operation, ...rest] = clause.split(".");
+              const value = rest.join(".");
+              if (operation === "eq") return row[field!] === value;
+              if (operation === "neq") return row[field!] != null && row[field!] !== value;
+              if (operation === "is") return value === "null" && row[field!] == null;
+              if (operation === "not" && value.startsWith("in.(")) {
+                return (
+                  row[field!] != null &&
+                  !value.slice(4, -1).split(",").includes(String(row[field!]))
+                );
+              }
+              throw new Error(`Unsupported test OR clause: ${clause}`);
+            }),
+          );
           return chain;
         },
         order(field: string, config: { ascending?: boolean; nullsFirst?: boolean } = {}) {
@@ -98,4 +113,3 @@ export function mockClient(
   } as unknown as SupabaseClient<Database>;
   return { client, calls };
 }
-
