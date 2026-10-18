@@ -67,3 +67,4 @@
 - [x] Coach Information 卡片渐变再调柔和：绿色浓度降低、范围铺满全卡、noise 频率提高且更细；393/1280 夹具与真实 Coach 会话卡片实测平滑无色带，build OK。
 - [x] 首页 "Recent Competition Results" 展示最近一场比赛：DEV-only 本地夹具（demo-sand 最新一场 2–0、含逐局比分与 "Synthetic preview · Not saved"），有真实/数据库结果时优先显示真实数据；Results 对手名改用同一 helper 保持同步。真实 Coach 会话 393/1280 实测区块完整、无溢出、无控制台错误；20 项相关测试通过、tsgo 与 build OK。Player/Friends and Family 会话仍无法铸造，需预览确认。
 - Result card secondary text darkened on the light (coach) card — done, verified 8.2-9.7:1
+- Results 日期格式：cumulative win rate 轴标签 mm/dd、team match history mm/dd/yyyy，均去掉星期几（新增 formatMonthDay/formatDateMDY，rules.test.ts 覆盖）— done
