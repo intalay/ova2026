@@ -450,6 +450,21 @@ body, body * { font-weight: 500 !important; }
 .coach-invert .home-content .announcement-carousel .announcement-panel { color: var(--ink-base); --muted-foreground: color-mix(in oklab, var(--ink-base) 70%, var(--paper-base)); }
 .coach-invert .home-result-score { color: var(--coach-green-ink); }
 .coach-invert .home-content .home-lottery { --court-foreground: var(--paper-base); }
+/* Coach Information block: soft brand-green glow drifting out of the top-left corner */
+.coach-invert .home-info { isolation: isolate; }
+.coach-invert .home-info::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 52% at 0% 0%, color-mix(in oklab, var(--logo-green) 34%, var(--paper-base)) 0%, transparent 60%),
+    radial-gradient(88% 104% at 0% 0%, color-mix(in oklab, var(--logo-green) 26%, transparent) 0%, color-mix(in oklab, var(--logo-green) 9%, transparent) 44%, transparent 78%);
+  opacity: .6;
+}
+
 
 /* Player homepage: brand-green stage with white info cards, isolated under the role-gated wrapper */
 .player-green {
