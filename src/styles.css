@@ -343,10 +343,11 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-info .player-portrait { position: absolute; height: 66.6667%; width: auto; max-width: 40%; object-fit: contain; object-position: bottom right; bottom: 0; right: 3%; margin: 0; pointer-events: none; user-select: none; }
 .home-info:has(img[alt="Illustrative player portrait"]) > div { width: 54%; }
 .home-info img.player-portrait[alt="Illustrative player portrait"] { height: 75%; right: 6%; }
-.announcement-carousel .announcement-panel { height: 10.25rem; overflow: hidden; }
+.announcement-carousel .announcement-panel { height: 10.5rem; overflow: hidden; }
 .announcement-carousel .announcement-panel .text-lg { line-height: 1.2; }
-.announce-more { position: absolute; right: 1rem; bottom: .5rem; font-size: .75rem; line-height: 1; font-weight: 600; padding: .05rem .35rem .1rem; background: var(--card); }
-.home-content .announcement-carousel .announce-more { background: var(--home-feature-gradient); }
+.announcement-carousel .announce-body { max-height: 3.75rem; }
+.announce-more { position: absolute; right: 0; bottom: 0; font-size: .75rem; line-height: 1; font-weight: 600; padding: .1rem 0 .05rem .75rem; background: var(--card); }
+.home-content .announcement-carousel .announce-more { background: color-mix(in oklab, var(--ink) 90%, var(--logo-green)); }
 .home-content .announcement-carousel .announcement-panel { background: var(--ink-base); color: var(--paper-base); --muted-foreground: var(--paper-base); }
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
