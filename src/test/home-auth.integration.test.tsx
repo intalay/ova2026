@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
@@ -189,12 +189,12 @@ function mount() {
     </QueryClientProvider>,
   );
 }
-it("Home bridge removes the private preview after cross-tab sign-out while public content stays available offline", async () => {
+it("Home bridge removes the private preview after cross-tab sign-out and Fan Plaza drops its announcement", async () => {
   mount();
   await screen.findByText("PRIVATE TEAM A");
   mocks.offline = true;
   act(() => mocks.event("SIGNED_OUT", null));
-  await screen.findByText("PUBLIC COMMUNITY");
+  await waitFor(() => expect(screen.queryByText("PUBLIC COMMUNITY")).not.toBeInTheDocument());
   expect(screen.queryByText("PRIVATE TEAM A")).not.toBeInTheDocument();
   expect(qc.getQueryData(["team-announcements", "account-A"])).toBeUndefined();
   expect(qc.getQueryData(["household", "account-A"])).toBeUndefined();
