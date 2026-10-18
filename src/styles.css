@@ -3,13 +3,16 @@
 @import "tw-animate-css";
 @import "./assets/fonts/unsii.css";
 @import "./assets/fonts/montserrat.css";
+@import "./assets/fonts/swiss721.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Swiss 721", "Montserrat", "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-sans: "Montserrat", "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-display: "Swiss 721", "UNSII", "Montserrat", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
-  --font-home: "Swiss 721", "Montserrat", "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-section: "Swiss 721 Condensed", "Montserrat", system-ui, sans-serif;
+  --font-score: "UNSII", "Montserrat", system-ui, sans-serif;
+  --font-home: "Montserrat", "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-lottery-numeric: "Sora", system-ui, sans-serif;
   --font-lottery-editorial: "Montserrat", "Manrope", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
@@ -164,7 +167,7 @@
 .home-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .home-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 92%, transparent) 24%, transparent 72%); }
 .home-banner-content { position: relative; z-index: 1; max-width: 520px; padding: 36px; }
-.module-heading { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.02em; }
+.module-heading { font-family: var(--font-section); font-synthesis: none; font-weight: 700; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0; }
 /* Homepage greeting keeps its written casing and line breaks (e.g. "Hi," / "Coach:-)"). */
 .home-surface .page-heading h1 { text-transform: none; white-space: pre-line; }
 /* Modules lift off the gridded background with a soft shadow. */
@@ -286,7 +289,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .result-row-grid { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; column-gap: 14px; width: 100%; max-width: 62rem; margin-inline: auto; }
 .result-row-team { min-width: 0; font-weight: 600; font-size: 1.2rem; line-height: 1.3; padding-inline: 12px; text-wrap: balance; }
 .result-row-team--right { text-align: right; }
-.result-row-score { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; color: var(--primary); white-space: nowrap; padding-inline: 4px; transform: translateY(-3px); }
+.result-row-score { font-family: var(--font-score); font-size: 2.1rem; font-weight: 700; color: var(--primary); white-space: nowrap; padding-inline: 4px; transform: translateY(-3px); }
 .result-row-meta { font-size: .8rem; color: var(--muted-foreground); }
 .result-row-hp { display: flex; gap: 10px; width: 100%; max-width: 62rem; margin-inline: auto; }
 .result-row-hp-track { flex: 1; display: flex; height: 4px; border-radius: 999px; background: color-mix(in oklab, var(--primary) 10%, transparent); overflow: hidden; }
@@ -323,7 +326,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
 .home-match-teams { font-size: 1rem; font-weight: 700; line-height: 1.5; }
-.home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.home-result-score, .home-prize, .jackpot { font-family: var(--font-score); font-variant-numeric: tabular-nums; }
 .home-match-versus { font-size: .85em; font-weight: 700; color: var(--muted-foreground); padding: 0 .25em; }
 .home-match-date { font-size: .9rem; margin-top: 3px; color: var(--match-time); }
 
