@@ -44,6 +44,9 @@ export function TeamPicker({
   const filtersId = `${id}-filters`;
   const pairsId = `${id}-pairs`;
   const input = useRef<HTMLInputElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -107,6 +110,19 @@ export function TeamPicker({
       document.getElementById(`${listId}-${active}`)?.scrollIntoView?.({ block: "nearest" });
   }, [active, expanded, listId]);
 
+  useEffect(() => {
+    if (!compact || !panelOpen) return;
+    input.current?.focus();
+    function outside(event: PointerEvent) {
+      if (!root.current?.contains(event.target as Node)) {
+        setPanelOpen(false);
+        setOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", outside);
+    return () => document.removeEventListener("pointerdown", outside);
+  }, [compact, panelOpen]);
+
   function resetSearch(nextQuery = query) {
     setQuery(nextQuery);
     setPage(0);
@@ -118,7 +134,10 @@ export function TeamPicker({
     setQuery("");
     setActive(-1);
     setPairsOpen(false);
-    input.current?.focus();
+    if (compact) {
+      setPanelOpen(false);
+      trigger.current?.focus();
+    } else input.current?.focus();
     setOpen(false);
   }
   function clearFilters() {
@@ -131,32 +150,60 @@ export function TeamPicker({
 
   return (
     <div
-      className="team-picker min-w-0 max-w-full space-y-3"
+      ref={root}
+      className="team-picker relative min-w-0 max-w-full space-y-3"
       role="group"
       aria-label="Browse team"
       data-team-id={value}
       aria-busy={loading}
+      onKeyDownCapture={(event) => {
+        if (compact && event.key === "Escape" && panelOpen) {
+          event.preventDefault();
+          event.stopPropagation();
+          setPanelOpen(false);
+          setOpen(false);
+          trigger.current?.focus();
+        }
+      }}
       onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setOpen(false);
+          setPanelOpen(false);
+        }
       }}
     >
-      <div
-        className={compact && !value ? "sr-only" : "flex min-w-0 items-start justify-between gap-3"}
-      >
-        <div className={compact ? "sr-only" : "min-w-0 flex-1"}>
-          <p className="text-sm font-semibold text-muted-foreground">Browse team</p>
-          <p className="mt-1 break-words text-lg font-semibold [overflow-wrap:anywhere]">
-            {selectedLabel?.primary ??
-              (value
-                ? loading
-                  ? "Loading selected team…"
-                  : "Selected team unavailable"
-                : "All teams")}
-          </p>
-          <p className="mt-1 break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
-            {selectedLabel?.secondary ?? "Public historical results"}
-          </p>
-        </div>
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        {compact ? (
+          <Button
+            ref={trigger}
+            type="button"
+            variant="outline"
+            className="min-h-12 min-w-0 max-w-full whitespace-normal text-left"
+            aria-expanded={panelOpen}
+            aria-controls={panelOpen ? `${id}-browse` : undefined}
+            onClick={() => {
+              setPanelOpen(!panelOpen);
+              setOpen(!panelOpen);
+            }}
+          >
+            Browse team{selectedLabel ? `: ${selectedLabel.primary}` : ""}
+          </Button>
+        ) : (
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-muted-foreground">Browse team</p>
+            <p className="mt-1 break-words text-lg font-semibold [overflow-wrap:anywhere]">
+              {selectedLabel?.primary ??
+                (value
+                  ? loading
+                    ? "Loading selected team…"
+                    : "Selected team unavailable"
+                  : "All teams")}
+            </p>
+            <p className="mt-1 break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
+              {selectedLabel?.secondary ?? "Public historical results"}
+            </p>
+          </div>
+        )}
         {value && (
           <Button
             type="button"
@@ -173,289 +220,304 @@ export function TeamPicker({
           </Button>
         )}
       </div>
-      <div className="space-y-2">
-        <label className="block text-sm font-semibold" htmlFor={`${id}-search`}>
-          Search teams
-        </label>
-        <div className="relative min-w-0">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-3.5 size-5 text-muted-foreground"
-          />
-          <input
-            id={`${id}-search`}
-            ref={input}
-            type="search"
-            autoComplete="off"
-            role="combobox"
-            aria-autocomplete="list"
-            aria-expanded={expanded}
-            aria-controls={expanded ? listId : undefined}
-            aria-activedescendant={activeOption}
-            aria-describedby={`${helpId} ${keysId}`}
-            disabled={loading || error}
-            placeholder="Team name, event or division"
-            value={query}
-            className={`${inputClass} pl-10 pr-12 [&::-webkit-search-cancel-button]:appearance-none`}
-            onFocus={() => setOpen(true)}
-            onChange={(event) => resetSearch(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.nativeEvent.isComposing) return;
-              if (event.key === "Tab") setOpen(false);
-              if (event.key === "Escape") {
-                event.preventDefault();
-                setOpen(false);
-                setActive(-1);
-              }
-              if ((event.key === "ArrowDown" || event.key === "ArrowUp") && visible.length) {
-                event.preventDefault();
-                setOpen(true);
-                setActive((current) =>
-                  !expanded || current < 0
-                    ? event.key === "ArrowDown"
-                      ? 0
-                      : visible.length - 1
-                    : (current + (event.key === "ArrowDown" ? 1 : -1) + visible.length) %
-                      visible.length,
-                );
-              }
-              if (event.key === "Enter" && expanded) {
-                event.preventDefault();
-                if (activeOption && visible[active]) choose(visible[active].team.id);
-              }
-            }}
-          />
-          {!!query && (
-            <button
-              type="button"
-              aria-label="Clear team search"
-              className="absolute right-0 top-0 flex size-12 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
-              onClick={() => {
-                resetSearch("");
-                input.current?.focus();
-              }}
-            >
-              <X aria-hidden className="size-4" />
-            </button>
-          )}
-        </div>
-      </div>
-      <p id={keysId} className="sr-only">
-        Use Up and Down arrows to review teams, Enter to select, and Escape to close.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          aria-expanded={filtersOpen}
-          aria-controls={filtersOpen ? filtersId : undefined}
-          disabled={loading || error}
-          onClick={() => setFiltersOpen(!filtersOpen)}
-        >
-          <SlidersHorizontal aria-hidden />
-          Search filters
-          {(!!eventFilter || !!divisionFilter) &&
-            ` (${Number(!!eventFilter) + Number(!!divisionFilter)})`}
-        </Button>
-        {(eventFilter || divisionFilter) && (
-          <Button type="button" variant="link" size="sm" onClick={clearFilters}>
-            Clear filters
-          </Button>
-        )}
-      </div>
-      {filtersOpen && (
+      {(!compact || panelOpen) && (
         <div
-          id={filtersId}
-          className="grid min-w-0 gap-3 rounded-lg bg-muted/50 p-3 sm:grid-cols-2"
+          id={`${id}-browse`}
+          className={
+            compact
+              ? "absolute inset-x-0 top-full z-50 max-h-[min(70dvh,36rem)] space-y-3 overflow-y-auto overscroll-contain rounded-lg border bg-card p-4 shadow-lg"
+              : "space-y-3"
+          }
         >
-          <label className="min-w-0 space-y-2 text-sm font-semibold">
-            <span className="block">Event</span>
-            <select
-              className={inputClass}
-              value={eventFilter}
-              onChange={(event) => {
-                setEventFilter(event.target.value);
-                setDivisionFilter("");
-                resetSearch();
-              }}
-            >
-              <option value="">Any event</option>
-              {context.events
-                .filter((event) => eventIds.has(event.id))
-                .map((event) => (
-                  <option key={event.id} value={event.id}>
-                    {event.name}
-                  </option>
-                ))}
-            </select>
-          </label>
-          <label className="min-w-0 space-y-2 text-sm font-semibold">
-            <span className="block">Division</span>
-            <select
-              className={inputClass}
-              value={divisionFilter}
-              onChange={(event) => {
-                setDivisionFilter(event.target.value);
-                resetSearch();
-              }}
-            >
-              <option value="">Any division</option>
-              {context.divisions
-                .filter((division) => divisionIds.has(division.id))
-                .map((division) => (
-                  <option key={division.id} value={division.id}>
-                    {division.name}
-                  </option>
-                ))}
-            </select>
-          </label>
-        </div>
-      )}
-      <p id={helpId} role={error ? "alert" : "status"} className="text-sm text-muted-foreground">
-        {loading
-          ? "Loading teams…"
-          : error
-            ? "Teams could not be loaded. Please try again."
-            : !expanded
-              ? "Search closed. Focus the search field to continue."
-              : matches.length
-                ? `${matches.length} ${matches.length === 1 ? "result" : "results"} · Showing ${pageIndex * PAGE_SIZE + 1}–${pageIndex * PAGE_SIZE + visible.length}`
-                : "No teams found. Try another name or clear the filters."}
-      </p>
-      {error && onRetry && (
-        <Button type="button" variant="outline" onClick={onRetry}>
-          Try again
-        </Button>
-      )}
-      {expanded && (
-        <div
-          id={listId}
-          role="listbox"
-          aria-label="Matching teams"
-          className="min-w-0 max-w-full space-y-1"
-        >
-          {visible.map(({ team, label }, index) => (
-            <button
-              key={team.id}
-              id={`${listId}-${index}`}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold" htmlFor={`${id}-search`}>
+              Search teams
+            </label>
+            <div className="relative min-w-0">
+              <Search
+                aria-hidden
+                className="pointer-events-none absolute left-3 top-3.5 size-5 text-muted-foreground"
+              />
+              <input
+                id={`${id}-search`}
+                ref={input}
+                type="search"
+                autoComplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={expanded}
+                aria-controls={expanded ? listId : undefined}
+                aria-activedescendant={activeOption}
+                aria-describedby={`${helpId} ${keysId}`}
+                disabled={loading || error}
+                placeholder="Team name, event or division"
+                value={query}
+                className={`${inputClass} pl-10 pr-12 [&::-webkit-search-cancel-button]:appearance-none`}
+                onFocus={() => setOpen(true)}
+                onChange={(event) => resetSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.nativeEvent.isComposing) return;
+                  if (event.key === "Tab" && !compact) setOpen(false);
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    setOpen(false);
+                    setActive(-1);
+                  }
+                  if ((event.key === "ArrowDown" || event.key === "ArrowUp") && visible.length) {
+                    event.preventDefault();
+                    setOpen(true);
+                    setActive((current) =>
+                      !expanded || current < 0
+                        ? event.key === "ArrowDown"
+                          ? 0
+                          : visible.length - 1
+                        : (current + (event.key === "ArrowDown" ? 1 : -1) + visible.length) %
+                          visible.length,
+                    );
+                  }
+                  if (event.key === "Enter" && expanded) {
+                    event.preventDefault();
+                    if (activeOption && visible[active]) choose(visible[active].team.id);
+                  }
+                }}
+              />
+              {!!query && (
+                <button
+                  type="button"
+                  aria-label="Clear team search"
+                  className="absolute right-0 top-0 flex size-12 items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    resetSearch("");
+                    input.current?.focus();
+                  }}
+                >
+                  <X aria-hidden className="size-4" />
+                </button>
+              )}
+            </div>
+          </div>
+          <p id={keysId} className="sr-only">
+            Use Up and Down arrows to review teams, Enter to select, and Escape to close.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
               type="button"
-              role="option"
-              tabIndex={-1}
-              aria-selected={team.id === value}
-              className={`${rowClass} ${active === index ? "bg-secondary ring-1 ring-inset ring-primary/30" : ""}`}
-              onPointerDown={(event) => event.preventDefault()}
-              onMouseMove={() => setActive(index)}
-              onClick={() => choose(team.id)}
+              variant="ghost"
+              size="sm"
+              aria-expanded={filtersOpen}
+              aria-controls={filtersOpen ? filtersId : undefined}
+              disabled={loading || error}
+              onClick={() => setFiltersOpen(!filtersOpen)}
             >
-              <span className="min-w-0 flex-1">
-                <span className="block break-words font-semibold leading-snug [overflow-wrap:anywhere]">
-                  {label.primary}
-                </span>
-                <span className="mt-1 block break-words text-sm leading-snug text-muted-foreground [overflow-wrap:anywhere]">
-                  {label.secondary}
-                </span>
-              </span>
-              {team.id === value && <Check aria-hidden className="mt-0.5 size-5 shrink-0" />}
-            </button>
-          ))}
-        </div>
-      )}
-      {expanded && matches.length > PAGE_SIZE && (
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onPointerDown={(event) => event.preventDefault()}
-            disabled={pageIndex === 0}
-            onClick={() => {
-              setPage(pageIndex - 1);
-              setActive(-1);
-            }}
-          >
-            <ArrowLeft aria-hidden />
-            Previous teams
-          </Button>
-          <span className="text-sm" aria-live="polite">
-            Page {pageIndex + 1} of {Math.ceil(matches.length / PAGE_SIZE)}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onPointerDown={(event) => event.preventDefault()}
-            disabled={(pageIndex + 1) * PAGE_SIZE >= matches.length}
-            onClick={() => {
-              setPage(pageIndex + 1);
-              setActive(-1);
-            }}
-          >
-            Next teams
-            <ArrowRight aria-hidden />
-          </Button>
-        </div>
-      )}
-      {!loading && !error && pairs.length > 0 && (
-        <div className="min-w-0 border-t pt-3">
-          <Button
-            type="button"
-            variant="link"
-            size="sm"
-            className="h-auto max-w-full px-0 text-left"
-            aria-expanded={pairsOpen}
-            aria-controls={pairsOpen ? pairsId : undefined}
-            onClick={() => setPairsOpen(!pairsOpen)}
-          >
-            Anonymous pairs in this event ({pairs.length})
-          </Button>
-          {pairsOpen && (
+              <SlidersHorizontal aria-hidden />
+              Search filters
+              {(!!eventFilter || !!divisionFilter) &&
+                ` (${Number(!!eventFilter) + Number(!!divisionFilter)})`}
+            </Button>
+            {(eventFilter || divisionFilter) && (
+              <Button type="button" variant="link" size="sm" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            )}
+          </div>
+          {filtersOpen && (
             <div
-              id={pairsId}
-              role="group"
-              aria-label="Anonymous pairs in this event"
-              className="mt-2 min-w-0 space-y-1"
+              id={filtersId}
+              className="grid min-w-0 gap-3 rounded-lg bg-muted/50 p-3 sm:grid-cols-2"
             >
-              {visiblePairs.map((team) => {
-                const label = teamPresentation(team, context);
-                return (
-                  <button
-                    key={team.id}
-                    type="button"
-                    aria-pressed={team.id === value}
-                    className={rowClass}
-                    onClick={() => choose(team.id)}
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-semibold">{label.primary}</span>
-                      <span className="mt-1 block break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                        {label.secondary}
-                      </span>
+              <label className="min-w-0 space-y-2 text-sm font-semibold">
+                <span className="block">Event</span>
+                <select
+                  className={inputClass}
+                  value={eventFilter}
+                  onChange={(event) => {
+                    setEventFilter(event.target.value);
+                    setDivisionFilter("");
+                    resetSearch();
+                  }}
+                >
+                  <option value="">Any event</option>
+                  {context.events
+                    .filter((event) => eventIds.has(event.id))
+                    .map((event) => (
+                      <option key={event.id} value={event.id}>
+                        {event.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <label className="min-w-0 space-y-2 text-sm font-semibold">
+                <span className="block">Division</span>
+                <select
+                  className={inputClass}
+                  value={divisionFilter}
+                  onChange={(event) => {
+                    setDivisionFilter(event.target.value);
+                    resetSearch();
+                  }}
+                >
+                  <option value="">Any division</option>
+                  {context.divisions
+                    .filter((division) => divisionIds.has(division.id))
+                    .map((division) => (
+                      <option key={division.id} value={division.id}>
+                        {division.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+            </div>
+          )}
+          <p
+            id={helpId}
+            role={error ? "alert" : "status"}
+            className="text-sm text-muted-foreground"
+          >
+            {loading
+              ? "Loading teams…"
+              : error
+                ? "Teams could not be loaded. Please try again."
+                : !expanded
+                  ? "Search closed. Focus the search field to continue."
+                  : matches.length
+                    ? `${matches.length} ${matches.length === 1 ? "result" : "results"} · Showing ${pageIndex * PAGE_SIZE + 1}–${pageIndex * PAGE_SIZE + visible.length}`
+                    : "No teams found. Try another name or clear the filters."}
+          </p>
+          {error && onRetry && (
+            <Button type="button" variant="outline" onClick={onRetry}>
+              Try again
+            </Button>
+          )}
+          {expanded && (
+            <div
+              id={listId}
+              role="listbox"
+              aria-label="Matching teams"
+              className="min-w-0 max-w-full space-y-1"
+            >
+              {visible.map(({ team, label }, index) => (
+                <button
+                  key={team.id}
+                  id={`${listId}-${index}`}
+                  type="button"
+                  role="option"
+                  tabIndex={-1}
+                  aria-selected={team.id === value}
+                  className={`${rowClass} ${active === index ? "bg-secondary ring-1 ring-inset ring-primary/30" : ""}`}
+                  onPointerDown={(event) => event.preventDefault()}
+                  onMouseMove={() => setActive(index)}
+                  onClick={() => choose(team.id)}
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block break-words font-semibold leading-snug [overflow-wrap:anywhere]">
+                      {label.primary}
                     </span>
-                    {team.id === value && <Check aria-hidden className="size-5 shrink-0" />}
-                  </button>
-                );
-              })}
-              {pairs.length > PAGE_SIZE && (
-                <div className="flex flex-wrap justify-between gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={pairPageIndex === 0}
-                    onClick={() => setPairPage(pairPageIndex - 1)}
-                  >
-                    Previous pairs
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={(pairPageIndex + 1) * PAGE_SIZE >= pairs.length}
-                    onClick={() => setPairPage(pairPageIndex + 1)}
-                  >
-                    Show more pairs
-                  </Button>
+                    <span className="mt-1 block break-words text-sm leading-snug text-muted-foreground [overflow-wrap:anywhere]">
+                      {label.secondary}
+                    </span>
+                  </span>
+                  {team.id === value && <Check aria-hidden className="mt-0.5 size-5 shrink-0" />}
+                </button>
+              ))}
+            </div>
+          )}
+          {expanded && matches.length > PAGE_SIZE && (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onPointerDown={(event) => event.preventDefault()}
+                disabled={pageIndex === 0}
+                onClick={() => {
+                  setPage(pageIndex - 1);
+                  setActive(-1);
+                }}
+              >
+                <ArrowLeft aria-hidden />
+                Previous teams
+              </Button>
+              <span className="text-sm" aria-live="polite">
+                Page {pageIndex + 1} of {Math.ceil(matches.length / PAGE_SIZE)}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onPointerDown={(event) => event.preventDefault()}
+                disabled={(pageIndex + 1) * PAGE_SIZE >= matches.length}
+                onClick={() => {
+                  setPage(pageIndex + 1);
+                  setActive(-1);
+                }}
+              >
+                Next teams
+                <ArrowRight aria-hidden />
+              </Button>
+            </div>
+          )}
+          {!loading && !error && pairs.length > 0 && (
+            <div className="min-w-0 border-t pt-3">
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto max-w-full px-0 text-left"
+                aria-expanded={pairsOpen}
+                aria-controls={pairsOpen ? pairsId : undefined}
+                onClick={() => setPairsOpen(!pairsOpen)}
+              >
+                Anonymous pairs in this event ({pairs.length})
+              </Button>
+              {pairsOpen && (
+                <div
+                  id={pairsId}
+                  role="group"
+                  aria-label="Anonymous pairs in this event"
+                  className="mt-2 min-w-0 space-y-1"
+                >
+                  {visiblePairs.map((team) => {
+                    const label = teamPresentation(team, context);
+                    return (
+                      <button
+                        key={team.id}
+                        type="button"
+                        aria-pressed={team.id === value}
+                        className={rowClass}
+                        onClick={() => choose(team.id)}
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-semibold">{label.primary}</span>
+                          <span className="mt-1 block break-words text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                            {label.secondary}
+                          </span>
+                        </span>
+                        {team.id === value && <Check aria-hidden className="size-5 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                  {pairs.length > PAGE_SIZE && (
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={pairPageIndex === 0}
+                        onClick={() => setPairPage(pairPageIndex - 1)}
+                      >
+                        Previous pairs
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={(pairPageIndex + 1) * PAGE_SIZE >= pairs.length}
+                        onClick={() => setPairPage(pairPageIndex + 1)}
+                      >
+                        Show more pairs
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
