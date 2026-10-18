@@ -61,7 +61,7 @@ function Schedule() {
       <div role="group" aria-label="Show matches" className="flex gap-2">
         {(["all", "following"] as const).map((f) => (
           <Button key={f} aria-pressed={filter === f} onClick={() => setFilter(f)} className={filter === f ? btn.primary : btn.secondary} disabled={f === "following" && !user}>
-            {f === "all" ? "All matches" : "Following"}
+            {f === "all" ? "All matches" : "Starred Team"}
           </Button>
         ))}
       </div>
