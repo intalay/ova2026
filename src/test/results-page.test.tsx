@@ -194,6 +194,25 @@ afterEach(() => {
 });
 
 describe("Results history page", () => {
+  it("reads a public source team without changing household associations or following public filters", async () => {
+    mocks.role = "coach";
+    renderPage();
+    await loaded();
+    const household = within(screen.getByRole("region", { name: "Your team" }));
+    await household.findByRole("table");
+    fireEvent.change(household.getByLabelText("Team"), { target: { value: "team-c" } });
+    await waitFor(() => expect(mocks.history).toHaveBeenLastCalledWith({
+      data: { teamId: "team-c", dataMode: "real" },
+    }));
+    const callCount = mocks.history.mock.calls.length;
+    change("Results team", "team-b");
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({
+      data: { ...defaultRequest, teamId: "team-b" },
+    }));
+    expect(household.getByLabelText("Team")).toHaveValue("team-c");
+    expect(mocks.history).toHaveBeenCalledTimes(callCount);
+  });
+
   it("uses the four Sand & Sky simulated matches inside team statistics without writing them to public caches", async () => {
     vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
     vi.stubEnv("MODE", "development");
