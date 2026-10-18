@@ -21,11 +21,15 @@ export function isAnonymousPair(team: DisplayTeam): boolean {
   return reviewed(team)?.kind === "anonymous_pair";
 }
 export function teamDisplayName(team: DisplayTeam): string {
-  return reviewed(team)?.publicName ?? team.name;
+  return reviewed(team)?.publicName ?? team.name.replace(/\s*\[entry\s+[^\]]+\]\s*$/i, "").trim();
 }
 export function clubTeamOptions<T extends DisplayTeam>(teams: readonly T[]): T[] {
   return teams.filter(
-    (team) => !isAnonymousPair(team) && !/^entry(?:\s|$)/i.test(team.name.trim()),
+    (team) =>
+      !isAnonymousPair(team) &&
+      !/^(?:entry(?:\s*#?\s*\d+)?|tbd|tbc|unknown|unnamed(?: team)?|team to be determined)$/i.test(
+        teamDisplayName(team),
+      ),
   );
 }
 
