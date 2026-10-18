@@ -216,6 +216,21 @@ afterEach(() => {
 });
 
 describe("Results history page", () => {
+  it("never displays synthetic rows returned alongside recorded public results", async () => {
+    mocks.page.mockResolvedValue({
+      matches: [
+        match(),
+        match({ id: "hidden-demo", data_mode: "synthetic", team_a_id: "demo-team" }),
+      ],
+      total: 1,
+    });
+    renderPage();
+    await screen.findByText("Page 1 of 1");
+    expect(screen.getAllByRole("listitem")).toHaveLength(1);
+    expect(screen.queryByText("Synthetic demo", { selector: "span" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Results source")).not.toBeInTheDocument();
+  });
+
   it.each(["Escape", "Tab"])(
     "keeps the current team's attribution after an unselected search closes with %s",
     async (key) => {
@@ -325,40 +340,19 @@ describe("Results history page", () => {
     expect(screen.queryByLabelText("Results team")).not.toBeInTheDocument();
   });
 
-  it("uses the four Sand & Sky simulated matches inside team statistics without writing them to public caches", async () => {
-    vi.stubGlobal(
-      "ResizeObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
+  it("hides Demo source controls and fixtures even in development preview", async () => {
     vi.stubEnv("MODE", "development");
-    const client = renderPage();
+    renderPage();
     await loaded();
-    change("Results source", "synthetic");
-    await screen.findByRole("option", { name: /Local synthetic preview/ });
-    change("Browse team", "demo-sand");
-    const section = within(await screen.findByRole("region", { name: "Team statistics" }));
-    await section.findByRole("table");
-    expect(screen.getByLabelText("Browse team")).toHaveValue("demo-sand");
-    expect(section.getAllByRole("row")).toHaveLength(5);
-    expect(section.getByText("75")).toBeInTheDocument();
-    expect(section.getByText("25")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Results source")).not.toBeInTheDocument();
     expect(
-      section.getByRole("img", {
-        name: "Cumulative match win rate in selected range: 100%, 50%, 67%, 75%",
-      }),
-    ).toBeInTheDocument();
-    expect(mocks.history.mock.calls.some(([request]) => request.data.teamId === "demo-sand")).toBe(
-      false,
+      screen.queryByRole("option", { name: /Local synthetic preview/ }),
+    ).not.toBeInTheDocument();
+    change("Search teams", "Demonstration");
+    expect(screen.getByRole("listbox", { name: "Matching teams" })).toHaveTextContent(
+      "No teams match",
     );
-    expect(client.getQueryData(["team-results-history", "demo-sand", undefined])).toBeUndefined();
-    expect(client.getQueryData(["results-page", defaultRequest])).toEqual({
-      matches: [match()],
-      total: 7,
-    });
+    expect(mocks.filters).toHaveBeenCalledWith({ data: { dataMode: "real" } });
   });
 
   it("defaults to real historical results and shows complete independent names, source and source date", async () => {
@@ -366,7 +360,7 @@ describe("Results history page", () => {
     await loaded();
     expect(mocks.page).toHaveBeenCalledWith({ data: defaultRequest });
     expect(screen.getByLabelText("Period")).toHaveValue("history");
-    expect(screen.getByLabelText("Results source")).toHaveValue("real");
+    expect(screen.queryByLabelText("Results source")).not.toBeInTheDocument();
     const result = within(screen.getByRole("listitem"));
     expect(result.getByText("Alpha", { selector: "span" })).toBeInTheDocument();
     expect(result.getByText("Beta", { selector: "span" })).toBeInTheDocument();
@@ -403,7 +397,7 @@ describe("Results history page", () => {
           score_a: null,
           score_b: null,
           source_date: null,
-          data_mode: "synthetic",
+          data_mode: "real",
         }),
       ],
       total: 2,
@@ -421,7 +415,7 @@ describe("Results history page", () => {
     expect(recorded.getByRole("img", { name: "Score split 2 to 1" })).toBeInTheDocument();
     expect(recorded.getAllByText(/Mar 15, 2026/)).toHaveLength(1);
     const unknown = within(rows[1]!);
-    expect(unknown.getByText("Synthetic demo")).toBeInTheDocument();
+    expect(unknown.getByText("Real source")).toBeInTheDocument();
     expect(unknown.getAllByText("Team to be determined")).toHaveLength(2);
     expect(unknown.getByText("To be determined")).toBeInTheDocument();
     expect(unknown.getByText("To be determined").parentElement).toHaveStyle({
@@ -439,7 +433,7 @@ describe("Results history page", () => {
     mocks.page.mockResolvedValue({
       matches: [
         match({ id: "scheduled-known", status: "scheduled", starts_at: "2026-03-15T18:00:00Z" }),
-        match({ id: "scheduled-time-unknown", status: "scheduled", data_mode: "synthetic" }),
+        match({ id: "scheduled-time-unknown", status: "scheduled", data_mode: "real" }),
         match({ id: "scheduled-date-unknown", status: "scheduled", source_date: null }),
       ],
       total: 3,
@@ -453,7 +447,7 @@ describe("Results history page", () => {
     expect(scheduled.getByText(/Mar 15.*2:00/)).toBeInTheDocument();
     expect(scheduled.queryByText("2–1")).not.toBeInTheDocument();
     expect(within(rows[1]!).getByText(/time to be determined/)).toBeInTheDocument();
-    expect(within(rows[1]!).getByText("Synthetic demo")).toBeInTheDocument();
+    expect(within(rows[1]!).getByText("Real source")).toBeInTheDocument();
     expect(within(rows[2]!).getByText("Date to be determined")).toBeInTheDocument();
   });
 
@@ -513,58 +507,31 @@ describe("Results history page", () => {
     ).toBeGreaterThan(5);
   });
 
-  it("does not reuse cached recent results for a historical mode and clears incompatible selections", async () => {
-    mocks.page.mockImplementation(async ({ data }: { data: { dataMode: string } }) => ({
-      matches:
-        data.dataMode === "synthetic"
-          ? [
-              match({
-                id: "demo",
-                event_id: "event-demo",
-                team_a_id: "demo-team",
-                team_b_id: null,
-                data_mode: "synthetic",
-              }),
-            ]
-          : [match()],
-      total: 7,
-    }));
-    renderPage(true);
-    await loaded();
-    change("Event", "event-real");
-    await waitFor(() =>
-      expect(mocks.page).toHaveBeenLastCalledWith({
-        data: { ...defaultRequest, eventId: "event-real" },
-      }),
-    );
-    change("Browse team", "team-b");
-    await waitFor(() =>
-      expect(mocks.page).toHaveBeenLastCalledWith({
-        data: { ...defaultRequest, eventId: "event-real", teamId: "team-b" },
-      }),
-    );
-    change("Results source", "synthetic");
-    await screen.findByText(/Demonstration event · .*Mar 15, 2026/);
-    expect(screen.getByLabelText("Event")).toHaveValue("");
-    expect(screen.getByLabelText("Browse team")).toHaveValue("");
-    expect(mocks.page).toHaveBeenLastCalledWith({
-      data: { ...defaultRequest, dataMode: "synthetic" },
-    });
-    expect(mocks.filters).toHaveBeenLastCalledWith({ data: { dataMode: "synthetic" } });
-    expect(screen.queryByText(/March historical event/, { selector: "p" })).not.toBeInTheDocument();
-    expect(screen.getByText("Synthetic demo", { selector: "span" })).toBeInTheDocument();
+  it("retains real browsing when a household is attached only to a synthetic team", async () => {
+    mocks.role = "coach";
+    const original = [...metadata.teams];
+    // This existing household ID remains unchanged, but is not public real metadata.
+    metadata.teams[0] = { ...metadata.teams[0]!, data_mode: "synthetic" };
+    metadata.teams[1] = { ...metadata.teams[1]!, data_mode: "synthetic" };
+    try {
+      renderPage();
+      await loaded();
+      expect(screen.getByLabelText("Browse team")).toHaveValue("");
+      expect(screen.queryByRole("region", { name: "Team statistics" })).not.toBeInTheDocument();
+      change("Browse team", "team-c");
+      await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+    } finally {
+      metadata.teams.splice(0, metadata.teams.length, ...original);
+    }
   });
 
   it("shows an honest empty real selection without switching to demo", async () => {
     mocks.page.mockResolvedValue({ matches: [], total: 0 });
     renderPage();
-    change("Results source", "real");
     expect(
       await screen.findByText(/No recorded real results match this selection/),
     ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText("Results source").querySelector('option[value="synthetic"]'),
-    ).toBeInTheDocument();
+    expect(screen.queryByLabelText("Results source")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Next results page")).not.toBeInTheDocument();
   });
 

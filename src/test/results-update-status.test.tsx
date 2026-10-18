@@ -37,6 +37,28 @@ function fact(label: string) {
 }
 
 describe("parent-facing update status", () => {
+  it("shows compact non-live context without system placeholders when no event is selected", () => {
+    const { container } = render(<ResultsUpdateStatus compact eventId={null} />);
+    expect(screen.getByText("Historical results · Not live")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(container.textContent).not.toMatch(
+      /Not confirmed|Not recorded|to be determined|Last successful sync/,
+    );
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+  });
+  it("adds only the selected event's known match date and validated official link in compact mode", () => {
+    const { container } = render(
+      <ResultsUpdateStatus compact eventId={source.eventId} summary={summary} />,
+    );
+    expect(screen.getByText("Historical results · Not live")).toBeInTheDocument();
+    expect(container.querySelector("time")).toHaveAttribute("datetime", "2026-03-07");
+    expect(screen.getByRole("link", { name: /View official results · TIMU/ })).toHaveAttribute(
+      "href",
+      source.officialResultsUrl,
+    );
+    expect(container.textContent).not.toMatch(/Not confirmed|Not recorded|to be determined/);
+  });
+
   it("defaults to historical, with no invented automatic-sync timestamp", () => {
     const { container } = render(
       <ResultsUpdateStatus eventId={source.eventId} summary={summary} />,
