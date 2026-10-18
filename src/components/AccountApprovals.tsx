@@ -13,14 +13,15 @@ export function AccountApprovals({ kind, userId, teamId }: { kind: 'TEAM' | 'FAM
   const [note, setNote] = useState('');
   const requests = useQuery({
     queryKey: ['identity-approvals', userId, kind, teamId],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (kind === 'FAMILY') {
         const { data, error } = await supabase.rpc('family_approval_requests');
+        signal.throwIfAborted();
         if (error) throw error;
         return (data ?? []).map(r => ({ ...r, jersey: null }));
       }
       if (!teamId) return [];
-      const { data, error } = await supabase.from('players').select('*').eq('team_id', teamId).order('created_at', { ascending: false });
+      const { data, error } = await supabase.from('players').select('*').eq('team_id', teamId).order('created_at', { ascending: false }).abortSignal(signal);
       if (error) throw error;
       return (data ?? []).map(p => ({ id: p.id, display_name: p.display_name, status: p.status, relationship: null, jersey: p.jersey_number, created_at: p.created_at }));
     },
@@ -38,6 +39,7 @@ export function AccountApprovals({ kind, userId, teamId }: { kind: 'TEAM' | 'FAM
         qc.invalidateQueries({ queryKey: ['identity-approvals'] }),
         qc.invalidateQueries({ queryKey: ['household'] }),
         qc.invalidateQueries({ queryKey: ['competition'] }),
+        qc.invalidateQueries({ queryKey: ['team-announcements', userId] }),
       ]);
       setChanges(null); setNote('');
       toast.success(changeNote ? 'Changes requested' : approve ? 'Approved' : 'Request rejected');
