@@ -11,6 +11,7 @@ describe('role rules',()=>{
  it('does not restore family before household data arrives',()=>expect(resolveHomepageRole('general_user',undefined)).toBe('general_user'));
  it('keeps an authorized coach selection on a family account',()=>expect(resolveHomepageRole('coach',{...family,managedTeams:['team']})).toBe('coach'));
  it('keeps an authorized player selection on a family account',()=>expect(resolveHomepageRole('player',{...family,self:{status:'verified'}})).toBe('player'));
+ it('preserves the existing default on multi-role accounts',()=>expect(resolveHomepageRole('general_user',{...family,self:{status:'verified'},managedTeams:['team']})).toBe('general_user'));
  it('general users have no Information',()=>expect(MODULES.general_user.information.visible).toBe(false));
  it('Account remains available to all four roles',()=>expect(Object.values(MODULES).map(r=>r.account.visible)).toEqual([true,true,true,true]));
  it('selecting coach without authorization does not unlock coach',()=>expect(authorizedRole('coach',{self:null,linkedPlayers:[],managedTeams:[],roles:['family']})).toBe('general_user'));

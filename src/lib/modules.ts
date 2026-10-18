@@ -20,5 +20,6 @@ export function authorizedRole(requested: AppRole, household: { self: unknown; l
 // Presentation only: linkedPlayers is restricted to approved, RLS-visible connections.
 export function resolveHomepageRole(requested: AppRole, household: Parameters<typeof authorizedRole>[1]): AppRole {
  const selected = authorizedRole(requested, household);
+ if (requested === 'general_user' && (authorizedRole('player', household) === 'player' || authorizedRole('coach', household) === 'coach')) return selected;
  return selected !== 'general_user' ? selected : authorizedRole('family_friends', household);
 }
