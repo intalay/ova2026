@@ -113,13 +113,14 @@ it("filters both upcoming matches and calendar dates by either starred team or d
   );
   fireEvent.click(screen.getByRole("button", { name: "Starred Team" }));
   expect(screen.queryAllByTestId("match")).toHaveLength(0);
-  fireEvent.click(screen.getByRole("button", { name: "Alpha" }));
+  fireEvent.click(screen.getByRole("button", { name: /^Alpha / }));
   await waitFor(() =>
     expect(screen.getAllByTestId("match").map((x) => x.textContent)).toEqual(["team-match"]),
   );
   expect(screen.getByRole("button", { name: `${prefix}-11: no matches` })).toBeDisabled();
   fireEvent.click(screen.getByRole("button", { name: `${prefix}-10: 1 match` }));
-  fireEvent.click(screen.getByRole("button", { name: "U16" }));
+  fireEvent.click(screen.getByRole("button", { name: "Divisions" }));
+  fireEvent.click(screen.getByRole("button", { name: /^U16 / }));
   await waitFor(() =>
     expect(screen.getAllByTestId("match").map((x) => x.textContent)).toEqual([
       "team-match",
