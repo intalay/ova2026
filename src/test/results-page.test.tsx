@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   filters: vi.fn(),
   history: vi.fn(),
   role: "general_user",
+  householdLoaded: true,
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -55,7 +56,7 @@ vi.mock("@/lib/results.functions", () => ({
 vi.mock("@/hooks/use-role", () => ({
   useRole: () => ({
     role: mocks.role,
-    household: { data: { managedTeams: ["team-a", "team-b"], linkedPlayers: [], self: null } },
+    household: { data: mocks.householdLoaded ? { managedTeams: ["team-a", "team-b"], linkedPlayers: [], self: null } : undefined },
   }),
 }));
 
@@ -136,8 +137,9 @@ const competition = {
   rankings: [],
   announcements: [],
 };
-const defaultRequest = { page: 1, pageSize: 6, period: "recent", dataMode: "all" };
+const defaultRequest = { page: 1, pageSize: 6, period: "history", dataMode: "real" };
 const clients: QueryClient[] = [];
+let rerenderPage: () => void;
 function renderPage(seedDefault = false) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -149,11 +151,12 @@ function renderPage(seedDefault = false) {
       matches: [match({ id: "cached-default" })],
       total: 7,
     });
-  render(
+  const view = render(
     <QueryClientProvider client={client}>
       <ResultsPage />
     </QueryClientProvider>,
   );
+  rerenderPage = () => view.rerender(<QueryClientProvider client={client}><ResultsPage /></QueryClientProvider>);
   return client;
 }
 function change(label: string, value: string) {
@@ -165,8 +168,10 @@ async function loaded() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
   vi.unstubAllEnvs();
   mocks.role = "general_user";
+  mocks.householdLoaded = true;
   mocks.page.mockImplementation(async () => ({ matches: [match()], total: 7 }));
   mocks.filters.mockImplementation(async ({ data }: { data: { dataMode: string } }) => ({
     teams: metadata.teams.filter(
@@ -190,52 +195,53 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   clients.splice(0).forEach((client) => client.clear());
 });
 
 describe("Results history page", () => {
-  it("reads a public source team without changing household associations or following public filters", async () => {
+  it("uses one public browsing context for team, list, statistics and event filters without association writes", async () => {
     mocks.role = "coach";
-    renderPage();
-    await loaded();
-    const household = within(screen.getByRole("region", { name: "Your team" }));
-    await household.findByRole("table");
-    fireEvent.change(household.getByLabelText("Team"), { target: { value: "team-c" } });
-    await waitFor(() => expect(mocks.history).toHaveBeenLastCalledWith({
-      data: { teamId: "team-c", dataMode: "real" },
-    }));
-    const callCount = mocks.history.mock.calls.length;
-    change("Results team", "team-b");
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({
-      data: { ...defaultRequest, teamId: "team-b" },
-    }));
-    expect(household.getByLabelText("Team")).toHaveValue("team-c");
-    expect(mocks.history).toHaveBeenCalledTimes(callCount);
+    mocks.history.mockImplementation(async ({ data }: { data: { teamId: string } }) => ({ matches: [match({ team_a_id: data.teamId })], rankings: [] }));
+    renderPage(); await loaded();
+    expect(screen.getByLabelText("Browse team")).toHaveValue("team-a");
+    expect(screen.getByLabelText("Event")).toHaveValue("event-real");
+    change("Browse team", "team-c");
+    await waitFor(() => expect(mocks.history).toHaveBeenLastCalledWith({ data: { teamId: "team-c", dataMode: "real" } }));
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-c", eventId: "event-real" } }));
+    change("Browse team", "team-b");
+    await waitFor(() => expect(mocks.history).toHaveBeenLastCalledWith({ data: { teamId: "team-b", dataMode: "real" } }));
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-b", eventId: "event-real" } }));
+    expect(screen.queryByLabelText("Team")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Results team")).not.toBeInTheDocument();
   });
 
   it("uses the four Sand & Sky simulated matches inside team statistics without writing them to public caches", async () => {
     vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
     vi.stubEnv("MODE", "development");
     const client = renderPage();
-    const section = within(screen.getByRole("region", { name: "Your team" }));
+    await loaded();
+    change("Results source", "synthetic");
+    await screen.findByRole("option", { name: /Local synthetic preview/ });
+    change("Browse team", "demo-sand");
+    const section = within(await screen.findByRole("region", { name: "Team statistics" }));
     await section.findByRole("table");
-    expect(section.getByLabelText("Team")).toHaveValue("demo-sand");
+    expect(screen.getByLabelText("Browse team")).toHaveValue("demo-sand");
     expect(section.getAllByRole("row")).toHaveLength(5);
     expect(section.getByText("75")).toBeInTheDocument();
     expect(section.getByText("25")).toBeInTheDocument();
-    expect(section.getByRole("img", { name: "Cumulative win rate: 100%, 50%, 67%, 75%" })).toBeInTheDocument();
-    expect(mocks.history).not.toHaveBeenCalled();
+    expect(section.getByRole("img", { name: "Cumulative match win rate in selected range: 100%, 50%, 67%, 75%" })).toBeInTheDocument();
+    expect(mocks.history.mock.calls.some(([request]) => request.data.teamId === "demo-sand")).toBe(false);
     expect(client.getQueryData(["team-results-history", "demo-sand", undefined])).toBeUndefined();
     expect(client.getQueryData(["results-page", defaultRequest])).toEqual({ matches: [match()], total: 7 });
-    vi.unstubAllGlobals();
   });
 
-  it("keeps the recent/all default and shows complete independent names, source and source date", async () => {
+  it("defaults to real historical results and shows complete independent names, source and source date", async () => {
     renderPage();
     await loaded();
     expect(mocks.page).toHaveBeenCalledWith({ data: defaultRequest });
-    expect(screen.getByLabelText("Period")).toHaveValue("recent");
-    expect(screen.getByLabelText("Data source")).toHaveValue("all");
+    expect(screen.getByLabelText("Period")).toHaveValue("history");
+    expect(screen.getByLabelText("Results source")).toHaveValue("real");
     const result = within(screen.getByRole("listitem"));
     expect(result.getByText("Alpha", { selector: "span" })).toBeInTheDocument();
     expect(result.getByText("Beta", { selector: "span" })).toBeInTheDocument();
@@ -252,10 +258,12 @@ describe("Results history page", () => {
       screen.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("option", { name: "Alpha · U18 · Demonstration event · Synthetic demo" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("option", { name: "Alpha · U18 · Demonstration event · Synthetic demo" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByLabelText("Previous results page")).toBeDisabled();
-    expect(screen.queryByRole("region", { name: "Your team" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Team statistics" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Browse team")).toHaveValue("");
+    expect(mocks.history).not.toHaveBeenCalled();
   });
 
   it("renders final rows with source labels and explicit unknown teams, scores, event and date", async () => {
@@ -324,69 +332,28 @@ describe("Results history page", () => {
     expect(within(rows[2]!).getByText("Date to be determined")).toBeInTheDocument();
   });
 
-  it("lists only event participants and clears same-name team selections when changing events", async () => {
-    renderPage();
-    await loaded();
-    const teams = within(screen.getByLabelText("Results team"));
-    expect(
-      teams.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" }),
-    ).toHaveValue("team-a");
-    expect(
-      teams.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" }),
-    ).toHaveValue("team-c");
-
-    change("Results team", "team-c");
-    await waitFor(() =>
-      expect(mocks.page).toHaveBeenLastCalledWith({
-        data: { ...defaultRequest, teamId: "team-c" },
-      }),
-    );
-    await loaded();
-    fireEvent.click(screen.getByLabelText("Next results page"));
-    await screen.findByText("Page 2 of 2");
-    change("Event", "event-real");
-    await loaded();
-    expect(screen.getByLabelText("Results team")).toHaveValue("");
-    expect(
-      teams.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" }),
-    ).toBeInTheDocument();
-    expect(
-      teams.getByRole("option", { name: "Beta · U16 · March historical event · Real source" }),
-    ).toBeInTheDocument();
-    expect(teams.queryByRole("option", { name: /May historical event/ })).not.toBeInTheDocument();
-    expect(teams.queryByRole("option", { name: /Synthetic demo/ })).not.toBeInTheDocument();
-    expect(mocks.page).toHaveBeenLastCalledWith({
-      data: { ...defaultRequest, eventId: "event-real" },
-    });
-
-    change("Results team", "team-b");
-    await waitFor(() =>
-      expect(mocks.page).toHaveBeenLastCalledWith({
-        data: { ...defaultRequest, eventId: "event-real", teamId: "team-b" },
-      }),
-    );
-    await loaded();
-    fireEvent.click(screen.getByLabelText("Next results page"));
-    await screen.findByText("Page 2 of 2");
+  it("keeps same-name source IDs distinct while searching team, event and division labels", async () => {
+    renderPage(); await loaded();
+    const teams = within(screen.getByLabelText("Browse team"));
+    expect(teams.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" })).toHaveValue("team-a");
+    expect(teams.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" })).toHaveValue("team-c");
+    change("Search teams", "May historical");
+    expect(teams.queryByRole("option", { name: /March historical/ })).not.toBeInTheDocument();
+    change("Browse team", "team-c");
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-c" } }));
     change("Event", "event-later");
-    await loaded();
-    expect(screen.getByLabelText("Results team")).toHaveValue("");
-    expect(teams.getAllByRole("option")).toHaveLength(2);
-    expect(
-      teams.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" }),
-    ).toHaveValue("team-c");
-    expect(mocks.page).toHaveBeenLastCalledWith({
-      data: { ...defaultRequest, eventId: "event-later" },
-    });
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, eventId: "event-later", teamId: "team-c" } }));
+    expect(screen.getByLabelText("Browse team")).toHaveValue("team-c");
+    expect(teams.queryByRole("option", { name: /Synthetic demo/ })).not.toBeInTheDocument();
   });
 
   it("uses complete filter keys and resets every changed public filter to page one", async () => {
     const client = renderPage(true);
     await loaded();
     const steps = [
-      ["Period", "history", { period: "history" }],
+      ["Period", "recent", { period: "recent" }],
       ["Event", "event-real", { eventId: "event-real" }],
-      ["Results team", "team-b", { teamId: "team-b" }],
+      ["Browse team", "team-b", { teamId: "team-b" }],
       ["From date", "2026-03-01", { dateFrom: "2026-03-01" }],
       ["To date", "2026-05-31", { dateTo: "2026-05-31" }],
     ] as const;
@@ -432,16 +399,16 @@ describe("Results history page", () => {
         data: { ...defaultRequest, eventId: "event-real" },
       }),
     );
-    change("Results team", "team-b");
+    change("Browse team", "team-b");
     await waitFor(() =>
       expect(mocks.page).toHaveBeenLastCalledWith({
         data: { ...defaultRequest, eventId: "event-real", teamId: "team-b" },
       }),
     );
-    change("Data source", "synthetic");
+    change("Results source", "synthetic");
     await screen.findByText(/Demonstration event · .*Mar 15, 2026/);
     expect(screen.getByLabelText("Event")).toHaveValue("");
-    expect(screen.getByLabelText("Results team")).toHaveValue("");
+    expect(screen.getByLabelText("Browse team")).toHaveValue("");
     expect(mocks.page).toHaveBeenLastCalledWith({
       data: { ...defaultRequest, dataMode: "synthetic" },
     });
@@ -450,14 +417,14 @@ describe("Results history page", () => {
     expect(screen.getByText("Synthetic demo", { selector: "span" })).toBeInTheDocument();
   });
 
-  it("explains real history may be unimported and retains the demo choice", async () => {
+  it("shows an honest empty real selection without switching to demo", async () => {
     mocks.page.mockResolvedValue({ matches: [], total: 0 });
     renderPage();
-    change("Data source", "real");
+    change("Results source", "real");
     expect(
-      await screen.findByText(/Real history may not have been imported yet/),
+      await screen.findByText(/No recorded real results match this selection/),
     ).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "Synthetic demo" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Results source").querySelector('option[value="synthetic"]')).toBeInTheDocument();
     expect(screen.queryByLabelText("Next results page")).not.toBeInTheDocument();
   });
 
@@ -493,69 +460,39 @@ describe("Results history page", () => {
   });
 
   it("withholds result cards when complete metadata cannot load and retries it", async () => {
-    mocks.filters.mockRejectedValueOnce(new Error("metadata unavailable"));
+    mocks.filters.mockRejectedValue(new Error("metadata unavailable"));
     renderPage();
-    expect(await screen.findByRole("alert")).toHaveTextContent(
+    expect(await within(screen.getByRole("region", { name: "All results" })).findByRole("alert")).toHaveTextContent(
       "Could not load result filters and names.",
     );
     expect(screen.queryByText(/March historical event/, { selector: "p" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Event")).toBeDisabled();
+    mocks.filters.mockResolvedValue(metadata);
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await loaded();
     expect(screen.getByText(/March historical event/, { selector: "p" })).toBeInTheDocument();
   });
 
-  it("keeps complete household history independent of all public filters and team selection", async () => {
+  it("applies the same selected range to history, statistics and trends and excludes unconfirmed placements and cross-source rows", async () => {
     mocks.role = "coach";
     mocks.history.mockImplementation(async ({ data }: { data: { teamId: string } }) => ({
-      matches: [
-        match({ id: "household-real", team_a_id: data.teamId }),
-        match({
-          id: "cross-source",
-          data_mode: "synthetic",
-          team_a_id: data.teamId,
-          score_a: 0,
-          score_b: 2,
-        }),
-      ],
-      rankings: [
-        {
-          id: "unconfirmed",
-          team_id: data.teamId,
-          event_id: "event-placement",
-          rank: 1,
-          field_size: 9,
-          data_mode: "real",
-          final_confirmed: false,
-        },
-      ],
+      matches: [match({ id: "real", team_a_id: data.teamId }), match({ id: "other-mode", team_a_id: data.teamId, data_mode: "synthetic", score_a: 0, score_b: 2 }), match({ id: "other-event", team_a_id: data.teamId, event_id: "event-later", source_date: "2026-05-15", score_a: 0, score_b: 2 })],
+      rankings: [{ id: "unconfirmed", team_id: data.teamId, event_id: "event-later", rank: 1, field_size: 9, data_mode: "real", final_confirmed: false }],
     }));
-    renderPage();
-    await loaded();
-    const household = within(screen.getByRole("region", { name: "Your team" }));
-    await household.findByRole("table");
-    expect(household.getAllByRole("row")).toHaveLength(2);
-    expect(mocks.history).toHaveBeenCalledWith({ data: { teamId: "team-a", dataMode: "real" } });
-    change("Results team", "team-b");
-    change("Period", "history");
-    change("Data source", "synthetic");
-    await waitFor(() =>
-      expect(mocks.page).toHaveBeenLastCalledWith({
-        data: { ...defaultRequest, period: "history", dataMode: "synthetic" },
-      }),
-    );
-    expect(mocks.history).toHaveBeenCalledTimes(1);
-    expect(household.getByLabelText("Team")).toHaveValue("team-a");
-    const publicCallCount = mocks.page.mock.calls.length;
-    fireEvent.change(household.getByLabelText("Team"), { target: { value: "team-b" } });
-    await waitFor(() =>
-      expect(mocks.history).toHaveBeenLastCalledWith({
-        data: { teamId: "team-b", dataMode: "real" },
-      }),
-    );
-    expect(mocks.page).toHaveBeenCalledTimes(publicCallCount);
-    fireEvent.click(household.getByRole("button", { name: "View results trend" }));
-    expect(await household.findByText(/No confirmed final placements/)).toBeInTheDocument();
+    renderPage(); await loaded();
+    expect(screen.getByLabelText("Event")).toHaveValue("event-later");
+    const section = within(screen.getByRole("region", { name: "Team statistics" }));
+    await section.findByRole("table");
+    expect(section.getAllByRole("row")).toHaveLength(2);
+    expect(section.getByText("Lost")).toBeInTheDocument();
+    change("Event", "event-real");
+    await waitFor(() => expect(section.getByText("Won")).toBeInTheDocument());
+    change("From date", "2026-04-01");
+    expect(await section.findByText("No recorded matches for this team in the selected range.")).toBeInTheDocument();
+    fireEvent.click(section.getByRole("button", { name: "View results trend" }));
+    expect(section.getByText(/No dated, decided results/)).toBeInTheDocument();
+    expect(section.getByText(/No confirmed final placements/)).toBeInTheDocument();
+    expect(section.queryByRole("img", { name: /Cumulative/ })).not.toBeInTheDocument();
   });
 
   it("does not display zero statistics or empty placements when family history is incomplete", async () => {
@@ -563,17 +500,74 @@ describe("Results history page", () => {
     mocks.history.mockRejectedValue(new Error("history unavailable"));
     renderPage();
     await loaded();
-    const household = within(screen.getByRole("region", { name: "Your team" }));
+    const household = within(screen.getByRole("region", { name: "Team statistics" }));
     expect(await household.findByRole("alert")).toHaveTextContent(
       "Could not load complete team history",
     );
     expect(household.queryByText("Wins")).not.toBeInTheDocument();
     expect(
-      household.queryByText("No published or connected results are available for this team yet."),
+      household.queryByText("No recorded matches for this team in the selected range."),
     ).not.toBeInTheDocument();
     fireEvent.click(household.getByRole("button", { name: "View results trend" }));
     expect(household.getByText(/Complete team history is unavailable/)).toBeInTheDocument();
     expect(household.queryByText(/No confirmed final placements/)).not.toBeInTheDocument();
   });
+  it("does not replace a manually selected team or filters when household data arrives later", async () => {
+    mocks.role = "coach"; mocks.householdLoaded = false;
+    renderPage(); await loaded();
+    expect(screen.getByLabelText("Browse team")).toHaveValue("");
+    change("Browse team", "team-c");
+    change("Event", "event-later"); change("From date", "2026-05-01");
+    mocks.householdLoaded = true; rerenderPage();
+    expect(screen.getByLabelText("Browse team")).toHaveValue("team-c");
+    expect(screen.getByLabelText("Event")).toHaveValue("event-later");
+    expect(screen.getByLabelText("From date")).toHaveValue("2026-05-01");
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-c", eventId: "event-later", dateFrom: "2026-05-01" } }));
+  });
+  it("uses the exact match/set denominators and resets the range cumulative curve after date filtering", async () => {
+    const scores = [["2026-04-19",0,2],["2026-04-19",2,0],["2026-04-19",2,0],["2026-04-20",2,1],["2026-04-20",0,2],["2026-04-20",0,2],["2026-04-21",2,0],["2026-04-21",1,2],["2026-04-21",2,0]] as const;
+    mocks.history.mockResolvedValue({ matches: scores.map(([date,a,b],index) => match({ id: String(index), source_date: date, score_a: a, score_b: b })), rankings: [] });
+    renderPage(); await loaded(); change("Browse team", "team-a");
+    const section = within(await screen.findByRole("region", { name: "Team statistics" }));
+    await section.findByText("5");
+    fireEvent.click(section.getByRole("button", { name: "View results trend" }));
+    expect(section.getByRole("img", { name: "Cumulative match win rate in selected range: 67%, 50%, 56%" })).toBeInTheDocument();
+    change("Win rate metric", "set");
+    expect(section.getByText("11")).toBeInTheDocument(); expect(section.getByText("9")).toBeInTheDocument();
+    expect(section.getByRole("img", { name: "Cumulative set win rate in selected range: 67%, 46%, 55%" })).toBeInTheDocument();
+    change("From date", "2026-04-20"); change("To date", "2026-04-21"); change("Win rate metric", "match");
+    expect(section.getByRole("img", { name: "Cumulative match win rate in selected range: 33%, 50%" })).toBeInTheDocument();
+    expect(section.getAllByRole("row")).toHaveLength(7);
+    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-a", eventId: "event-real", dateFrom: "2026-04-20", dateTo: "2026-04-21" } }));
+  });
+  it("expands recorded per-set point scores and clearly explains missing set details", async () => {
+    mocks.page.mockResolvedValue({ matches: [match({ sets: [{a:25,b:20},{a:18,b:25},{a:15,b:12}] }), match({id:"aggregate-only"})], total: 2 });
+    renderPage(); await screen.findByText("Page 1 of 1");
+    const rows = screen.getAllByRole("listitem");
+    fireEvent.click(within(rows[0]!).getByText("Set details"));
+    expect(within(rows[0]!).getByRole("table")).toHaveTextContent("25");
+    expect(within(rows[0]!).getByRole("table")).toHaveTextContent("15");
+    fireEvent.click(within(rows[1]!).getByText("Set details"));
+    expect(within(rows[1]!).getByText(/Per-set point scores are not recorded/)).toBeInTheDocument();
+  });
+
+  it("freezes public pagination against late household team/event defaults", async () => {
+    mocks.role = "general_user"; mocks.householdLoaded = false;
+    mocks.page.mockImplementation(async ({ data }: { data: { page: number; teamId?: string } }) => ({
+      matches: data.teamId ? (data.page > 1 ? [] : [match()]) : Array.from({length: data.page === 1 ? 6 : 1}, (_, i) => match({ id: `public-${data.page}-${i}` })), total: data.teamId ? 1 : 7,
+    }));
+    renderPage(); await loaded();
+    fireEvent.click(screen.getByRole("button", { name: "Next results page" }));
+    await screen.findByText("Page 2 of 2");
+    mocks.role = "coach"; mocks.householdLoaded = true; rerenderPage();
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue(""));
+    expect(screen.getByLabelText("Event")).toHaveValue("");
+    expect(mocks.history).not.toHaveBeenCalled();
+    expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, page: 2 } });
+    const marker = screen.getByText("Page 2 of 2");
+    const [, current, total] = marker.textContent!.match(/Page (\d+) of (\d+)/)!;
+    expect(Number(current)).toBeLessThanOrEqual(Number(total));
+  });
+
 });
 

@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 import {
   loadResultsFilters,
   loadResultsPage,
@@ -9,99 +7,7 @@ import {
   teamResultsHistorySchema,
 } from "@/lib/results-query";
 
-type Row = { id: string; [key: string]: unknown };
-type Operation = { method: string; args: unknown[] };
-type QueryCall = { table: string; operations: Operation[] };
-type Response = { data: Row[] | null; count: number | null; error: unknown };
-
-// A local query-chain mock applies filters before count/range, including each
-// team side. It never constructs a network client or reads database credentials.
-function mockClient(
-  tables: Record<string, Row[]>,
-  options: {
-    serverLimit?: number;
-    response?: (table: string, from: number, response: Response) => Response;
-  } = {},
-) {
-  const calls: QueryCall[] = [];
-  const client = {
-    from(table: string) {
-      const operations: Operation[] = [];
-      const filters: ((row: Row) => boolean)[] = [];
-      const orders: { field: string; ascending: boolean; nullsFirst: boolean }[] = [];
-      let columns = "*";
-      calls.push({ table, operations });
-      const chain = {
-        select(fields: string, count: unknown) {
-          columns = fields;
-          operations.push({ method: "select", args: [fields, count] });
-          return chain;
-        },
-        eq(field: string, value: unknown) {
-          operations.push({ method: "eq", args: [field, value] });
-          filters.push((row) => row[field] === value);
-          return chain;
-        },
-        gte(field: string, value: string) {
-          operations.push({ method: "gte", args: [field, value] });
-          filters.push((row) => row[field] != null && String(row[field]) >= value);
-          return chain;
-        },
-        lte(field: string, value: string) {
-          operations.push({ method: "lte", args: [field, value] });
-          filters.push((row) => row[field] != null && String(row[field]) <= value);
-          return chain;
-        },
-        or(expression: string) {
-          operations.push({ method: "or", args: [expression] });
-          const clauses = expression.split(",").map((clause) => clause.split(".eq."));
-          filters.push((row) => clauses.some(([field, value]) => field && row[field] === value));
-          return chain;
-        },
-        order(field: string, config: { ascending?: boolean; nullsFirst?: boolean } = {}) {
-          operations.push({ method: "order", args: [field, config] });
-          orders.push({
-            field,
-            ascending: config.ascending ?? true,
-            nullsFirst: config.nullsFirst ?? false,
-          });
-          return chain;
-        },
-        range(from: number, to: number) {
-          operations.push({ method: "range", args: [from, to] });
-          const filtered = (tables[table] ?? []).filter((row) =>
-            filters.every((filter) => filter(row)),
-          );
-          filtered.sort((a, b) => {
-            for (const order of orders) {
-              const av = a[order.field];
-              const bv = b[order.field];
-              if (av == null && bv == null) continue;
-              if (av == null) return order.nullsFirst ? -1 : 1;
-              if (bv == null) return order.nullsFirst ? 1 : -1;
-              const compared = String(av).localeCompare(String(bv));
-              if (compared) return order.ascending ? compared : -compared;
-            }
-            return 0;
-          });
-          const rows = filtered
-            .slice(from, Math.min(to + 1, from + (options.serverLimit ?? Infinity)))
-            .map((row) =>
-              columns === "*"
-                ? row
-                : (Object.fromEntries(
-                    columns.split(",").map((field) => [field, row[field]]),
-                  ) as Row),
-            );
-          const response = { data: rows, count: filtered.length, error: null };
-          return Promise.resolve(options.response?.(table, from, response) ?? response);
-        },
-      };
-      return chain;
-    },
-  } as unknown as SupabaseClient<Database>;
-  return { client, calls };
-}
+import { mockClient, type Row } from "./results-client";
 
 function match(id: string, fields: Partial<Row> = {}): Row {
   return {
@@ -125,10 +31,10 @@ function match(id: string, fields: Partial<Row> = {}): Row {
 const now = new Date("2026-10-17T12:00:00.000Z");
 
 describe("Results input validation", () => {
-  it("keeps recent/all defaults and accepts valid leap dates and safe text IDs", () => {
+  it("defaults to history/real and accepts valid leap dates and safe text IDs", () => {
     expect(resultsPageSchema.parse({ page: 1, pageSize: 6 })).toMatchObject({
-      period: "recent",
-      dataMode: "all",
+      period: "history",
+      dataMode: "real",
     });
     expect(
       resultsPageSchema.parse({
@@ -173,7 +79,14 @@ describe("Results input validation", () => {
 });
 
 describe("public Results page query", () => {
-  it("preserves the inclusive recent three-month window and all modes by default", async () => {
+  it("reads old real matches by default without silently including demo or applying a recent window", async () => {
+    const { client, calls } = mockClient({ matches: [match("historical-real"), match("demo", { data_mode: "synthetic" })] });
+    const result = await loadResultsPage(client, { page: 1, pageSize: 6 }, now);
+    expect(result.matches.map(row => row.id)).toEqual(["historical-real"]);
+    expect(calls[0]?.operations).toContainEqual({ method: "eq", args: ["data_mode", "real"] });
+    expect(calls[0]?.operations.some(operation => operation.method === "gte")).toBe(false);
+  });
+  it("preserves an explicitly selected inclusive recent window and all source modes", async () => {
     const { client, calls } = mockClient({
       matches: [
         match("old"),
@@ -184,7 +97,7 @@ describe("public Results page query", () => {
         match("unfinished", { source_date: "2026-09-01", status: "scheduled" }),
       ],
     });
-    const result = await loadResultsPage(client, { page: 1, pageSize: 6 }, now);
+    const result = await loadResultsPage(client, { page: 1, pageSize: 6, period: "recent", dataMode: "all" }, now);
     expect(result.matches.map((row) => row.id)).toEqual(["end", "start"]);
     expect(result.total).toBe(2);
     expect(calls[0]?.operations).toContainEqual({

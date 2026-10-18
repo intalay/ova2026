@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 describe("public Results server functions", () => {
-  it("validates and delegates recent/all defaults using the public key only", async () => {
+  it("validates and delegates history/real defaults using the public key only", async () => {
     expect(await getResultsPage({ data: { page: 1, pageSize: 6 } })).toEqual({
       matches: [],
       total: 0,
@@ -60,8 +60,8 @@ describe("public Results server functions", () => {
     expect(mocks.loadResultsPage).toHaveBeenCalledWith(client, {
       page: 1,
       pageSize: 6,
-      period: "recent",
-      dataMode: "all",
+      period: "history",
+      dataMode: "real",
     });
     expect(mocks.createClient).toHaveBeenCalledWith(
       "https://results.invalid",
