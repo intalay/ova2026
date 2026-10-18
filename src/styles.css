@@ -9,6 +9,8 @@
   --font-sans: "Inter Tight", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-display: "UNSII", "Inter Tight", "Atkinson Hyperlegible", sans-serif;
   --font-home: "Manrope", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-lottery-numeric: "Sora", system-ui, sans-serif;
+  --font-lottery-editorial: "Manrope", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -118,7 +120,9 @@
   --lotto-stage-gradient: linear-gradient(135deg, var(--lottery-background), var(--lottery-surface) 55%, var(--lottery-background));
   --ticket-lime-gradient: linear-gradient(125deg, var(--lottery-gold-deep), var(--lottery-gold-light) 35%, var(--lottery-gold) 60%, var(--lottery-gold-light));
   --ticket-neutral-gradient: linear-gradient(135deg, var(--lottery-silver), var(--lottery-foreground) 45%, var(--lottery-silver));
-  --ticket-green-gradient: linear-gradient(135deg, var(--lottery-gold-light), var(--lottery-gold) 55%, var(--lottery-gold-light));
+  --lottery-logo-green: oklch(0.72 0.16 131);
+  --lottery-logo-green-light: oklch(0.86 0.13 131);
+  --ticket-green-gradient: linear-gradient(135deg, var(--lottery-logo-green-light), var(--lottery-logo-green) 55%, var(--lottery-logo-green-light));
   --lottery-rose: oklch(0.72 0.13 25);
   --lottery-rose-light: oklch(0.88 0.07 35);
   --lottery-rose-deep: oklch(0.58 0.13 18);
@@ -179,12 +183,12 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .home-result-score { font-size: 3rem; line-height: 1.1; font-weight: 700; color: var(--accent); white-space: nowrap; }
 .home-lottery { position: relative; isolation: isolate; overflow: hidden; padding: 18px 20px; border-radius: var(--radius); background: var(--lotto-stage-gradient); border: 1px solid color-mix(in oklab, var(--lottery-gold) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in oklab, var(--lottery-gold) 20%, transparent), var(--home-shadow); }
 .home-lottery::before { content: ''; position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(color-mix(in oklab, var(--primary) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--primary) 6%, transparent) 1px, transparent 1px); background-size: 36px 36px; mask-image: linear-gradient(90deg, black, transparent 45%, black); animation: grid-drift 18s linear infinite; }
-.home-lottery-content { text-align: center; }
+.home-lottery-content { position: relative; z-index: 1; text-align: center; }
 .home-lottery { color: var(--court-foreground); }
 .home-lottery .text-muted-foreground { color: var(--court-foreground); }
-.home-lottery a { background: var(--lottery-gold); color: var(--lottery-ticket-foreground); }
+.home-lottery a { background: var(--accent); color: var(--accent-foreground); }
 .home-lottery::before { background-image: linear-gradient(color-mix(in oklab, var(--lottery-gold) 12%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--lottery-gold) 12%, transparent) 1px, transparent 1px); }
-.home-prize { font-size: 2.75rem; line-height: 1.1; margin-top: 4px; background: linear-gradient(180deg, var(--lottery-foreground), var(--lottery-gold-light) 35%, var(--lottery-gold) 55%, var(--lottery-gold-deep) 85%, var(--lottery-gold-light)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 16px color-mix(in oklab, var(--lottery-gold) 55%, transparent)); }
+.home-prize { font-size: 2.75rem; line-height: 1.1; margin-top: 4px; background: var(--ticket-neutral-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .main-navigation { background: var(--navigation-background); border: 0; box-shadow: var(--navigation-shadow); }
 .navigation-link { color: var(--navigation-muted); }
 .navigation-link[data-status="active"] { color: var(--ink); }
@@ -231,8 +235,7 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .lotto-stage { --gold: var(--lottery-gold); --gold-foreground: var(--lottery-ticket-foreground); --court-foreground: var(--lottery-foreground); position: relative; isolation: isolate; overflow: hidden; border-radius: 1rem; background: var(--lotto-stage-gradient); color: var(--lottery-foreground); border: 1px solid color-mix(in oklab, var(--gold) 30%, transparent); box-shadow: inset 0 1px 0 color-mix(in oklab, var(--gold) 20%, transparent); }
 .lotto-stage::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(color-mix(in oklab, var(--gold) 14%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--gold) 14%, transparent) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%); animation: grid-drift 18s linear infinite; }
 @keyframes grid-drift { to { background-position: 32px 32px; } }
-.jackpot { letter-spacing: 0.01em; background: linear-gradient(180deg, var(--lottery-foreground), var(--lottery-gold-light) 30%, var(--gold) 52%, var(--lottery-gold-deep) 82%, var(--lottery-gold-light)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 28px color-mix(in oklab, var(--gold) 65%, transparent)); animation: pulse-glow 2.6s ease-in-out infinite; }
-@keyframes pulse-glow { 50% { filter: drop-shadow(0 0 44px color-mix(in oklab, var(--gold) 90%, transparent)); } }
+.jackpot { letter-spacing: 0; background: linear-gradient(175deg, var(--lottery-gold-light) 15%, var(--lottery-gold) 50%, var(--lottery-gold-deep) 80%, var(--lottery-gold-light)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .golden-ticket { position: relative; overflow: hidden; background: var(--ticket-lime-gradient); color: var(--gold-foreground);
   -webkit-mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
   mask: radial-gradient(circle 10px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 10px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
@@ -264,7 +267,10 @@ section[aria-labelledby="sponsorship"] ul { background: var(--paper); padding: 1
 .home-banner h2 { font-size: 3rem; line-height: 1.05; }
 @media (max-width: 639px) { .home-banner-content { max-width: none; width: 100%; } .home-banner h2 { font-size: 2rem; } }
 .home-content > * + * { margin-top: 1.75rem; }
-.home-lottery::before { display: none; }
+.home-lottery::before { display: block; }
+.home-lottery::after { content: ""; position: absolute; inset: -60% -40%; pointer-events: none; background: linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--lottery-silver) 12%, transparent) 45%, color-mix(in oklab, var(--lottery-logo-green) 16%, transparent) 52%, transparent 68%); transform: translateX(-30%); animation: lottery-flow 10s ease-in-out infinite alternate; }
+@keyframes lottery-flow { to { transform: translateX(30%); } }
+@media (prefers-reduced-motion: reduce) { .home-lottery::before, .home-lottery::after { animation: none; } }
 .result-row-badge { letter-spacing: 0; background: var(--accent); }
 .result-row-score { font-weight: 700; }
 .home-venue:active, .navigation-link:active { transform: scale(.97); }
@@ -311,6 +317,22 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 
 /* Rhyanne: no bold text anywhere — medium weight keeps hierarchy without heavy bold */
 body, body * { font-weight: 500 !important; }
+
+/* Page-only editorial hierarchy; other pages retain their medium-weight rule. */
+.lottery-logo { display: block; height: auto; max-width: 100%; object-fit: contain; }
+.lottery-page, .lottery-page * { font-family: var(--font-lottery-editorial); letter-spacing: 0; font-weight: 400 !important; }
+.lottery-page h1 { font-size: 1.8rem; line-height: 1.2; font-weight: 500 !important; }
+.lottery-page .module-heading, .lottery-page #pick { font-weight: 500 !important; }
+.lottery-page .lottery-winner { max-width: 34rem; margin-inline: auto; font-size: .85rem; line-height: 1.6; font-weight: 600 !important; }
+.lottery-page .jackpot, .lottery-page .lottery-quantity, .lottery-page .lottery-price { font-family: var(--font-lottery-numeric); font-variant-numeric: tabular-nums; }
+.lottery-page .jackpot { font-size: 2.7rem; font-weight: 800 !important; padding-block: .1em; }
+.lottery-page .lottery-quantity { font-size: 1.35rem; font-weight: 700 !important; }
+.lottery-page .lottery-price { font-size: 1.05rem; font-weight: 700 !important; }
+.lottery-page .golden-ticket > span:first-child, .lottery-page .lottery-ticket-label { font-weight: 600 !important; }
+.lottery-page .golden-ticket.green { color: var(--ink); }
+.lottery-page .lotto-stage > div > p.text-sm { line-height: 1.6; }
+@media (min-width: 640px) { .lottery-page h1 { font-size: 2.4rem; } .lottery-page .jackpot { font-size: 5rem; } .lottery-page .lottery-winner { font-size: 1rem; } .lottery-page .lottery-quantity { font-size: 2.5rem; } .lottery-page .lottery-price { font-size: 1.65rem; } }
+@media (min-width: 1024px) { .lottery-page .jackpot { font-size: 6rem; } }
 
 /* Matches page: liquid-glass cards with a modern same-palette gradient, like the homepage */
 .glass-list > * { background: var(--home-glass); border: 1px solid var(--home-glass-border); box-shadow: var(--home-shadow); backdrop-filter: blur(18px) saturate(115%); }
