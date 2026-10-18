@@ -18,8 +18,9 @@ export type TeamPickerProps = {
   loading?: boolean;
   error?: boolean;
   onRetry?: () => void;
+  compact?: boolean;
 };
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 10;
 const inputClass =
   "min-h-12 w-full min-w-0 max-w-full rounded-md border border-input bg-card px-3 text-base text-foreground placeholder:text-muted-foreground";
 const rowClass =
@@ -34,6 +35,7 @@ export function TeamPicker({
   loading = false,
   error = false,
   onRetry,
+  compact = false,
 }: TeamPickerProps) {
   const id = useId();
   const listId = `${id}-teams`;
@@ -63,7 +65,6 @@ export function TeamPicker({
       })),
     [publicTeams, context],
   );
-  const hasIntent = !!query.trim() || !!eventFilter || !!divisionFilter;
   const words = query.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
   const matches = catalog.filter(
     ({ team, label, eventIds }) =>
@@ -73,7 +74,7 @@ export function TeamPicker({
   );
   const pageIndex = Math.min(page, Math.max(0, Math.ceil(matches.length / PAGE_SIZE) - 1));
   const visible = matches.slice(pageIndex * PAGE_SIZE, (pageIndex + 1) * PAGE_SIZE);
-  const expanded = open && hasIntent && !loading && !error;
+  const expanded = open && !loading && !error;
   const selected = publicTeams.find((team) => team.id === value);
   const selectedLabel = selected ? teamPresentation(selected, context) : undefined;
   const pairEventId = eventFilter || eventId;
@@ -139,8 +140,8 @@ export function TeamPicker({
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <div className="flex min-w-0 items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+      <div className={compact && !value ? "sr-only" : "flex min-w-0 items-start justify-between gap-3"}>
+        <div className={compact ? "sr-only" : "min-w-0 flex-1"}>
           <p className="text-sm font-semibold text-muted-foreground">Browse team</p>
           <p className="mt-1 break-words text-lg font-semibold [overflow-wrap:anywhere]">
             {selectedLabel?.primary ??
@@ -206,7 +207,6 @@ export function TeamPicker({
               }
               if (
                 (event.key === "ArrowDown" || event.key === "ArrowUp") &&
-                hasIntent &&
                 visible.length
               ) {
                 event.preventDefault();
@@ -318,9 +318,7 @@ export function TeamPicker({
           ? "Loading teams…"
           : error
             ? "Teams could not be loaded. Please try again."
-            : !hasIntent
-              ? "Start with a team name, or narrow by event or division."
-              : !expanded
+            : !expanded
                 ? "Search closed. Focus the search field to continue."
                 : matches.length
                   ? `${matches.length} ${matches.length === 1 ? "result" : "results"} · Showing ${pageIndex * PAGE_SIZE + 1}–${pageIndex * PAGE_SIZE + visible.length}`
@@ -380,6 +378,9 @@ export function TeamPicker({
             <ArrowLeft aria-hidden />
             Previous teams
           </Button>
+          <span className="text-sm" aria-live="polite">
+            Page {pageIndex + 1} of {Math.ceil(matches.length / PAGE_SIZE)}
+          </span>
           <Button
             type="button"
             variant="outline"
@@ -391,7 +392,7 @@ export function TeamPicker({
               setActive(-1);
             }}
           >
-            Show more teams
+            Next teams
             <ArrowRight aria-hidden />
           </Button>
         </div>
