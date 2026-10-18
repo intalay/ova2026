@@ -62,6 +62,7 @@ function Schedule() {
   const hh = identity.household;
   const parentContext = useParentContext(identity, storedCompetition.teams);
   const qc = useQueryClient();
+  const starsUnavailable = identity.ready === false || (!!user && (hh.isPending || hh.isError));
   const starsContext = useMemo(
     () =>
       starredDisplayContext(
@@ -122,6 +123,7 @@ function Schedule() {
       );
 
   async function toggleFollow(type: "team" | "division", id: string) {
+    if (starsUnavailable) throw new Error("Saved stars are not available yet");
     if (!user) {
       const k = `${type}:${id}`;
       const next = guestStars.includes(k) ? guestStars.filter((x) => x !== k) : [...guestStars, k];
@@ -144,7 +146,7 @@ function Schedule() {
           .from("follows")
           .insert({ user_id: user.id, target_type: type, target_id: id });
     if (result.error) throw result.error;
-    await qc.invalidateQueries({ queryKey: ["household"] });
+    await qc.invalidateQueries({ queryKey: ["household", user.id] });
   }
 
   return (
@@ -212,6 +214,7 @@ function Schedule() {
           className="space-y-4"
         >
           <StarredTargetsPicker
+            disabled={starsUnavailable}
             teams={data.teams}
             divisions={data.divisions}
             context={starsContext}
