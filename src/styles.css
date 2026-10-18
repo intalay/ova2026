@@ -165,6 +165,8 @@
 .home-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--background) 0%, color-mix(in oklab, var(--background) 92%, transparent) 24%, transparent 72%); }
 .home-banner-content { position: relative; z-index: 1; max-width: 520px; padding: 36px; }
 .module-heading { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.02em; }
+/* Homepage greeting keeps its written casing and line breaks (e.g. "Hi," / "Coach:-)"). */
+.home-surface .page-heading h1 { text-transform: none; white-space: pre-line; }
 /* Modules lift off the gridded background with a soft shadow. */
 main :is(.rounded-lg.bg-card, .rounded-lg.bg-secondary) { box-shadow: var(--home-shadow); }
 .association-wordmark { font-family: "Anton", var(--font-display); color: var(--brand-green); font-weight: 400; font-size: 1.35rem; line-height: 1.15; white-space: nowrap; }
