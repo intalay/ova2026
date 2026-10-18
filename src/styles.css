@@ -573,7 +573,7 @@ body, body * { font-weight: 500 !important; }
   .home-result-sets .text-lg { font-size: .875rem; }
   .home-lottery { padding: var(--mobile-card-padding); border-radius: var(--mobile-feature-padding); }
   .home-lottery-content { grid-template-columns: auto minmax(0,1fr); gap: .75rem; }
-  .home-lottery .lottery-logo { width: 5.5rem; }
+  .home-lottery .lottery-logo { width: 6.5rem; }
   .home-lottery-info { text-align: right; }
   .home-lottery-label { font-size: .75rem; letter-spacing: 0; }
   .home-prize { font-size: 1.875rem; }
