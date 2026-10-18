@@ -1,0 +1,29 @@
+/* Uploaded brand faces remain separate so dense content never inherits a heavy face. */
+@font-face {
+  font-family: "Swiss 721";
+  src: url("/__l5e/assets-v1/f8846997-2137-4f88-88e9-463f7fe5e4b5/Swiss721Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Swiss 721 Condensed";
+  src: url("/__l5e/assets-v1/ed830bda-f14d-45df-b9c2-35fc2462277f/Swiss-721-Condensed-BT-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Swiss 721 Heavy";
+  src: url("/__l5e/assets-v1/badf37b4-7497-4ee4-ac13-2c3a789c9bdf/Swiss-721-Heavy-Regular.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Swiss 721 Black";
+  src: url("/__l5e/assets-v1/db0ddd13-8f7c-4653-ba90-c5c96589e8d7/Swiss721Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
