@@ -57,5 +57,6 @@
 - [x] Shop: product names made smaller everywhere (desktop .9375rem = 16.9px, phone .8125rem = 13px via .shop-title, with the mobile rule scoped .app-content .shop-title so it beats the .app-content h2 sizing). Verified computed sizes at 419 and 1280, no horizontal overflow, build OK, 47 tests pass.
 
 ## Pending
+- [x] Announcement 首页预览卡再收小：10.5rem→9.375rem，收紧内边距/行高；最坏情况（两行标题）仍完整容纳三行正文与 "…more"，390/1280 夹具验证无裁切，99 项测试通过。
 - [x] Players 页面配色改为品牌绿大底（Amanda，仅改色：黑白绿+深绿辅助，不动布局/功能/结构）；通过角色作用域 `.player-green` 实现：绿色大底 var(--logo-green)、白色信息卡、黑/深绿公告卡、黑色标题、数据点黑点；390/1280 视觉夹具无横向溢出，99 项测试通过，build OK；真实 Player 会话仍未验证。
 - [ ] Players 页面配色用真实 Player 账号验证（沙盒无法铸造 player 会话，需预览确认）。
