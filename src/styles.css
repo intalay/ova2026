@@ -307,6 +307,13 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-match-versus { font-size: .85em; font-weight: 500; color: var(--muted-foreground); padding: 0 .25em; }
 .home-match-date { font-size: .9rem; margin-top: 3px; }
 .home-match-location { display: flex; align-items: center; gap: 6px; font-size: .85rem; margin-top: 3px; }
+.home-match--linked { position: relative; }
+.home-match-full { display: flex; width: 100%; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 10px; font-size: .85rem; font-weight: 600; color: var(--primary); }
+.home-match--linked .home-match-full::after { content: ""; position: absolute; inset: 0; z-index: 0; border-radius: var(--radius); }
+.home-match--linked .home-match-location { position: relative; z-index: 1; }
+.home-match--linked:hover .home-match-full { text-decoration: underline; }
+.home-match--linked .home-match-full:focus-visible { outline: none; box-shadow: none; border-radius: 0; }
+.home-match--linked .home-match-full:focus-visible::after { outline: 3px solid var(--ring); outline-offset: 3px; }
 .home-unknown { color: var(--teal); font-weight: 600; }
 .home-content .bg-pending { background: transparent; color: var(--teal); padding: 0; border: 0; border-radius: 0; }
 .home-content .home-banner, .home-content .home-lottery { box-shadow: var(--home-shadow); }
