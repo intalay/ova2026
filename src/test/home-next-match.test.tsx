@@ -218,9 +218,7 @@ it("restores explicitly labelled homepage Demo cards without adding them to real
     }),
   ];
   render(<Home />);
-  expect(screen.getByRole("region", { name: "Upcoming matches" })).toHaveTextContent(
-    "Demo match · Illustrative schedule",
-  );
+  expect(screen.queryByRole("region", { name: "Upcoming matches" })).not.toBeInTheDocument();
   expect(screen.getByRole("region", { name: "Recent Competition Results" })).toHaveTextContent(
     "Demo result · Not real results",
   );
@@ -241,7 +239,7 @@ it("keeps the verified demo player Alex attached to the exact Sand & Sky ID on h
   );
 });
 
-it("Fan default shows every future real match without selecting a team, and no demo records", () => {
+it("Fan Plaza omits the upcoming matches section and never shows demo records", () => {
   vi.setSystemTime(new Date("2026-10-18T02:00:00Z"));
   mocks.role = "general_user";
   mocks.matches = [
@@ -252,9 +250,7 @@ it("Fan default shows every future real match without selecting a team, and no d
     match({ id: "past", source_date: "2026-04-19" }),
   ];
   render(<Home />);
-  expect(
-    within(screen.getByRole("region", { name: "Upcoming matches" })).getAllByText("Actual event"),
-  ).toHaveLength(5);
+  expect(screen.queryByRole("region", { name: "Upcoming matches" })).not.toBeInTheDocument();
   expect(screen.queryByText(/Demo match/)).not.toBeInTheDocument();
 });
 it("does not silently switch to Demo for a bound synthetic player in Real mode", () => {
@@ -281,9 +277,7 @@ it("real Fan empty state cannot fall back to synthetic schedules or historical f
     match({ id: "final", status: "final", source_date: "2026-04-19" }),
   ];
   render(<Home />);
-  expect(screen.getByRole("region", { name: "Upcoming matches" })).toHaveTextContent(
-    "No upcoming match is published.",
-  );
+  expect(screen.queryByRole("region", { name: "Upcoming matches" })).not.toBeInTheDocument();
 });
 
 it("shows source-linked Fan event overviews without any match records or team selection", () => {
@@ -295,12 +289,10 @@ it("shows source-linked Fan event overviews without any match records or team se
   expect(events.getAllByRole("link")).toHaveLength(3);
   expect(events.getByRole("heading", { name: "Fall Classic · Event 1" })).toBeInTheDocument();
   expect(events.getByText(/not the complete OVA calendar/)).toBeInTheDocument();
-  expect(screen.getByRole("region", { name: "Upcoming matches" })).toHaveTextContent(
-    "No upcoming match is published.",
-  );
+  expect(screen.queryByRole("region", { name: "Upcoming matches" })).not.toBeInTheDocument();
 });
 
-it("keeps a clearly marked Demo venue directory when next-match order is ambiguous, without inventing the next location", () => {
+it("Fan Plaza omits the venue section even when demo venues are recorded", () => {
   vi.setSystemTime(new Date("2026-10-18T02:00:00Z"));
   mocks.role = "general_user";
   mocks.homeMode = "synthetic";
@@ -314,21 +306,15 @@ it("keeps a clearly marked Demo venue directory when next-match order is ambiguo
     match({ id: "unknown-time", data_mode: "synthetic", source_date: "2026-10-18" }),
   ];
   render(<Home />);
-  const venue = within(screen.getByRole("region", { name: "Venue" }));
-  expect(venue.getByText(/do not confirm the venue of your next match/)).toBeInTheDocument();
-  expect(venue.getByRole("link")).toHaveAttribute("href", "/venue/demo-venue");
-  expect(venue.getByText("Demo venue · Illustrative record")).toBeInTheDocument();
+  expect(screen.queryByRole("region", { name: "Venue" })).not.toBeInTheDocument();
 });
-it("preserves the recorded Demo venue directory after all simulated fixtures are past", () => {
+it("Fan Plaza still omits the venue section when no fixtures are recorded", () => {
   vi.setSystemTime(new Date("2026-12-18T12:00:00Z"));
   mocks.role = "general_user";
   mocks.homeMode = "synthetic";
   mocks.matches = [];
   render(<Home />);
-  expect(within(screen.getByRole("region", { name: "Venue" })).getByRole("link")).toHaveAttribute(
-    "href",
-    "/venue/demo-venue",
-  );
+  expect(screen.queryByRole("region", { name: "Venue" })).not.toBeInTheDocument();
 });
 
 for (const role of ["player", "family_friends"]) {
