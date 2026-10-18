@@ -427,3 +427,126 @@ body, body * { font-weight: 500 !important; }
 .coach-invert .home-result-score { color: var(--coach-green-ink); }
 .coach-invert .home-content .home-lottery { --court-foreground: var(--paper-base); }
 
+
+/* Native mobile proportions: sizing only; retain desktop and specialized palettes. */
+:root {
+  --mobile-card-padding: 1rem;
+  --mobile-feature-padding: 1.25rem;
+  --mobile-section-gap: 1.5rem;
+  --mobile-card-gap: .75rem;
+  --mobile-navigation-height: 4.25rem;
+}
+.app-header { padding-top: env(safe-area-inset-top, 0px); }
+.app-shell { padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 639px) {
+  html { font-size: 100%; }
+  :root { --radius: 1rem; }
+  body { font-size: 1rem; line-height: 1.45; }
+  body h1, body h2, body h3, body .module-heading { font-weight: 600 !important; line-height: 1.35; letter-spacing: 0; }
+  .app-header > div { padding-block: .75rem; }
+  .association-wordmark { font-size: .8rem; }
+  .app-header a > img { width: 2rem; height: 2rem; }
+  .app-header a[aria-label="Account and role selection"] { width: 2.75rem; height: 2.75rem; }
+  .app-content { padding: 1rem; }
+  .app-content > * + *, .home-content > * + * { margin-top: var(--mobile-section-gap); }
+  .app-content .page-heading h1 { font-size: 1.75rem; line-height: 1.3; overflow-wrap: anywhere; }
+  .page-source { font-size: .75rem; line-height: 1.4; }
+  .app-content h2 { font-size: 1.25rem; }
+  .app-content h3 { font-size: 1.125rem; }
+  .app-content .module-heading { font-size: 1.125rem; }
+  .app-content .text-xs { font-size: .75rem; }
+  .app-content .text-sm { font-size: .875rem; }
+  .app-content .text-lg { font-size: 1rem; }
+  .app-content .text-xl { font-size: 1.125rem; }
+  .app-content .text-2xl, .app-content .text-3xl, .app-content .text-4xl { font-size: 1.25rem; }
+  .app-content button, .app-content input, .app-content select, .app-content textarea { font-size: 1rem; }
+  .app-content button:not(.ticket-btn) { min-height: 2.75rem; }
+  .app-content button svg { flex-shrink: 0; }
+  .app-content input, .app-content select, .app-content textarea { max-width: 100%; }
+  .app-card { padding: var(--mobile-card-padding); }
+  .app-content .space-y-8 > * + * { margin-top: var(--mobile-section-gap); }
+  .app-content .space-y-6 > * + * { margin-top: 1.25rem; }
+  .app-content [aria-labelledby="sponsorship"] ul { margin-top: .75rem; }
+  .main-navigation ul { height: var(--mobile-navigation-height); }
+  .navigation-link { min-height: var(--mobile-navigation-height); height: 100%; gap: .25rem; font-size: .6875rem; line-height: 1.3; }
+  .navigation-link:not(.navigation-home) > span:first-child { width: 2rem; height: 2rem; }
+  .navigation-link svg { width: 1.375rem; height: 1.375rem; }
+  .navigation-home-icon { width: 3rem; height: 3rem; margin-top: -.75rem; border-width: 3px; }
+  .navigation-home-icon svg { width: 1.5rem; height: 1.5rem; }
+  .home-banner { min-height: 0; border-radius: var(--mobile-feature-padding); }
+  .home-banner-content { min-height: 13.25rem; padding: 1rem; }
+  .home-banner-content > p:first-child { margin-bottom: .5rem; font-size: .75rem; }
+  .home-headline { font-size: 1.625rem; line-height: 1.3; }
+  .home-banner h2 { font-size: inherit; line-height: 1.3; }
+  .home-banner-content > p:not(:first-child) { margin-top: .5rem; font-size: .875rem; }
+  .home-banner-content > a { min-height: 2.75rem; margin-top: .75rem; font-size: .875rem; }
+  .home-matches, .shop-grid { gap: var(--mobile-card-gap); }
+  .home-content .home-match { padding: var(--mobile-card-padding); }
+  .home-match-teams { font-size: 1rem; }
+  .home-match-date, .home-match-location, .home-match-full { font-size: .875rem; }
+  .home-match-location { min-height: 2.75rem; margin-top: 0; }
+  .home-match-full { min-height: 2.75rem; margin-top: .25rem; }
+  .home-venue { grid-template-columns: 5rem minmax(0,1fr); gap: .75rem; padding: var(--mobile-card-padding); }
+  .home-venue .font-display { font-size: 1.125rem; }
+  .home-venue .text-base { font-size: .875rem; margin-top: .5rem; }
+  .home-result { padding: var(--mobile-card-padding); gap: .75rem; }
+  .home-result-score { font-size: 2rem; }
+  .home-result-sets { text-align: right; padding-top: .5rem; }
+  .home-result-sets .text-lg { font-size: .875rem; }
+  .home-lottery { padding: var(--mobile-card-padding); border-radius: var(--mobile-feature-padding); }
+  .home-lottery-content { grid-template-columns: auto minmax(0,1fr); gap: .75rem; }
+  .home-lottery .lottery-logo { width: 5.5rem; }
+  .home-lottery-info { text-align: right; }
+  .home-lottery-label { font-size: .75rem; letter-spacing: 0; }
+  .home-prize { font-size: 1.875rem; }
+  .home-lottery-cta { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; }
+  .home-lottery-button { font-size: .875rem; min-height: 2.75rem; padding-inline: 1rem; }
+  .home-lottery-legal { font-size: .75rem; }
+  .announcement-carousel a { min-height: 0; padding: 1rem 1rem 1.75rem; gap: .75rem; }
+  .announcement-carousel a > span { width: 2.5rem; height: 2.5rem; }
+  .announcement-carousel a > svg { width: 1.125rem; height: 1.125rem; }
+  .announcement-carousel .text-lg { font-size: 1rem; }
+  .announcement-carousel .text-sm { font-size: .875rem; }
+  .home-info { position: relative; overflow: hidden; min-height: 11rem; padding: 1rem; gap: .5rem; }
+  .home-info > div { min-width: 0; max-width: 100%; gap: .75rem; }
+  .home-info:has(.player-portrait) > div { width: 66%; }
+  .home-info > div > span { width: 2.5rem; height: 2.5rem; font-size: 1rem; }
+  .home-info > div > div { min-width: 0; overflow-wrap: anywhere; }
+  .home-info h3 { font-size: 1.125rem; }
+  .home-info p { font-size: .875rem; }
+  .home-info .player-portrait { position: absolute; width: 34%; height: auto; margin: 0; right: .5rem; bottom: -2rem; max-height: 12rem; object-fit: contain; }
+  .result-row { padding: .875rem .75rem; }
+  .result-row-team { font-size: 1rem; }
+  .result-row-score { font-size: 1.75rem; }
+  .glass-list .app-card > p:first-child { font-size: .8125rem; }
+  .glass-list .app-card > p:not(:first-child) { font-size: 1rem; line-height: 1.45; }
+  section[aria-labelledby="calendar"] .rounded-lg { padding: .5rem; }
+  section[aria-labelledby="calendar"] .grid-cols-7 { gap: 0; }
+  section[aria-labelledby="calendar"] h3 { font-size: 1.125rem; margin-bottom: .75rem; }
+  section[aria-labelledby="follow-teams-divisions"] button { font-size: 1rem; gap: .5rem; padding-block: .5rem; }
+  section[aria-labelledby="follow-teams-divisions"] button > span { min-width: 0; }
+  .shop-image { height: 8.5rem; padding: .75rem; }
+  .lottery-page .lotto-stage { padding: 1.5rem .75rem; }
+  .lottery-page .lottery-logo { width: 11rem; }
+  .lottery-page .lottery-winner { font-size: .8125rem; }
+  .lottery-page .jackpot { font-size: 2.5rem; }
+  .lottery-page .lotto-stage > div + div { margin-top: 1.5rem; }
+  .lottery-page .golden-ticket { height: 10.5rem; padding-block: .75rem; }
+  .lottery-page .lottery-quantity { font-size: 1.125rem; }
+  .lottery-page .lottery-price { font-size: .875rem; }
+  .lottery-page .lottery-ticket-label { font-size: .625rem; }
+  .lottery-page .lotto-stage a { font-size: 1rem; padding-inline: 1.5rem; min-height: 2.75rem; }
+  .lottery-page .lotto-stage p.text-sm { font-size: .875rem; }
+  .account-page > div:not(.page-heading) { padding-block: 0; }
+  .account-page .account-role-picker { margin-top: 1.25rem; }
+  .account-page .account-role-picker > h2 { font-family: var(--font-sans); font-size: 1.75rem; }
+  .account-page .account-role-picker > p { font-size: .8125rem; }
+  .account-page .account-role-picker > div { display: grid; gap: .75rem; }
+  .account-page .account-role-picker > div > * + * { margin-top: 0; }
+  .account-page .account-role-picker > div > button { display: grid; grid-template-columns: auto minmax(0,1fr) auto; min-height: 4rem; padding: .75rem 1rem; gap: .75rem; border-radius: 1rem; font-size: 1rem; text-align: left; }
+  .account-page .account-role-picker > div > button > span { width: 2.25rem; height: 2.25rem; }
+  .account-page .account-role-picker > div > button svg { width: 1.25rem; height: 1.25rem; }
+  .account-page .account-role-picker > a[href="/staff"] { min-height: 4rem; border-radius: 1rem; font-size: 1rem; padding-inline: 1rem; gap: .75rem; }
+  .account-page .account-role-picker > a[href="/"] { font-size: .875rem; }
+  .account-page button.min-h-16 { min-height: 3rem; font-size: 1rem; }
+}
