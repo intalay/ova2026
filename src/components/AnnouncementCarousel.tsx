@@ -15,7 +15,7 @@ function AnnouncementCard({ a, active }: { a: CompetitionData['announcements'][n
   return () => window.removeEventListener('resize', check);
  }, [a.body]);
  return (
-  <Link to="/announcements" draggable={false} tabIndex={active ? 0 : -1} className="announcement-panel relative flex cursor-inherit items-start gap-4 rounded-lg border bg-card px-6 pt-6 pb-9">
+  <Link to="/announcements" draggable={false} tabIndex={active ? 0 : -1} className="announcement-panel relative flex cursor-inherit items-start gap-4 rounded-lg border bg-card px-6 pt-6 pb-10">
    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-secondary"><Megaphone aria-hidden className="size-5 text-primary"/></span>
    <div className="min-w-0 flex-1">
     {a.pinned_at && <span className="mb-1 inline-flex items-center gap-1 text-xs font-semibold text-primary"><Pin aria-hidden className="size-3"/>Pinned</span>}
