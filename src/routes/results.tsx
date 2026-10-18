@@ -119,17 +119,17 @@ function Results() {
   const results = useQuery({
     ...pageQuery(selection),
     enabled: validDateRange,
-    initialData: selection === initialSelection ? (loaded.page ?? undefined) : undefined,
+    initialData: () => (selection === initialSelection ? (loaded.page ?? undefined) : undefined),
   });
   const filters = useQuery({
     ...filtersQuery(selection.dataMode),
-    initialData: selection.dataMode === "all" ? (loaded.filters ?? undefined) : undefined,
+    initialData: () => (selection.dataMode === "all" ? (loaded.filters ?? undefined) : undefined),
   });
   // Household history has its own source lookup and query; public filters never change it.
   const householdFilters = useQuery({
     ...filtersQuery("all"),
     enabled: !!team,
-    initialData: loaded.filters ?? undefined,
+    initialData: () => loaded.filters ?? undefined,
   });
   const teamRecord = householdFilters.data?.teams.find((t) => t.id === team);
   const teamMode = teamRecord?.data_mode;
