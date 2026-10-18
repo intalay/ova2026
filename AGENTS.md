@@ -10,10 +10,10 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
-- Mobile sizing uses shared AppShell classes and a mobile-only semantic spacing/type layer with scoped module overrides. Why: compact proportions must preserve desktop sizing, role palettes and business behavior.
+- Mobile sizing uses AppShell classes, mobile spacing/type tokens and scoped overrides. Why: preserve desktop sizing, role palettes and behavior.
 - Coach and Player homepage visual overrides stay isolated under role-gated wrappers (.coach-invert, .player-green) with dedicated tokens: coach inverts black/white, player uses a brand-green stage with white info cards. Why: shared homepage modules and navigation must retain their existing presentation for every other role and route.
 - Lottery effects, colours and typography use page-scoped tokens. Why: global theme changes must preserve its dedicated presentation.
-- Uploaded web fonts are CDN assets loaded through local font-face stylesheets imported by the global theme; body, display, section and score tokens stay separate, with heavy faces opt-in. Why: brand typography can change independently without making dense content hard to read or embedding binary files in source.
+- Uploaded fonts use CDN assets and local font-face sheets imported by the theme; body, display, section and score tokens remain separate, heavy faces opt-in. Why: change typography without harming readability or embedding binaries.
 - Homepage match cards use the optional compact MatchCard variant and HomeLine container fitting; other match views keep their existing layout. Why: complete single-line homepage information must fit without changing schedules or hiding unknown values.
 - Venue detail and Homepage share exact-name source-checked CDN media via venue-media and official links; unknown venues have fallbacks, OpenStreetMap remains interactive and parking uses recorded information only. Why: avoid unrelated buildings or fabricated location details.
 - Explore uses a checked full public YouTube catalogue with CDN thumbnail atlases and a public read-only CBC listing server function; CBC source status and member restrictions remain explicit. Why: no API secrets, invented events, or privileged data are needed for public viewing discovery.
@@ -33,4 +33,5 @@
 - Identity approvals are owner-scoped RPCs: managing coaches review players, verified players review family links; only approved links to verified players can read private team content. Existing family links are preserved as approved during the additive transition. Why: redeeming an invitation must not grant private access by itself.
 
 - Startup uses an SSR-safe root overlay with a one-shot timer and CSS motion while routes load underneath. Why: navigation must not replay it or change identity logic.
-- Information portraits use panel-relative sizing; announcement previews use fixed-height frames linking to full content. Why: text length must not change visual proportions or access.
+- Portraits scale to panels; announcements use fixed previews. Why: text length cannot alter proportions.
+- Signup drafts are account-bound; auth metadata is presentation only. Account checks getUser email confirmation and shares the session listener before resuming setup. Why: cross-tab recovery must not grant approval.

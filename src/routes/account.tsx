@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AppShell, Card, Section, btn } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { accountCodeKind } from "@/lib/account";
+import { clearSignup, confirmedSignupRole, readPendingSignup, rememberSignup, signupRole, type PendingSignup } from "@/lib/signup-continuation";
 import { coachApplicationSchema, hasCoachApplicationDetails } from "@/lib/coach-application";
 import { FamilyConnections, rememberFamilyInvitation } from "@/components/FamilyConnections";
 import { AccountApprovals } from "@/components/AccountApprovals";
@@ -18,6 +19,34 @@ type Preview={purpose:string;team_name:string;player_name?:string;team_id?:strin
 function Account(){
  const {user,ready,household,requested,selectRole,signOut}=useRole();const {data:comp}=useSuspenseQuery(competitionQuery);const qc=useQueryClient();const navigate=useNavigate();
  const [manageRoles,setManageRoles]=useState(false);const [step,setStep]=useState<'roles'|'auth'|'connect'|'profile'>('roles');const [chosen,setChosen]=useState<AppRole>(requested);const [mode,setMode]=useState<'in'|'up'>('in');const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [name,setName]=useState('');const [jersey,setJersey]=useState('');const [certification,setCertification]=useState('');const [code,setCode]=useState('');const [preview,setPreview]=useState<Preview|null>(null);const [codeError,setCodeError]=useState('');const [message,setMessage]=useState('');const [busy,setBusy]=useState(false);const [team,setTeam]=useState(comp.teams[0]?.id??'');const [linkAnother,setLinkAnother]=useState(false);const [issued,setIssued]=useState<{code:string;expires_at:string}|null>(null);const [relationship,setRelationship]=useState('parent');
+ const [pendingSignup,setPendingSignup]=useState<PendingSignup|null>(null);
+ const resumedSignup=useRef<string|null>(null);
+ useEffect(()=>{setPendingSignup(readPendingSignup());const params=new URLSearchParams(window.location.hash.slice(1));if(params.has('error_description'))setMessage('This verification link could not be confirmed. Please use the latest email link.');},[]);
+ useEffect(()=>{
+  if(!ready)return;
+  const pending=pendingSignup;
+  if(!pending&&(!signupRole(user?.user_metadata?.['signup_role'])||requested!=='general_user'&&requested!==user?.user_metadata?.['signup_role']))return;
+  if(user&&resumedSignup.current===user.id)return;
+  let active=true;let checking=false;
+  async function check(){
+   if(checking)return;checking=true;
+   try{
+    const {data,error}=await supabase.auth.getUser();
+    if(!active||error)return;
+    if(pending&&data.user&&(pending.email.toLowerCase()!==data.user.email?.toLowerCase()||(pending.userId&&pending.userId!==data.user.id))){clearSignup();setPendingSignup(null);return;}
+    const role=confirmedSignupRole(data.user,pending);
+    if(!role||!data.user)return;
+    resumedSignup.current=data.user.id;
+    setChosen(role);selectRole(role);setName(data.user.user_metadata?.['display_name']??'');setStep('connect');setMessage('');clearSignup();setPendingSignup(null);
+   }catch{ /* Keep waiting when the auth service cannot confirm the account. */ }
+   finally{checking=false;}
+  }
+  void check();
+  const timer=pending?window.setInterval(()=>void check(),2000):null;
+  const focus=()=>void check();
+  window.addEventListener('focus',focus);window.addEventListener('storage',focus);document.addEventListener('visibilitychange',focus);
+  return()=>{active=false;if(timer!==null)window.clearInterval(timer);window.removeEventListener('focus',focus);window.removeEventListener('storage',focus);document.removeEventListener('visibilitychange',focus);};
+ },[ready,pendingSignup,user?.id,requested]);
  const previewRequest=useRef(0);const validPreview=preview?.code===code&&preview.userId===user?.id&&preview.role===chosen?preview:null;
  useEffect(()=>{previewRequest.current+=1;setPreview(null);setCodeError('');setBusy(false);return()=>{previewRequest.current+=1;};},[user?.id,chosen,step]);
  const requests=useQuery({queryKey:['coach-request',user?.id],enabled:!!user,queryFn:async({signal})=>{if(!user)return null;const {data,error}=await supabase.from('coach_requests').select('*').eq('user_id',user.id).abortSignal(signal).maybeSingle();if(error)throw error;return data;}});
@@ -29,7 +58,7 @@ function Account(){
  useEffect(()=>{previewRequest.current+=1;setIssued(null);setBusy(false);},[user?.id,codeKind,codeTeam]);
  useEffect(()=>{if(!user)return;if(step==='auth')setStep('connect');},[user,step]);
  useEffect(()=>{if(requests.data?.status==='approved'&&chosen==='coach'){const key=`coach-approved-${requests.data.id}`;if(!sessionStorage.getItem(key)){toast.success('You have been approved to access your coach page');sessionStorage.setItem(key,'seen');}}},[requests.data,chosen]);
- async function auth(e:FormEvent){e.preventDefault();setBusy(true);setMessage('');try{const res=mode==='in'?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password,options:{emailRedirectTo:`${window.location.origin}/account`,data:{display_name:name}}});if(res.error)throw res.error;if(mode==='up'&&!res.data.session)setMessage('Check your email to confirm your account, then sign in.');}catch(e){setMessage(e instanceof Error?e.message:'Sign-in failed. Try again.');}finally{setBusy(false);}}
+ async function auth(e:FormEvent){e.preventDefault();setBusy(true);setMessage('');try{const role=signupRole(chosen);if(mode==='up'&&!role)throw new Error('Choose your registration role.');const res=mode==='in'?await supabase.auth.signInWithPassword({email,password}):await supabase.auth.signUp({email,password,options:{emailRedirectTo:`${window.location.origin}/account`,data:{display_name:name,signup_role:role}}});if(res.error)throw res.error;if(mode==='up'&&role){const pending={role,email:email.trim(),userId:res.data.user?.id??null};rememberSignup(pending);setPendingSignup(pending);setPassword('');}}catch(e){setMessage(e instanceof Error?e.message:'Sign-in failed. Try again.');}finally{setBusy(false);}}
  async function checkCode(){if(!user)return;const request=++previewRequest.current;const submittedCode=code;const submittedRole=chosen;const submittedUser=user.id;setBusy(true);setPreview(null);setCodeError('');try{const {data,error}=await supabase.rpc('preview_pairing_code',{_code:submittedCode});if(request!==previewRequest.current)return;if(error)throw error;const p=data as unknown as Preview;if(!p||p.purpose!==(submittedRole==='player'?'TEAM':'FAMILY')){setCodeError(submittedRole==='player'?'Use a team code from your coach.':'Use a family code from your player.');return;}setPreview({...p,code:submittedCode,userId:submittedUser,role:submittedRole});}catch(error){if(request===previewRequest.current)setCodeError(error instanceof Error?error.message:typeof error==='object'&&error&&'message' in error?String(error.message):'Could not verify this code. Try again.');}finally{if(request===previewRequest.current)setBusy(false);}}
  async function connect(e:FormEvent){
   e.preventDefault();if(busy||!validPreview||!user)return;
@@ -49,6 +78,7 @@ function Account(){
  async function resubmitPlayer(e:FormEvent){e.preventDefault();if(busy||!user||!hh?.self)return;const request=previewRequest.current;setBusy(true);setMessage('');try{const {error}=await supabase.rpc('update_player_registration',{_name:name,_jersey:jersey});if(request!==previewRequest.current)return;if(error)throw error;await qc.invalidateQueries({queryKey:['household',user.id]});if(request===previewRequest.current)toast.success('Profile resubmitted for verification');}catch(error){if(request===previewRequest.current)setMessage(error instanceof Error?error.message:typeof error==='object'&&error&&'message' in error?String(error.message):'Could not resubmit your profile. Try again.');}finally{if(request===previewRequest.current)setBusy(false);}}
  async function logout(){previewRequest.current+=1;selectRole('general_user');setStep('roles');try{await signOut();}catch{toast.error('Signed out locally. Server sign-out could not be confirmed.');}}
  const connected=!linkAnother && (chosen==='player'?!!hh?.self:chosen==='family_friends'?(hh?.linkedPlayers.length??0)>0:chosen==='coach'?(hh?.managedTeams.length??0)>0||hh?.roles.some(r=>r==='staff'||r==='admin'):false);
+ if(ready&&pendingSignup)return <AppShell title="Verify your email" contentClassName="account-page"><div className="mx-auto max-w-xl space-y-5 py-5"><p className="break-words">We’ve sent a verification link to <span className="font-semibold">{pendingSignup.email}</span>.</p><p role="status">Please check your inbox to continue.</p>{message&&<p role="alert" className="text-destructive">{message}</p>}</div></AppShell>;
  if(!ready||(user&&household.isPending))return <AppShell title="Account" contentClassName="account-page"><p role="status">Loading account…</p></AppShell>;
  if(user&&household.isError)return <AppShell title="Account" contentClassName="account-page"><p role="alert">Could not load your verified account.</p><Button onClick={()=>household.refetch()}>Try again</Button><Button variant="ghost" onClick={logout}>Sign out</Button></AppShell>;
  if(familyHomepage&&!manageRoles&&!linkAnother)return <AppShell title="Account" contentClassName="account-page"><div className="mx-auto max-w-2xl space-y-8 py-5"><Button className="w-full" onClick={()=>{selectRole('family_friends');navigate({to:'/'});}}>Open my homepage<ArrowRight aria-hidden/></Button>{familyConnections}<Button variant="outline" className="w-full" onClick={()=>{setLinkAnother(true);setChosen('family_friends');setStep('connect');setCode('');setPreview(null);setMessage('');}}>Link another player</Button><Button variant="ghost" onClick={logout}><LogOut aria-hidden/>Sign out</Button></div></AppShell>;

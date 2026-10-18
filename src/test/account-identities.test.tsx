@@ -28,6 +28,7 @@ const mocks = vi.hoisted(() => ({
   selectRole: vi.fn(),
   navigate: vi.fn(),
   signUp: vi.fn(),
+  getUser: vi.fn(),
   signIn: vi.fn(),
   signOut: vi.fn(),
   coachRequest: null as { id: string; status: string } | null,
@@ -68,6 +69,7 @@ vi.mock("@/integrations/supabase/client", () => ({
     rpc: (...args: unknown[]) => mocks.rpc(...args),
     auth: {
       signUp: (...a: unknown[]) => mocks.signUp(...a),
+      getUser: (...a: unknown[]) => mocks.getUser(...a),
       signInWithPassword: (...a: unknown[]) => mocks.signIn(...a),
     },
     from: () => ({
@@ -136,9 +138,45 @@ beforeEach(() => {
     mocks.requested = role;
   });
   sessionStorage.clear();
+  localStorage.clear();
+  mocks.getUser.mockResolvedValue({data:{user:null},error:null});
 });
 afterEach(cleanup);
 describe("Account identities and review feedback — local component and RPC transport simulation", () => {
+  it.each(['player','coach','family_friends'] as const)('preserves %s signup until server-confirmed email and resumes Account setup',async(role)=>{
+    const label=role==='player'?'Player':role==='coach'?'Coach':'Friends & Family';
+    const confirmed={...user,email_confirmed_at:'2026-10-18T14:55:00Z',user_metadata:{signup_role:role,display_name:'Test'}};
+    mocks.signUp.mockResolvedValue({data:{user:{id:user.id},session:null},error:null});
+    const view=mount();
+    fireEvent.click(screen.getByRole('button',{name:label}));
+    fireEvent.click(screen.getByRole('button',{name:'New here? Create an account'}));
+    fireEvent.change(screen.getByLabelText('Your name'),{target:{value:'Test'}});
+    fireEvent.change(screen.getByLabelText('Email'),{target:{value:user.email}});
+    fireEvent.change(screen.getByLabelText('Password'),{target:{value:'Testing123'}});
+    fireEvent.click(screen.getByRole('button',{name:'Create account'}));
+    await waitFor(()=>expect(JSON.parse(localStorage.getItem('ova-pending-signup')??'null')).toEqual({role,email:user.email,userId:user.id}));
+    expect(mocks.signUp).toHaveBeenCalledWith(expect.objectContaining({options:{emailRedirectTo:`${window.location.origin}/account`,data:{display_name:'Test',signup_role:role}}}));
+    expect(mocks.navigate).not.toHaveBeenCalled();
+    mocks.getUser.mockResolvedValue({data:{user:{...confirmed,email_confirmed_at:undefined}},error:null});
+    fireEvent(window,new Event('focus'));
+    await act(async()=>{});
+    expect(localStorage.getItem('ova-pending-signup')).not.toBeNull();
+    // Refresh restores the account-bound waiting draft.
+    view.unmount();
+    const refreshed=mount();
+    await act(async()=>{});
+    mocks.user=user;
+    mocks.getUser.mockResolvedValue({data:{user:confirmed},error:null});
+    fireEvent(window,new StorageEvent('storage',{key:'auth-session'}));
+    await waitFor(()=>expect(localStorage.getItem('ova-pending-signup')).toBeNull());
+    expect(mocks.selectRole).toHaveBeenLastCalledWith(role);
+    expect(mocks.navigate).not.toHaveBeenCalled();
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    expect(mocks.hh.self).toBeNull();
+    expect(mocks.hh.managedTeams).toEqual([]);
+    expect(mocks.hh.linkedPlayers).toEqual([]);
+    refreshed.unmount();
+  });
   it('opens approved family Account directly and retains connection management', async () => {
     mocks.user = user;
     mocks.hh.linkedPlayers = [{id:'child',display_name:'Approved Child',team_id:'team-A',status:'verified'}];
