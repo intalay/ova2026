@@ -313,7 +313,7 @@ input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, tex
 .home-matches { display: grid; grid-template-columns: minmax(0,1fr); gap: 14px; }
 .home-content .home-match { padding: 16px 22px; border-radius: var(--radius); }
 .home-match-event { font-size: .75rem; color: var(--muted-foreground); }
-.home-match-teams { font-size: 1.1rem; font-weight: 700; line-height: 1.5; }
+.home-match-teams { font-size: 1rem; font-weight: 700; line-height: 1.5; }
 .home-result-score, .home-prize, .jackpot { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 .home-match-versus { font-size: .85em; font-weight: 700; color: var(--muted-foreground); padding: 0 .25em; }
 .home-match-date { font-size: .9rem; margin-top: 3px; color: var(--match-time); }
@@ -347,6 +347,7 @@ body, body * { font-weight: 500 !important; }
 /* Fixture matchups stay bold on top of the global medium-weight preference (Penny request).
    HomeLine wraps its children in an unstyled span, so the bold has to reach that span too. */
 .home-match-teams span:not(.home-unknown), .match-teams, .match-teams > span:not(.home-unknown) { font-weight: 700 !important; }
+.match-teams { font-size: 1.0625rem; }
 
 
 
@@ -491,7 +492,7 @@ body, body * { font-weight: 500 !important; }
   .home-banner-content > a { min-height: 2.75rem; margin-top: .75rem; font-size: .875rem; }
   .home-matches, .shop-grid { gap: var(--mobile-card-gap); }
   .home-content .home-match { padding: var(--mobile-card-padding); }
-  .home-match-teams { font-size: 1rem; }
+  .home-match-teams { font-size: .9375rem; }
   .home-match-date, .home-match-location, .home-match-full { font-size: .875rem; }
   .home-match-location { min-height: 2.75rem; margin-top: 0; }
   .home-match-full { min-height: 2.75rem; margin-top: .25rem; }

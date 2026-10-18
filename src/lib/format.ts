@@ -34,3 +34,18 @@ export function calendarMonths(now = new Date()): { year: number; month: number 
 export function teamLabel(name: string | null | undefined): string {
   return name ?? `Opponent ${TBD.toLowerCase()}`;
 }
+
+/** Match cards use the compact "TBD" wording for unknown values. */
+export const TBD_SHORT = "TBD";
+
+export function formatDateTimeShort(iso: string | null | undefined, fallbackDate?: string | null): string {
+  if (!iso) {
+    if (!fallbackDate) return `Date ${TBD_SHORT}`;
+    return `${formatDate(fallbackDate)} · time ${TBD_SHORT}`;
+  }
+  return formatDateTime(iso);
+}
+
+export function teamLabelShort(name: string | null | undefined): string {
+  return name ?? `Opponent ${TBD_SHORT}`;
+}
