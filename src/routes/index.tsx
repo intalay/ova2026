@@ -17,7 +17,8 @@ import playerPortrait from "@/assets/player-portrait-celebrate.png";
 import coachPortrait from "@/assets/coach-portrait-toss.png";
 import familyPortrait from "@/assets/family-portrait-cheer.png";
 import { TBD, teamLabel } from '@/lib/format';
-import { venueMedia } from '@/lib/venue-media';
+ import { venueMedia } from '@/lib/venue-media';
+import { AMANDA_PREVIEW_TEAM, PREVIEW_EVENT_NAME, amandaPreviewLatest, isPreviewMatch, previewOpponentName } from '@/lib/amanda-results-preview';
 export const Route=createFileRoute('/')({head:()=>({meta:[{title:'Fan Plaza — OVA Companion'},{name:'description',content:'Ontario volleyball schedules, team announcements, results and official OVA 50/50.'},{property:'og:title',content:'OVA Companion Fan Plaza'},{property:'og:description',content:'Your Ontario volleyball community, in one place.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),loader:({context})=>context.queryClient.ensureQueryData(competitionQuery),component:Home});
 function Home(){
  const {data}=useSuspenseQuery(competitionQuery);const {role,household,user}=useRole();const [object,setObject]=useState('');const hh=household.data;
