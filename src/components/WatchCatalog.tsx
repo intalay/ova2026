@@ -9,8 +9,9 @@ export function WatchCatalog({ videos, checkedAt }: { videos: WatchVideo[]; chec
   const [jump, setJump] = useState('');
   const result = videoPage(videos, keyword, requestedPage);
   return <section aria-labelledby="ova-tv" className="space-y-5">
-    <div className="flex flex-wrap items-end justify-between gap-3">
-      <div><p className="mb-1 text-xs font-semibold uppercase text-primary">Ontario volleyball · YouTube</p><h3 id="ova-tv" className="text-4xl font-semibold">OVA TV</h3></div>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3 gap-y-1">
+      <p className="col-span-2 text-xs font-semibold uppercase text-primary">Ontario volleyball · YouTube</p>
+      <h3 id="ova-tv" className="text-4xl font-semibold">OVA TV</h3>
       <Button variant="outline" asChild><a href={OVA_CHANNEL_URL} target="_blank" rel="noopener noreferrer">YouTube channel<ArrowUpRight aria-hidden className="size-4" /></a></Button>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-3 border-y py-4">
