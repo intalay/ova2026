@@ -86,3 +86,33 @@ it("allows explicit homepage Demo display without changing the real-only default
     ),
   ).toEqual(["explicit-home-demo"]);
 });
+
+describe("October 20 Sand & Sky Demo simulation", () => {
+  const simulation = match("demo-sand-oct20-2026-1400", {
+    event_id: "demo-beach-oct20-2026",
+    division_id: "demo-beach",
+    team_a_id: "demo-sand",
+    team_b_id: "demo-sun",
+    source_date: "2026-10-20",
+    starts_at: "2026-10-20T18:00:00Z",
+    data_mode: "synthetic",
+  });
+  const before = new Date("2026-10-19T16:00:00Z");
+
+  it("shows the scheduled simulation in Demo at 2pm Toronto on October 20", () => {
+    const result = selectUpcomingMatches([simulation], {
+      teamId: "demo-sand", dataMode: "synthetic", now: before,
+    });
+    expect(result.nextMatches).toEqual([simulation]);
+    expect(competitionDate(new Date(simulation.starts_at ?? ""))).toBe("2026-10-20");
+    expect(new Intl.DateTimeFormat("en-GB", {
+      timeZone: "America/Toronto", hour: "2-digit", minute: "2-digit",
+    }).format(new Date(simulation.starts_at ?? ""))).toBe("14:00");
+  });
+
+  it("excludes the simulation from real upcoming matches", () => {
+    expect(selectUpcomingMatches([simulation], {
+      teamId: "demo-sand", dataMode: "real", now: before,
+    }).upcoming).toEqual([]);
+  });
+});
