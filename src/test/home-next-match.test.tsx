@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   matches: [] as Match[],
   role: "coach",
   demoPlayer: false,
+  demoCoach: false,
   homeMode: "real",
 }));
 vi.mock("@tanstack/react-router", () => ({
@@ -41,7 +42,7 @@ vi.mock("@tanstack/react-query", () => ({
       teams: [
         { id: "mine", name: "My team" },
         { id: "other", name: "Opponents" },
-        ...(mocks.demoPlayer
+        ...(mocks.demoPlayer || mocks.demoCoach
           ? [{ id: "demo-sand", name: "Sand & Sky", data_mode: "synthetic" }]
           : []),
       ],
@@ -72,7 +73,7 @@ vi.mock("@/hooks/use-role", () => ({
         familyLinks: mocks.demoPlayer
           ? [{ family_user_id: "review-user", player_id: "demo-player", status: "approved" }]
           : [],
-        managedTeams: ["mine"],
+        managedTeams: mocks.demoCoach ? ["demo-sand"] : ["mine"],
         linkedPlayers: mocks.demoPlayer
           ? [
               {
@@ -142,6 +143,8 @@ afterEach(() => {
   mocks.matches = [];
   mocks.role = "coach";
   mocks.demoPlayer = false;
+  mocks.demoCoach = false;
+  sessionStorage.clear();
   mocks.homeMode = "real";
 });
 describe("independent next-match DOM regression", () => {
@@ -368,3 +371,15 @@ for (const role of ["player", "family_friends"]) {
     );
   });
 }
+
+it("keeps the Coach team selector and original black homepage while Real mode excludes synthetic match cards", () => {
+  mocks.role = "coach";
+  mocks.demoCoach = true;
+  mocks.homeMode = "real";
+  render(<Home />);
+  expect(document.querySelector(".coach-invert")).not.toBeNull();
+  expect(screen.getByRole("heading", { name: "Sand & Sky" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Team")).toHaveValue("demo-sand");
+  expect(screen.getByRole("status")).toHaveTextContent("Your linked team is a Demo team");
+  expect(screen.getByLabelText("Team")).toHaveTextContent("Sand & Sky · Demo team");
+});

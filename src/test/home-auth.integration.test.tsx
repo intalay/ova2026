@@ -209,3 +209,18 @@ it("Home bridge never carries A's selected team or content into account B", asyn
   expect(screen.queryByText("PRIVATE TEAM A")).not.toBeInTheDocument();
   expect(screen.getByText("Team B", { selector: "h3" })).toBeInTheDocument();
 });
+
+it("keeps the black Coach homepage and authorized team when returning and refreshing the same identity", async () => {
+  const first = mount();
+  await screen.findByText("PRIVATE TEAM A");
+  expect(document.querySelector(".coach-invert")).not.toBeNull();
+  expect(screen.getByText("Team A", { selector: "h3" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Team")).toHaveValue("A");
+  expect(sessionStorage.getItem("ova-role")).toBe("coach");
+  first.unmount();
+  qc.clear();
+  mount();
+  await screen.findByText("PRIVATE TEAM A");
+  expect(document.querySelector(".coach-invert")).not.toBeNull();
+  expect(screen.getByLabelText("Team")).toHaveValue("A");
+});

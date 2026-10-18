@@ -245,3 +245,24 @@ it("preserves a same-owner homepage mode on ordinary refresh but resets on logou
   act(() => mocks.event("SIGNED_IN", { user: { id: "account-B" } }));
   expect(screen.getByText("Home mode: real")).toBeInTheDocument();
 });
+
+it("does not let an empty INITIAL_SESSION snapshot suppress a verified initial getUser result", async () => {
+  const initial = deferred<{ data: { user: { id: string } }; error: null }>();
+  mocks.getUser.mockReturnValue(initial.promise);
+  mount();
+  act(() => mocks.event("INITIAL_SESSION", null));
+  expect(screen.getByText("checking")).toBeInTheDocument();
+  await act(async () => initial.resolve({ data: { user: { id: "account-A" } }, error: null }));
+  await screen.findByText("account-A");
+});
+
+it("ignores a late empty storage snapshot after getUser verified the signed-in identity", async () => {
+  sessionStorage.setItem("ova-role", "coach");
+  sessionStorage.setItem("ova-browse:account-A:coach", JSON.stringify({ team: "A" }));
+  mount();
+  await screen.findByText("PRIVATE account-A");
+  act(() => mocks.event("INITIAL_SESSION", null));
+  expect(screen.getByText("account-A")).toBeInTheDocument();
+  expect(sessionStorage.getItem("ova-role")).toBe("coach");
+  expect(sessionStorage.getItem("ova-browse:account-A:coach")).toBe(JSON.stringify({ team: "A" }));
+});
