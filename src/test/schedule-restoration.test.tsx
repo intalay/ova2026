@@ -182,7 +182,7 @@ it("restores real date counts and preserves actual event, time, court and venue 
   expect(date).toBeEnabled();
   expect(within(date).getByText("2")).toBeInTheDocument();
   expect(screen.getAllByText("Recorded tournament")).toHaveLength(2);
-  expect(view.container.querySelectorAll(".glass-list .app-card.match-pending")).toHaveLength(2);
+  expect(view.container.querySelectorAll(".glass-list .app-card.match-pending")).toHaveLength(0);
   expect(screen.getAllByText(/Beta/)).toHaveLength(2);
   expect(screen.getAllByRole("link", { name: "Recorded venue · Court 2" })[0]).toHaveAttribute(
     "href",
@@ -266,3 +266,14 @@ it("does not silently switch an invalid child/team to another child", async () =
   expect(screen.queryByRole("button", { name: "Browse all matches" })).not.toBeInTheDocument();
   expect(mocks.mutate).not.toHaveBeenCalled();
 });
+
+it.each([{ team_b_id: null }, { venue_id: null }, { starts_at: null }])(
+  "uses original dark pending style only when a required schedule detail is missing: %o",
+  (missing) => {
+    const view = mount([scheduled(), scheduled({ id: "pending-detail", ...missing })]);
+    const cards = view.container.querySelectorAll(".glass-list .app-card");
+    expect(cards).toHaveLength(2);
+    expect(cards[0]).not.toHaveClass("match-pending");
+    expect(cards[1]).toHaveClass("match-pending");
+  },
+);
