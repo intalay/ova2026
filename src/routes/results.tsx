@@ -15,10 +15,21 @@ import { AppShell, Section, Card, btn, Tbd } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
-import { resultStats, resultSetStats, filterResultsRange, latestCompletedEvent, cumulativeWinTrend, RESULTS_PAGE_SIZE } from "@/lib/results";
+import {
+  resultStats,
+  resultSetStats,
+  filterResultsRange,
+  latestCompletedEvent,
+  cumulativeWinTrend,
+  RESULTS_PAGE_SIZE,
+} from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
 import { formatDate, formatDateMDY, formatDateTime, formatMonthDay } from "@/lib/format";
-import { AMANDA_PREVIEW_TEAM, amandaPreviewMatches, previewOpponentName } from "@/lib/amanda-results-preview";
+import {
+  AMANDA_PREVIEW_TEAM,
+  amandaPreviewMatches,
+  previewOpponentName,
+} from "@/lib/amanda-results-preview";
 
 type DataMode = "all" | "real" | "synthetic";
 type ResultsSelection = {
@@ -106,65 +117,138 @@ function Results() {
   const [metric, setMetric] = useState<"match" | "set">("match");
   const filters = useQuery({
     ...filtersQuery(draft.dataMode),
-    initialData: () => draft.dataMode === "real" ? loaded.filters ?? undefined : undefined,
+    initialData: () => (draft.dataMode === "real" ? (loaded.filters ?? undefined) : undefined),
   });
   // Only exact public source IDs may seed the browsing context. Async identity
   // reads never replace a team or filter the person has already chosen.
-  const householdIds = role === "coach" ? hh?.managedTeams ?? [] : role === "player" ?
-    (hh?.self?.team_id ? [hh.self.team_id] : []) : role === "family_friends" ?
-    hh?.linkedPlayers.flatMap(player => player.team_id ? [player.team_id] : []) ?? [] : [];
-  const mappedTeam = householdIds.find(id => filters.data?.teams.some(team => team.id === id && team.data_mode === draft.dataMode));
-  const team = draft.teamId || (!teamChosen ? mappedTeam ?? "" : "");
-  const teamRecord = filters.data?.teams.find(option => option.id === team && option.data_mode === draft.dataMode);
+  const householdIds =
+    role === "coach"
+      ? (hh?.managedTeams ?? [])
+      : role === "player"
+        ? hh?.self?.team_id
+          ? [hh.self.team_id]
+          : []
+        : role === "family_friends"
+          ? (hh?.linkedPlayers.flatMap((player) => (player.team_id ? [player.team_id] : [])) ?? [])
+          : [];
+  const mappedTeam = householdIds.find((id) =>
+    filters.data?.teams.some((team) => team.id === id && team.data_mode === draft.dataMode),
+  );
+  const team = draft.teamId || (!teamChosen ? (mappedTeam ?? "") : "");
+  const teamRecord = filters.data?.teams.find(
+    (option) => option.id === team && option.data_mode === draft.dataMode,
+  );
   const teamMode = teamRecord?.data_mode;
-  const fixtureSelected = developmentPreview && draft.dataMode === "synthetic" && team === AMANDA_PREVIEW_TEAM.id;
+  const fixtureSelected =
+    developmentPreview && draft.dataMode === "synthetic" && team === AMANDA_PREVIEW_TEAM.id;
   const history = useQuery({
     queryKey: ["team-results-history", team, teamMode],
     enabled: !!team && (teamMode === "real" || teamMode === "synthetic"),
     queryFn: () => {
-      if (!team || (teamMode !== "real" && teamMode !== "synthetic")) throw new Error("Team source unavailable");
+      if (!team || (teamMode !== "real" && teamMode !== "synthetic"))
+        throw new Error("Team source unavailable");
       return getTeamResultsHistory({ data: { teamId: team, dataMode: teamMode } });
     },
   });
   // DEV simulation stays explicit and outside public/query caches.
-  const simulatedTeam = fixtureSelected && filters.isSuccess && (!teamRecord || history.isSuccess && !history.data.matches.length);
-  const completeMatches = ((simulatedTeam ? amandaPreviewMatches : history.data?.matches ?? []) as Match[])
-    .filter(match => (match.team_a_id === team || match.team_b_id === team) && match.data_mode === draft.dataMode);
-  const defaultEvent = team && !eventChosen ? latestCompletedEvent(completeMatches, filters.data?.events ?? []) : "";
+  const simulatedTeam =
+    fixtureSelected &&
+    filters.isSuccess &&
+    (!teamRecord || (history.isSuccess && !history.data.matches.length));
+  const completeMatches = (
+    (simulatedTeam ? amandaPreviewMatches : (history.data?.matches ?? [])) as Match[]
+  ).filter(
+    (match) =>
+      (match.team_a_id === team || match.team_b_id === team) && match.data_mode === draft.dataMode,
+  );
+  const defaultEvent =
+    team && !eventChosen ? latestCompletedEvent(completeMatches, filters.data?.events ?? []) : "";
   const selection = { ...draft, teamId: team, eventId: eventChosen ? draft.eventId : defaultEvent };
   const changeFilters = (patch: Partial<Omit<ResultsSelection, "page">>) => {
-    setEventChosen(true); setTeamChosen(true);
-    setSelection(current => ({ ...current, teamId: team, eventId: selection.eventId, ...patch, page: 1 }));
+    setEventChosen(true);
+    setTeamChosen(true);
+    setSelection((current) => ({
+      ...current,
+      teamId: team,
+      eventId: selection.eventId,
+      ...patch,
+      page: 1,
+    }));
+  };
+  const changePage = (page: number) => {
+    // Paging is an explicit public browsing choice, including All teams/events.
+    // Freeze effective defaults so late identity/history reads cannot change it.
+    setTeamChosen(true);
+    setEventChosen(true);
+    setSelection((current) => ({ ...current, teamId: team, eventId: selection.eventId, page }));
   };
   const chooseTeam = (teamId: string) => {
-    setTeamChosen(true); setEventChosen(false);
-    setSelection(current => ({ ...current, teamId, eventId: "", page: 1 }));
+    setTeamChosen(true);
+    setEventChosen(false);
+    setSelection((current) => ({ ...current, teamId, eventId: "", page: 1 }));
   };
-  const validDateRange = !selection.dateFrom || !selection.dateTo || selection.dateFrom <= selection.dateTo;
-  const waitingForEvent = !!team && !eventChosen && !simulatedTeam && history.isPending && !!teamRecord;
+  const validDateRange =
+    !selection.dateFrom || !selection.dateTo || selection.dateFrom <= selection.dateTo;
+  const waitingForEvent =
+    !!team && !eventChosen && !simulatedTeam && history.isPending && !!teamRecord;
   const results = useQuery({
-    ...pageQuery(selection), enabled: validDateRange && !waitingForEvent,
-    initialData: () => !team && draft === initialSelection ? loaded.page ?? undefined : undefined,
+    ...pageQuery(selection),
+    enabled: validDateRange && !waitingForEvent,
+    initialData: () =>
+      !team && draft === initialSelection ? (loaded.page ?? undefined) : undefined,
   });
   const teamLoading = filters.isPending || (!simulatedTeam && !!team && history.isPending);
-  const teamError = !!team && (filters.isError || !simulatedTeam && (history.isError || !teamRecord));
+  const teamError =
+    !!team && (filters.isError || (!simulatedTeam && (history.isError || !teamRecord)));
   const displayMode = draft.dataMode;
-  const finals = filterResultsRange(completeMatches.filter(match => match.status === "final" &&
-    (match.team_a_id === team || match.team_b_id === team) && match.data_mode === displayMode), selection)
-    .sort((a, b) => (b.source_date ?? "").localeCompare(a.source_date ?? ""));
-  const stats = team && validDateRange && !teamLoading && !teamError ? (metric === "set" ? resultSetStats : resultStats)(finals, team) : null;
-  const winTrend = cumulativeWinTrend(finals, team, metric).map(point => ({ ...point, date: formatMonthDay(point.sourceDate) }));
+  const finals = filterResultsRange(
+    completeMatches.filter(
+      (match) =>
+        match.status === "final" &&
+        (match.team_a_id === team || match.team_b_id === team) &&
+        match.data_mode === displayMode,
+    ),
+    selection,
+  ).sort((a, b) => (b.source_date ?? "").localeCompare(a.source_date ?? ""));
+  const stats =
+    team && validDateRange && !teamLoading && !teamError
+      ? (metric === "set" ? resultSetStats : resultStats)(finals, team)
+      : null;
+  const winTrend = cumulativeWinTrend(finals, team, metric).map((point) => ({
+    ...point,
+    date: formatMonthDay(point.sourceDate),
+  }));
   const placement = (history.data?.rankings ?? [])
-    .filter(r => r.team_id === team && r.final_confirmed && r.data_mode === displayMode && (!selection.eventId || r.event_id === selection.eventId))
-    .map(r => ({ eventId: r.event_id, event: filters.data?.events.find(event => event.id === r.event_id)?.name ?? "Event to be determined",
-      date: filters.data?.events.find(event => event.id === r.event_id)?.end_date ?? "", rank: r.rank, field: r.field_size }))
-    .filter(r => r.date && filterResultsRange([{ source_date: r.date, event_id: r.eventId } as Match], selection).length)
+    .filter(
+      (r) =>
+        r.team_id === team &&
+        r.final_confirmed &&
+        r.data_mode === displayMode &&
+        (!selection.eventId || r.event_id === selection.eventId),
+    )
+    .map((r) => ({
+      eventId: r.event_id,
+      event:
+        filters.data?.events.find((event) => event.id === r.event_id)?.name ??
+        "Event to be determined",
+      date: filters.data?.events.find((event) => event.id === r.event_id)?.end_date ?? "",
+      rank: r.rank,
+      field: r.field_size,
+    }))
+    .filter(
+      (r) =>
+        r.date &&
+        filterResultsRange([{ source_date: r.date, event_id: r.eventId } as Match], selection)
+          .length,
+    )
     .sort((a, b) => a.date.localeCompare(b.date));
   const totalPages = Math.ceil((results.data?.total ?? 0) / RESULTS_PAGE_SIZE);
   const publicLookup = filters.data
     ? { teams: filters.data.teams, events: filters.data.events }
     : null;
-  const availableTeams = filters.data?.teams.filter(option => option.data_mode === draft.dataMode);
+  const availableTeams = filters.data?.teams.filter(
+    (option) => option.data_mode === draft.dataMode,
+  );
   const teamOptionLabel = (option: NonNullable<typeof filters.data>["teams"][number]) => {
     const division = filters.data?.divisions.find((d) => d.id === option.division_id)?.name;
     const eventNames = filters.data?.teamEvents
@@ -172,8 +256,11 @@ function Results() {
       .map((relation) => filters.data?.events.find((event) => event.id === relation.eventId)?.name)
       .filter(Boolean);
     const context = [...new Set([division, ...(eventNames ?? [])].filter(Boolean))];
-    const sameEntryLabels = filters.data?.teams.filter(other => other.name === option.name && other.division_id === option.division_id);
-    const suffix = (sameEntryLabels?.length ?? 0) > 1 && !eventNames?.length ? ` [${option.id.slice(-6)}]` : "";
+    const sameEntryLabels = filters.data?.teams.filter(
+      (other) => other.name === option.name && other.division_id === option.division_id,
+    );
+    const suffix =
+      (sameEntryLabels?.length ?? 0) > 1 && !eventNames?.length ? ` [${option.id.slice(-6)}]` : "";
     return `${option.name}${suffix}${context.length ? ` · ${context.join(" · ")}` : ""} · ${sourceLabel(option.data_mode)}`;
   };
   const publicLoading = results.isPending || filters.isPending || waitingForEvent;
@@ -182,16 +269,43 @@ function Results() {
   return (
     <AppShell title="Results" sourceLabel="Sources labeled per result">
       <Section title="Browse results">
-        <label className="block font-semibold">Search teams
-          <input type="search" className={btn.input} value={search} onChange={event => setSearch(event.target.value)} placeholder="Team, division or event" />
+        <label className="block font-semibold">
+          Search teams
+          <input
+            type="search"
+            className={btn.input}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Team, division or event"
+          />
         </label>
-        <label className="block font-semibold">Browse team
-          <select className={btn.input} value={team} disabled={!filters.data || filters.isError} onChange={event => chooseTeam(event.target.value)}>
+        <label className="block font-semibold">
+          Browse team
+          <select
+            className={btn.input}
+            value={team}
+            disabled={!filters.data || filters.isError}
+            onChange={(event) => chooseTeam(event.target.value)}
+          >
             <option value="">All teams · public historical results</option>
-            {availableTeams?.filter(option => option.id === team || teamOptionLabel(option).toLowerCase().includes(search.toLowerCase())).map(option =>
-              <option key={option.id} value={option.id}>{teamOptionLabel(option)}</option>)}
-            {developmentPreview && draft.dataMode === "synthetic" && !availableTeams?.some(option => option.id === AMANDA_PREVIEW_TEAM.id) &&
-              <option value={AMANDA_PREVIEW_TEAM.id}>{AMANDA_PREVIEW_TEAM.name} · Local synthetic preview</option>}
+            {availableTeams
+              ?.filter(
+                (option) =>
+                  option.id === team ||
+                  teamOptionLabel(option).toLowerCase().includes(search.toLowerCase()),
+              )
+              .map((option) => (
+                <option key={option.id} value={option.id}>
+                  {teamOptionLabel(option)}
+                </option>
+              ))}
+            {developmentPreview &&
+              draft.dataMode === "synthetic" &&
+              !availableTeams?.some((option) => option.id === AMANDA_PREVIEW_TEAM.id) && (
+                <option value={AMANDA_PREVIEW_TEAM.id}>
+                  {AMANDA_PREVIEW_TEAM.name} · Local synthetic preview
+                </option>
+              )}
           </select>
         </label>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -221,54 +335,63 @@ function Results() {
               <option value="synthetic">Demo · Synthetic only</option>
             </select>
           </label>
-          <details className="space-y-3 sm:col-span-2 lg:col-span-3"><summary className="cursor-pointer font-semibold">Event and date filters</summary>
-          <label className="block font-semibold">
-            Event
-            <select
-              className={btn.input}
-              value={selection.eventId}
-              disabled={!filters.data || filters.isError}
-              onChange={(e) => changeFilters({ eventId: e.target.value })}
-            >
-              <option value="">All events</option>
-              {filters.data?.events.map((event) => (
-                <option key={event.id} value={event.id}>
-                  {event.name} · {sourceLabel(event.data_mode)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block font-semibold">
-            From date
-            <input
-              className={btn.input}
-              type="date"
-              value={selection.dateFrom}
-              max={selection.dateTo || undefined}
-              onChange={(e) => changeFilters({ dateFrom: e.target.value })}
-            />
-          </label>
-          <label className="block font-semibold">
-            To date
-            <input
-              className={btn.input}
-              type="date"
-              value={selection.dateTo}
-              min={selection.dateFrom || undefined}
-              onChange={(e) => changeFilters({ dateTo: e.target.value })}
-            />
-          </label>
+          <details className="space-y-3 sm:col-span-2 lg:col-span-3">
+            <summary className="cursor-pointer font-semibold">Event and date filters</summary>
+            <label className="block font-semibold">
+              Event
+              <select
+                className={btn.input}
+                value={selection.eventId}
+                disabled={!filters.data || filters.isError}
+                onChange={(e) => changeFilters({ eventId: e.target.value })}
+              >
+                <option value="">All events</option>
+                {filters.data?.events.map((event) => (
+                  <option key={event.id} value={event.id}>
+                    {event.name} · {sourceLabel(event.data_mode)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block font-semibold">
+              From date
+              <input
+                className={btn.input}
+                type="date"
+                value={selection.dateFrom}
+                max={selection.dateTo || undefined}
+                onChange={(e) => changeFilters({ dateFrom: e.target.value })}
+              />
+            </label>
+            <label className="block font-semibold">
+              To date
+              <input
+                className={btn.input}
+                type="date"
+                value={selection.dateTo}
+                min={selection.dateFrom || undefined}
+                onChange={(e) => changeFilters({ dateTo: e.target.value })}
+              />
+            </label>
           </details>
         </div>
       </Section>
-      {team ? <Section title="Team statistics">
-          <label className="block font-semibold">Win rate metric
-            <select className={btn.input} value={metric} onChange={event => setMetric(event.target.value as "match" | "set")}>
-              <option value="match">Match win rate</option><option value="set">Set win rate</option>
+      {team ? (
+        <Section title="Team statistics">
+          <label className="block font-semibold">
+            Win rate metric
+            <select
+              className={btn.input}
+              value={metric}
+              onChange={(event) => setMetric(event.target.value as "match" | "set")}
+            >
+              <option value="match">Match win rate</option>
+              <option value="set">Set win rate</option>
             </select>
           </label>
-          {!validDateRange ? <p>Choose a valid date range to view statistics.</p> :
-          teamError ? (
+          {!validDateRange ? (
+            <p>Choose a valid date range to view statistics.</p>
+          ) : teamError ? (
             <>
               <p role="alert">Could not load complete team history and source information.</p>
               <Button
@@ -296,19 +419,33 @@ function Results() {
                   ].map(([label, value]) => (
                     <div key={label} className="results-stat">
                       <p className="results-stat-label">{label}</p>
-                      <p className={`results-stat-value${value === "—" ? " results-stat-missing" : ""}`}>
-                        {typeof value === "string" && value.endsWith("%") ? <>{value.slice(0, -1)}<span className="results-stat-percent">%</span></> : value}
+                      <p
+                        className={`results-stat-value${value === "—" ? " results-stat-missing" : ""}`}
+                      >
+                        {typeof value === "string" && value.endsWith("%") ? (
+                          <>
+                            {value.slice(0, -1)}
+                            <span className="results-stat-percent">%</span>
+                          </>
+                        ) : (
+                          value
+                        )}
                       </p>
                     </div>
                   ))}
                 </div>
               )}
-              {stats && stats.played === 0 && <p>No decided scores are available for statistics in this range.</p>}
+              {stats && stats.played === 0 && (
+                <p>No decided scores are available for statistics in this range.</p>
+              )}
               <p className="text-sm text-muted-foreground">
                 {simulatedTeam ? "Synthetic preview · Not saved. " : ""}
-                {sourceLabel(displayMode ?? "")} · {simulatedTeam ? "Simulated final matches" : "Recorded final matches in the selected range"} for this team from the
-                same source mode. Rates exclude missing scores and tied results. Source labels do
-                not confirm official standings.
+                {sourceLabel(displayMode ?? "")} ·{" "}
+                {simulatedTeam
+                  ? "Simulated final matches"
+                  : "Recorded final matches in the selected range"}{" "}
+                for this team from the same source mode. Rates exclude missing scores and tied
+                results. Source labels do not confirm official standings.
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
@@ -331,7 +468,10 @@ function Results() {
                           <td className="pr-3">
                             {filters.data?.teams.find(
                               (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),
-                            )?.name ?? (simulatedTeam ? previewOpponentName(m) : "Opponent to be determined")}
+                            )?.name ??
+                              (simulatedTeam
+                                ? previewOpponentName(m)
+                                : "Opponent to be determined")}
                           </td>
                           <td className="pr-3">
                             {mine ?? "—"}–{other ?? "—"}
@@ -351,9 +491,7 @@ function Results() {
                   </tbody>
                 </table>
                 {!finals.length && (
-                  <p className="py-4">
-                    No recorded matches for this team in the selected range.
-                  </p>
+                  <p className="py-4">No recorded matches for this team in the selected range.</p>
                 )}
               </div>
             </>
@@ -366,22 +504,53 @@ function Results() {
             <div className="space-y-4">
               {validDateRange && !teamLoading && !teamError && winTrend.length > 0 && (
                 <>
-                  <p>Cumulative {metric} win rate in selected range{simulatedTeam ? " · Simulated" : ""}</p>
-                  {winTrend.length === 1 && <p>{winTrend[0]?.date} · {winTrend[0]?.winRate}%</p>}
-                  <div className="h-64 min-w-0" role="img" aria-label={`Cumulative ${metric} win rate in selected range: ${winTrend.map((point) => point.winRate === null ? "TBD" : `${point.winRate}%`).join(", ")}`}>
+                  <p>
+                    Cumulative {metric} win rate in selected range
+                    {simulatedTeam ? " · Simulated" : ""}
+                  </p>
+                  {winTrend.length === 1 && (
+                    <p>
+                      {winTrend[0]?.date} · {winTrend[0]?.winRate}%
+                    </p>
+                  )}
+                  <div
+                    className="h-64 min-w-0"
+                    role="img"
+                    aria-label={`Cumulative ${metric} win rate in selected range: ${winTrend.map((point) => (point.winRate === null ? "TBD" : `${point.winRate}%`)).join(", ")}`}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={winTrend} margin={{ top: 12, right: 20, bottom: 8, left: 0 }}>
-                        <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                      <LineChart
+                        data={winTrend}
+                        margin={{ top: 12, right: 20, bottom: 8, left: 0 }}
+                      >
+                        <CartesianGrid
+                          stroke="var(--border)"
+                          strokeDasharray="3 3"
+                          vertical={false}
+                        />
                         <XAxis dataKey="date" stroke="var(--muted-foreground)" />
-                        <YAxis domain={[0, 100]} unit="%" width={48} stroke="var(--muted-foreground)" />
+                        <YAxis
+                          domain={[0, 100]}
+                          unit="%"
+                          width={48}
+                          stroke="var(--muted-foreground)"
+                        />
                         <Tooltip formatter={(value) => [`${value}%`, "Win rate"]} />
-                        <Line dataKey="winRate" stroke="var(--chart-1)" strokeWidth={3} dot={{ r: 4 }} isAnimationActive={false} />
+                        <Line
+                          dataKey="winRate"
+                          stroke="var(--chart-1)"
+                          strokeWidth={3}
+                          dot={{ r: 4 }}
+                          isAnimationActive={false}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                 </>
               )}
-              {validDateRange && !teamLoading && !teamError && !winTrend.length && <p>No dated, decided results in this period. No win-rate data available.</p>}
+              {validDateRange && !teamLoading && !teamError && !winTrend.length && (
+                <p>No dated, decided results in this period. No win-rate data available.</p>
+              )}
               {teamError ? (
                 <p>Complete team history is unavailable. Retry team history to view placements.</p>
               ) : teamLoading ? (
@@ -420,7 +589,12 @@ function Results() {
               )}
             </div>
           )}
-        </Section> : <p className="text-sm text-muted-foreground">Select a team to view statistics and trends for the same results range.</p>}
+        </Section>
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Select a team to view statistics and trends for the same results range.
+        </p>
+      )}
       <Section title="All results">
         {!validDateRange ? (
           <p role="alert">From date must be on or before To date.</p>
@@ -493,7 +667,32 @@ function Results() {
                       {nameB ?? <Tbd>Team to be determined</Tbd>}
                     </span>
                   </div>
-                  {played&&m.score_a!==null&&m.score_b!==null&&m.score_a+m.score_b>0?(()=>{const total=m.score_a+m.score_b;const pctA=Math.round(m.score_a/total*100);return <div className="result-row-hp" role="img" aria-label={`Score split ${m.score_a} to ${m.score_b}`}><span className="result-row-hp-track"><span className="result-row-hp-fill result-row-hp-fill--a" style={{width:`${pctA}%`}}/></span><span className="result-row-hp-track"><span className="result-row-hp-fill result-row-hp-fill--b" style={{width:`${100-pctA}%`}}/></span></div>;})():null}
+                  {played && m.score_a !== null && m.score_b !== null && m.score_a + m.score_b > 0
+                    ? (() => {
+                        const total = m.score_a + m.score_b;
+                        const pctA = Math.round((m.score_a / total) * 100);
+                        return (
+                          <div
+                            className="result-row-hp"
+                            role="img"
+                            aria-label={`Score split ${m.score_a} to ${m.score_b}`}
+                          >
+                            <span className="result-row-hp-track">
+                              <span
+                                className="result-row-hp-fill result-row-hp-fill--a"
+                                style={{ width: `${pctA}%` }}
+                              />
+                            </span>
+                            <span className="result-row-hp-track">
+                              <span
+                                className="result-row-hp-fill result-row-hp-fill--b"
+                                style={{ width: `${100 - pctA}%` }}
+                              />
+                            </span>
+                          </div>
+                        );
+                      })()
+                    : null}
                   <SetDetails match={m as Match} />
                   <p className="result-row-meta">
                     {event ?? "Event to be determined"} · {formatDate(m.source_date)}
@@ -523,7 +722,7 @@ function Results() {
               size="icon"
               aria-label="Previous results page"
               disabled={selection.page === 1}
-              onClick={() => setSelection((current) => ({ ...current, page: current.page - 1 }))}
+              onClick={() => changePage(selection.page - 1)}
             >
               <ChevronLeft aria-hidden />
             </Button>
@@ -535,7 +734,7 @@ function Results() {
               size="icon"
               aria-label="Next results page"
               disabled={selection.page >= totalPages}
-              onClick={() => setSelection((current) => ({ ...current, page: current.page + 1 }))}
+              onClick={() => changePage(selection.page + 1)}
             >
               <ChevronRight aria-hidden />
             </Button>
@@ -546,13 +745,37 @@ function Results() {
   );
 }
 
-
 function SetDetails({ match }: { match: Match }) {
-  return <details className="mt-3 w-full max-w-2xl text-left text-sm">
-    <summary className="cursor-pointer font-semibold">Set details</summary>
-    {match.sets?.length ? <table className="mt-2 w-full text-left"><caption className="mb-2 text-left text-muted-foreground">Recorded set points · Team A / Team B</caption>
-      <thead><tr><th className="pb-2 pr-4">Set</th><th className="pb-2 pr-4">Team A</th><th className="pb-2">Team B</th></tr></thead>
-      <tbody>{match.sets.map((set, index) => <tr key={index}><td>{index + 1}</td><td>{set.a ?? "—"}</td><td>{set.b ?? "—"}</td></tr>)}</tbody>
-    </table> : <p className="mt-2 text-muted-foreground">Per-set point scores are not recorded. The match score shows sets won.</p>}
-  </details>;
+  return (
+    <details className="mt-3 w-full max-w-2xl text-left text-sm">
+      <summary className="cursor-pointer font-semibold">Set details</summary>
+      {match.sets?.length ? (
+        <table className="mt-2 w-full text-left">
+          <caption className="mb-2 text-left text-muted-foreground">
+            Recorded set points · Team A / Team B
+          </caption>
+          <thead>
+            <tr>
+              <th className="pb-2 pr-4">Set</th>
+              <th className="pb-2 pr-4">Team A</th>
+              <th className="pb-2">Team B</th>
+            </tr>
+          </thead>
+          <tbody>
+            {match.sets.map((set, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{set.a ?? "—"}</td>
+                <td>{set.b ?? "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="mt-2 text-muted-foreground">
+          Per-set point scores are not recorded. The match score shows sets won.
+        </p>
+      )}
+    </details>
+  );
 }
