@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { useQuery } from "@tanstack/react-query";
 import { SessionProvider, useSessionUser } from "./use-session";
 import { myHouseholdQuery } from "@/lib/queries";
-import { authorizedRole, type AppRole } from "@/lib/modules";
+import { resolveHomepageRole, type AppRole } from "@/lib/modules";
 const RoleContext = createContext<{ requested: AppRole; selectRole: (r: AppRole) => void }>({ requested: "general_user", selectRole: () => {} });
 export function RoleProvider({ children }: { children: ReactNode }) {
  return <SessionProvider><RolePreferenceProvider>{children}</RolePreferenceProvider></SessionProvider>;
@@ -17,5 +17,5 @@ export function useRole() {
  const context = useContext(RoleContext);
  const { user, ready, signOut } = useSessionUser();
  const household = useQuery(myHouseholdQuery(user?.id));
- return { ...context, role: user ? authorizedRole(context.requested, household.data) : "general_user" as AppRole, user, ready, household, signOut };
+ return { ...context, role: user ? resolveHomepageRole(context.requested, household.data) : "general_user" as AppRole, user, ready, household, signOut };
 }

@@ -16,3 +16,9 @@ export function authorizedRole(requested: AppRole, household: { self: unknown; l
  if (requested === "coach" && (household.managedTeams.length || household.roles.some(r => r === "staff" || r === "admin"))) return requested;
  return "general_user";
 }
+
+// Presentation only: linkedPlayers is restricted to approved, RLS-visible connections.
+export function resolveHomepageRole(requested: AppRole, household: Parameters<typeof authorizedRole>[1]): AppRole {
+ const selected = authorizedRole(requested, household);
+ return selected !== 'general_user' ? selected : authorizedRole('family_friends', household);
+}

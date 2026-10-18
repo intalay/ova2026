@@ -1,9 +1,16 @@
 import { describe,it,expect } from 'vitest';
-import { MODULES,authorizedRole } from '@/lib/modules';
+import { MODULES,authorizedRole,resolveHomepageRole } from '@/lib/modules';
 import { TICKET_TIERS } from '@/lib/lottery';
 import { resultStats,recentResults } from '@/lib/results';
 import type { Match } from '@/lib/queries';
 describe('role rules',()=>{
+ const family={self:null,linkedPlayers:[{id:'approved-child'}],managedTeams:[],roles:['family']};
+ it('restores approved family homepage without a saved identity',()=>expect(resolveHomepageRole('general_user',family)).toBe('family_friends'));
+ it('restores family instead of an unavailable saved player identity',()=>expect(resolveHomepageRole('player',family)).toBe('family_friends'));
+ it('does not restore family without an approved visible player',()=>expect(resolveHomepageRole('general_user',{...family,linkedPlayers:[]})).toBe('general_user'));
+ it('does not restore family before household data arrives',()=>expect(resolveHomepageRole('general_user',undefined)).toBe('general_user'));
+ it('keeps an authorized coach selection on a family account',()=>expect(resolveHomepageRole('coach',{...family,managedTeams:['team']})).toBe('coach'));
+ it('keeps an authorized player selection on a family account',()=>expect(resolveHomepageRole('player',{...family,self:{status:'verified'}})).toBe('player'));
  it('general users have no Information',()=>expect(MODULES.general_user.information.visible).toBe(false));
  it('Account remains available to all four roles',()=>expect(Object.values(MODULES).map(r=>r.account.visible)).toEqual([true,true,true,true]));
  it('selecting coach without authorization does not unlock coach',()=>expect(authorizedRole('coach',{self:null,linkedPlayers:[],managedTeams:[],roles:['family']})).toBe('general_user'));

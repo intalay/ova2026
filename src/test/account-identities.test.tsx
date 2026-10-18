@@ -139,6 +139,20 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 describe("Account identities and review feedback — local component and RPC transport simulation", () => {
+  it('opens approved family Account directly and retains connection management', async () => {
+    mocks.user = user;
+    mocks.hh.linkedPlayers = [{id:'child',display_name:'Approved Child',team_id:'team-A',status:'verified'}];
+    mocks.hh.familyLinks = [{id:'link',player_id:'child',status:'approved'}];
+    mount();
+    fireEvent.click(screen.getByRole('button',{name:'Open my homepage'}));
+    expect(mocks.selectRole).toHaveBeenCalledWith('family_friends');
+    expect(mocks.navigate).toHaveBeenCalledWith({to:'/'});
+    expect(screen.queryByRole('button',{name:'Friends & Family'})).not.toBeInTheDocument();
+    expect(screen.getByText('Approved')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Link another player'}));
+    expect(screen.getByLabelText('Player family code')).toBeInTheDocument();
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
   it("keeps invitation labels on a newly pending child without granting an approved connection", async () => {
     mocks.user = user;
     mocks.rpc.mockImplementation(async (method: string) => {
