@@ -49,3 +49,17 @@ export function formatDateTimeShort(iso: string | null | undefined, fallbackDate
 export function teamLabelShort(name: string | null | undefined): string {
   return name ?? `Opponent ${TBD_SHORT}`;
 }
+
+/** Chart axis labels: month/day only (mm/dd) — no weekday, no year. */
+export function formatMonthDay(d: string | null | undefined): string {
+  if (!d) return `Date ${TBD_SHORT}`;
+  const date = d.length === 10 ? new Date(`${d}T12:00:00Z`) : new Date(d);
+  return new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "2-digit", day: "2-digit" }).format(date);
+}
+
+/** Match history dates: month/day/year (mm/dd/yyyy) — no weekday. */
+export function formatDateMDY(d: string | null | undefined): string {
+  if (!d) return `Date ${TBD_SHORT}`;
+  const date = d.length === 10 ? new Date(`${d}T12:00:00Z`) : new Date(d);
+  return new Intl.DateTimeFormat("en-US", { timeZone: TZ, month: "2-digit", day: "2-digit", year: "numeric" }).format(date);
+}

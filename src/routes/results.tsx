@@ -17,7 +17,7 @@ import { competitionQuery, type Match } from "@/lib/queries";
 import { getResultsFilters, getResultsPage, getTeamResultsHistory } from "@/lib/results.functions";
 import { resultStats, RESULTS_PAGE_SIZE } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateMDY, formatDateTime, formatMonthDay } from "@/lib/format";
 import { AMANDA_PREVIEW_TEAM, amandaPreviewMatches, previewOpponentName } from "@/lib/amanda-results-preview";
 
 type DataMode = "all" | "real" | "synthetic";
@@ -168,7 +168,7 @@ function Results() {
   start.setMonth(start.getMonth() - months);
   const chronological = [...finals].reverse();
   const winTrend = chronological.map((match, index) => ({
-    date: formatDate(match.source_date),
+    date: formatMonthDay(match.source_date),
     winRate: resultStats(chronological.slice(0, index + 1) as Match[], team ?? "").winRate,
     sourceDate: match.source_date,
   })).filter((point) => point.sourceDate && new Date(point.sourceDate) >= start);
@@ -279,7 +279,7 @@ function Results() {
                       const other = m.team_a_id === team ? m.score_b : m.score_a;
                       return (
                         <tr key={m.id} className="border-b">
-                          <td className="py-4 pr-3">{formatDate(m.source_date)}</td>
+                          <td className="py-4 pr-3">{formatDateMDY(m.source_date)}</td>
                           <td className="pr-3">
                             {householdFilters.data?.teams.find(
                               (t) => t.id === (m.team_a_id === team ? m.team_b_id : m.team_a_id),

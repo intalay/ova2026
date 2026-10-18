@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calendarMonths, formatDateTime, teamLabel } from "@/lib/format";
+import { calendarMonths, formatDateMDY, formatDateTime, formatMonthDay, teamLabel } from "@/lib/format";
 import { parseRosterCsv } from "@/lib/roster";
 
 describe("calendar range", () => {
@@ -17,6 +17,19 @@ describe("unknown information is shown as to be determined", () => {
   it("missing opponent", () => expect(teamLabel(null)).toBe("Opponent to be determined"));
   it("missing time keeps the known date", () => expect(formatDateTime(null, "2026-10-18")).toMatch(/Oct.*18.*time to be determined/));
   it("missing date", () => expect(formatDateTime(null, null)).toBe("Date to be determined"));
+});
+
+describe("results date labels", () => {
+  it("win-rate chart shows month and day only", () => expect(formatMonthDay("2026-10-11")).toBe("10/11"));
+  it("team match history shows month, day and year", () => expect(formatDateMDY("2026-10-11")).toBe("10/11/2026"));
+  it("neither label carries a weekday", () => {
+    expect(formatMonthDay("2026-10-11")).not.toMatch(/Mon|Tue|Wed|Thu|Fri|Sat|Sun/);
+    expect(formatDateMDY("2026-10-11")).not.toMatch(/Mon|Tue|Wed|Thu|Fri|Sat|Sun/);
+  });
+  it("missing dates still read as to be determined", () => {
+    expect(formatMonthDay(null)).toBe("Date TBD");
+    expect(formatDateMDY(null)).toBe("Date TBD");
+  });
 });
 
 describe("roster import", () => {
