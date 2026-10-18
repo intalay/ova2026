@@ -233,10 +233,10 @@ function Results() {
                     ["Win rate", stats.winRate === null ? "—" : stats.winRate + "%"],
                     ["Loss rate", stats.lossRate === null ? "—" : stats.lossRate + "%"],
                   ].map(([label, value]) => (
-                    <Card key={label}>
-                      <p className="text-sm text-muted-foreground">{label}</p>
-                      <p className="text-3xl font-semibold">{value}</p>
-                    </Card>
+                    <div key={label} className="space-y-1">
+                      <p className="text-base text-muted-foreground">{label}</p>
+                      <p className="text-3xl font-semibold text-accent">{value}</p>
+                    </div>
                   ))}
                 </div>
               )}
