@@ -352,8 +352,8 @@ body, body * { font-weight: 500 !important; }
 
 /* Page-only editorial hierarchy; other pages retain their medium-weight rule. */
 .lottery-logo { display: block; height: auto; max-width: 100%; object-fit: contain; }
-.lottery-page, .lottery-page * { font-family: var(--font-lottery-editorial); letter-spacing: 0; font-weight: 400 !important; }
-.lottery-page h1 { font-size: 1.8rem; line-height: 1.2; font-weight: 500 !important; }
+/* Page title keeps the site-wide heading treatment; only body copy uses the lottery editorial font. */
+.lottery-page, .lottery-page *:not(h1) { font-family: var(--font-lottery-editorial); letter-spacing: 0; font-weight: 400 !important; }
 .lottery-page .module-heading, .lottery-page #pick { font-weight: 500 !important; }
 .lottery-page .lottery-winner { max-width: 34rem; margin-inline: auto; font-size: .85rem; line-height: 1.6; font-weight: 600 !important; }
 .lottery-page .jackpot, .lottery-page .lottery-quantity, .lottery-page .lottery-price { font-family: var(--font-lottery-numeric); font-variant-numeric: tabular-nums; }
@@ -366,7 +366,7 @@ body, body * { font-weight: 500 !important; }
 .lottery-page .golden-ticket svg { width: .5rem; height: .5rem; }
 .lottery-page .golden-ticket.green { color: var(--ink); }
 .lottery-page .lotto-stage > div > p.text-sm { line-height: 1.6; }
-@media (min-width: 640px) { .lottery-page h1 { font-size: 2.4rem; } .lottery-page .jackpot { font-size: 5rem; } .lottery-page .lottery-winner { font-size: 1rem; } .lottery-page .lottery-quantity { font-size: 2.5rem; } .lottery-page .lottery-price { font-size: 1.65rem; } .lottery-page .golden-ticket > span:first-child { font-size: .7rem; } }
+@media (min-width: 640px) { .lottery-page .jackpot { font-size: 5rem; } .lottery-page .lottery-winner { font-size: 1rem; } .lottery-page .lottery-quantity { font-size: 2.5rem; } .lottery-page .lottery-price { font-size: 1.65rem; } .lottery-page .golden-ticket > span:first-child { font-size: .7rem; } }
 @media (min-width: 1024px) { .lottery-page .jackpot { font-size: 6rem; } }
 @media (min-width: 640px) { .lottery-page .golden-ticket { --ticket-notch: 10px; } .lottery-page .golden-ticket svg { width: .75rem; height: .75rem; } }
 
