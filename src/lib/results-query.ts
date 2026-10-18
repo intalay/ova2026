@@ -31,8 +31,8 @@ export const resultsPageSchema = z
       .min(1)
       .max(Math.floor(Number.MAX_SAFE_INTEGER / 50)),
     pageSize: z.number().int().min(1).max(50),
-    period: z.enum(["recent", "history"]).default("recent"),
-    dataMode: resultsDataModeSchema.default("all"),
+    period: z.enum(["recent", "history"]).default("history"),
+    dataMode: resultsDataModeSchema.default("real"),
     eventId: recordId.optional(),
     teamId: recordId.optional(),
     dateFrom: calendarDate.optional(),
@@ -44,7 +44,7 @@ export const resultsPageSchema = z
   });
 
 export const resultsFiltersSchema = z.object({
-  dataMode: resultsDataModeSchema.default("all"),
+  dataMode: resultsDataModeSchema.default("real"),
 });
 export const teamResultsHistorySchema = z.object({
   teamId: recordId,
