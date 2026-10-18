@@ -56,7 +56,11 @@ vi.mock("@/lib/results.functions", () => ({
 vi.mock("@/hooks/use-role", () => ({
   useRole: () => ({
     role: mocks.role,
-    household: { data: mocks.householdLoaded ? { managedTeams: ["team-a", "team-b"], linkedPlayers: [], self: null } : undefined },
+    household: {
+      data: mocks.householdLoaded
+        ? { managedTeams: ["team-a", "team-b"], linkedPlayers: [], self: null }
+        : undefined,
+    },
   }),
 }));
 
@@ -156,7 +160,12 @@ function renderPage(seedDefault = false) {
       <ResultsPage />
     </QueryClientProvider>,
   );
-  rerenderPage = () => view.rerender(<QueryClientProvider client={client}><ResultsPage /></QueryClientProvider>);
+  rerenderPage = () =>
+    view.rerender(
+      <QueryClientProvider client={client}>
+        <ResultsPage />
+      </QueryClientProvider>,
+    );
   return client;
 }
 function change(label: string, value: string) {
@@ -168,7 +177,14 @@ async function loaded() {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
   vi.unstubAllEnvs();
   mocks.role = "general_user";
   mocks.householdLoaded = true;
@@ -200,24 +216,106 @@ afterEach(() => {
 });
 
 describe("Results history page", () => {
+  it("opens the white listbox and navigates distinct same-name teams with arrows and Enter", async () => {
+    renderPage();
+    await loaded();
+    change("Search teams", "Alpha");
+    const input = screen.getByLabelText("Search teams");
+    expect(input).toHaveAttribute("role", "combobox");
+    expect(input).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("listbox", { name: "Matching teams" })).toHaveClass(
+      "bg-white",
+      "overflow-y-auto",
+    );
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    expect(input).toHaveAttribute("aria-activedescendant", "team-search-option-1");
+    fireEvent.keyDown(input, { key: "ArrowUp" });
+    expect(input).toHaveAttribute("aria-activedescendant", "team-search-option-0");
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "Enter" });
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+    expect(input).toHaveValue("Alpha");
+    expect(input).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
+  });
+
+  it("shows candidates with trimmed case-insensitive words and selects the exact source entry", async () => {
+    renderPage();
+    await loaded();
+    change("Search teams", "  ALPHA   u16  ");
+    const suggestions = screen.getByRole("listbox", { name: "Matching teams" });
+    expect(within(suggestions).getByRole("status")).toHaveTextContent("2 teams match");
+    expect(within(suggestions).getAllByRole("option")).toHaveLength(2);
+    fireEvent.click(within(suggestions).getByRole("option", { name: /May historical event/ }));
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+    expect(screen.getByLabelText("Search teams")).toHaveValue("Alpha");
+    await waitFor(() =>
+      expect(mocks.history).toHaveBeenLastCalledWith({
+        data: { teamId: "team-c", dataMode: "real" },
+      }),
+    );
+  });
+  it("supports Enter selection and honest feedback instead of a stale team as a search result", async () => {
+    renderPage();
+    await loaded();
+    change("Search teams", "beta");
+    fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "Enter" });
+    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-b"));
+    change("Search teams", "not-a-recorded-team");
+    const suggestions = screen.getByRole("listbox", { name: "Matching teams" });
+    expect(within(suggestions).getByRole("status")).toHaveTextContent("No teams match");
+    expect(within(suggestions).queryByRole("option")).not.toBeInTheDocument();
+    fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "Enter" });
+    expect(screen.getByLabelText("Browse team")).toHaveValue("team-b");
+    fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "Escape" });
+    expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
+  });
+
   it("uses one public browsing context for team, list, statistics and event filters without association writes", async () => {
     mocks.role = "coach";
-    mocks.history.mockImplementation(async ({ data }: { data: { teamId: string } }) => ({ matches: [match({ team_a_id: data.teamId })], rankings: [] }));
-    renderPage(); await loaded();
+    mocks.history.mockImplementation(async ({ data }: { data: { teamId: string } }) => ({
+      matches: [match({ team_a_id: data.teamId })],
+      rankings: [],
+    }));
+    renderPage();
+    await loaded();
     expect(screen.getByLabelText("Browse team")).toHaveValue("team-a");
     expect(screen.getByLabelText("Event")).toHaveValue("event-real");
     change("Browse team", "team-c");
-    await waitFor(() => expect(mocks.history).toHaveBeenLastCalledWith({ data: { teamId: "team-c", dataMode: "real" } }));
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-c", eventId: "event-real" } }));
+    await waitFor(() =>
+      expect(mocks.history).toHaveBeenLastCalledWith({
+        data: { teamId: "team-c", dataMode: "real" },
+      }),
+    );
+    await waitFor(() =>
+      expect(mocks.page).toHaveBeenLastCalledWith({
+        data: { ...defaultRequest, teamId: "team-c", eventId: "event-real" },
+      }),
+    );
     change("Browse team", "team-b");
-    await waitFor(() => expect(mocks.history).toHaveBeenLastCalledWith({ data: { teamId: "team-b", dataMode: "real" } }));
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-b", eventId: "event-real" } }));
+    await waitFor(() =>
+      expect(mocks.history).toHaveBeenLastCalledWith({
+        data: { teamId: "team-b", dataMode: "real" },
+      }),
+    );
+    await waitFor(() =>
+      expect(mocks.page).toHaveBeenLastCalledWith({
+        data: { ...defaultRequest, teamId: "team-b", eventId: "event-real" },
+      }),
+    );
     expect(screen.queryByLabelText("Team")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Results team")).not.toBeInTheDocument();
   });
 
   it("uses the four Sand & Sky simulated matches inside team statistics without writing them to public caches", async () => {
-    vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect() {} });
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
     vi.stubEnv("MODE", "development");
     const client = renderPage();
     await loaded();
@@ -230,10 +328,19 @@ describe("Results history page", () => {
     expect(section.getAllByRole("row")).toHaveLength(5);
     expect(section.getByText("75")).toBeInTheDocument();
     expect(section.getByText("25")).toBeInTheDocument();
-    expect(section.getByRole("img", { name: "Cumulative match win rate in selected range: 100%, 50%, 67%, 75%" })).toBeInTheDocument();
-    expect(mocks.history.mock.calls.some(([request]) => request.data.teamId === "demo-sand")).toBe(false);
+    expect(
+      section.getByRole("img", {
+        name: "Cumulative match win rate in selected range: 100%, 50%, 67%, 75%",
+      }),
+    ).toBeInTheDocument();
+    expect(mocks.history.mock.calls.some(([request]) => request.data.teamId === "demo-sand")).toBe(
+      false,
+    );
     expect(client.getQueryData(["team-results-history", "demo-sand", undefined])).toBeUndefined();
-    expect(client.getQueryData(["results-page", defaultRequest])).toEqual({ matches: [match()], total: 7 });
+    expect(client.getQueryData(["results-page", defaultRequest])).toEqual({
+      matches: [match()],
+      total: 7,
+    });
   });
 
   it("defaults to real historical results and shows complete independent names, source and source date", async () => {
@@ -333,16 +440,29 @@ describe("Results history page", () => {
   });
 
   it("keeps same-name source IDs distinct while searching team, event and division labels", async () => {
-    renderPage(); await loaded();
+    renderPage();
+    await loaded();
     const teams = within(screen.getByLabelText("Browse team"));
-    expect(teams.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" })).toHaveValue("team-a");
-    expect(teams.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" })).toHaveValue("team-c");
+    expect(
+      teams.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" }),
+    ).toHaveValue("team-a");
+    expect(
+      teams.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" }),
+    ).toHaveValue("team-c");
     change("Search teams", "May historical");
     expect(teams.queryByRole("option", { name: /March historical/ })).not.toBeInTheDocument();
     change("Browse team", "team-c");
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-c" } }));
+    await waitFor(() =>
+      expect(mocks.page).toHaveBeenLastCalledWith({
+        data: { ...defaultRequest, teamId: "team-c" },
+      }),
+    );
     change("Event", "event-later");
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, eventId: "event-later", teamId: "team-c" } }));
+    await waitFor(() =>
+      expect(mocks.page).toHaveBeenLastCalledWith({
+        data: { ...defaultRequest, eventId: "event-later", teamId: "team-c" },
+      }),
+    );
     expect(screen.getByLabelText("Browse team")).toHaveValue("team-c");
     expect(teams.queryByRole("option", { name: /Synthetic demo/ })).not.toBeInTheDocument();
   });
@@ -424,7 +544,9 @@ describe("Results history page", () => {
     expect(
       await screen.findByText(/No recorded real results match this selection/),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Results source").querySelector('option[value="synthetic"]')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Results source").querySelector('option[value="synthetic"]'),
+    ).toBeInTheDocument();
     expect(screen.queryByLabelText("Next results page")).not.toBeInTheDocument();
   });
 
@@ -462,9 +584,9 @@ describe("Results history page", () => {
   it("withholds result cards when complete metadata cannot load and retries it", async () => {
     mocks.filters.mockRejectedValue(new Error("metadata unavailable"));
     renderPage();
-    expect(await within(screen.getByRole("region", { name: "All results" })).findByRole("alert")).toHaveTextContent(
-      "Could not load result filters and names.",
-    );
+    expect(
+      await within(screen.getByRole("region", { name: "All results" })).findByRole("alert"),
+    ).toHaveTextContent("Could not load result filters and names.");
     expect(screen.queryByText(/March historical event/, { selector: "p" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Event")).toBeDisabled();
     mocks.filters.mockResolvedValue(metadata);
@@ -476,10 +598,38 @@ describe("Results history page", () => {
   it("applies the same selected range to history, statistics and trends and excludes unconfirmed placements and cross-source rows", async () => {
     mocks.role = "coach";
     mocks.history.mockImplementation(async ({ data }: { data: { teamId: string } }) => ({
-      matches: [match({ id: "real", team_a_id: data.teamId }), match({ id: "other-mode", team_a_id: data.teamId, data_mode: "synthetic", score_a: 0, score_b: 2 }), match({ id: "other-event", team_a_id: data.teamId, event_id: "event-later", source_date: "2026-05-15", score_a: 0, score_b: 2 })],
-      rankings: [{ id: "unconfirmed", team_id: data.teamId, event_id: "event-later", rank: 1, field_size: 9, data_mode: "real", final_confirmed: false }],
+      matches: [
+        match({ id: "real", team_a_id: data.teamId }),
+        match({
+          id: "other-mode",
+          team_a_id: data.teamId,
+          data_mode: "synthetic",
+          score_a: 0,
+          score_b: 2,
+        }),
+        match({
+          id: "other-event",
+          team_a_id: data.teamId,
+          event_id: "event-later",
+          source_date: "2026-05-15",
+          score_a: 0,
+          score_b: 2,
+        }),
+      ],
+      rankings: [
+        {
+          id: "unconfirmed",
+          team_id: data.teamId,
+          event_id: "event-later",
+          rank: 1,
+          field_size: 9,
+          data_mode: "real",
+          final_confirmed: false,
+        },
+      ],
     }));
-    renderPage(); await loaded();
+    renderPage();
+    await loaded();
     expect(screen.getByLabelText("Event")).toHaveValue("event-later");
     const section = within(screen.getByRole("region", { name: "Team statistics" }));
     await section.findByRole("table");
@@ -488,7 +638,9 @@ describe("Results history page", () => {
     change("Event", "event-real");
     await waitFor(() => expect(section.getByText("Won")).toBeInTheDocument());
     change("From date", "2026-04-01");
-    expect(await section.findByText("No recorded matches for this team in the selected range.")).toBeInTheDocument();
+    expect(
+      await section.findByText("No recorded matches for this team in the selected range."),
+    ).toBeInTheDocument();
     fireEvent.click(section.getByRole("button", { name: "View results trend" }));
     expect(section.getByText(/No dated, decided results/)).toBeInTheDocument();
     expect(section.getByText(/No confirmed final placements/)).toBeInTheDocument();
@@ -513,36 +665,102 @@ describe("Results history page", () => {
     expect(household.queryByText(/No confirmed final placements/)).not.toBeInTheDocument();
   });
   it("does not replace a manually selected team or filters when household data arrives later", async () => {
-    mocks.role = "coach"; mocks.householdLoaded = false;
-    renderPage(); await loaded();
+    mocks.role = "coach";
+    mocks.householdLoaded = false;
+    renderPage();
+    await loaded();
     expect(screen.getByLabelText("Browse team")).toHaveValue("");
     change("Browse team", "team-c");
-    change("Event", "event-later"); change("From date", "2026-05-01");
-    mocks.householdLoaded = true; rerenderPage();
+    change("Event", "event-later");
+    change("From date", "2026-05-01");
+    mocks.householdLoaded = true;
+    rerenderPage();
     expect(screen.getByLabelText("Browse team")).toHaveValue("team-c");
     expect(screen.getByLabelText("Event")).toHaveValue("event-later");
     expect(screen.getByLabelText("From date")).toHaveValue("2026-05-01");
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-c", eventId: "event-later", dateFrom: "2026-05-01" } }));
+    await waitFor(() =>
+      expect(mocks.page).toHaveBeenLastCalledWith({
+        data: {
+          ...defaultRequest,
+          teamId: "team-c",
+          eventId: "event-later",
+          dateFrom: "2026-05-01",
+        },
+      }),
+    );
   });
   it("uses the exact match/set denominators and resets the range cumulative curve after date filtering", async () => {
-    const scores = [["2026-04-19",0,2],["2026-04-19",2,0],["2026-04-19",2,0],["2026-04-20",2,1],["2026-04-20",0,2],["2026-04-20",0,2],["2026-04-21",2,0],["2026-04-21",1,2],["2026-04-21",2,0]] as const;
-    mocks.history.mockResolvedValue({ matches: scores.map(([date,a,b],index) => match({ id: String(index), source_date: date, score_a: a, score_b: b })), rankings: [] });
-    renderPage(); await loaded(); change("Browse team", "team-a");
+    const scores = [
+      ["2026-04-19", 0, 2],
+      ["2026-04-19", 2, 0],
+      ["2026-04-19", 2, 0],
+      ["2026-04-20", 2, 1],
+      ["2026-04-20", 0, 2],
+      ["2026-04-20", 0, 2],
+      ["2026-04-21", 2, 0],
+      ["2026-04-21", 1, 2],
+      ["2026-04-21", 2, 0],
+    ] as const;
+    mocks.history.mockResolvedValue({
+      matches: scores.map(([date, a, b], index) =>
+        match({ id: String(index), source_date: date, score_a: a, score_b: b }),
+      ),
+      rankings: [],
+    });
+    renderPage();
+    await loaded();
+    change("Browse team", "team-a");
     const section = within(await screen.findByRole("region", { name: "Team statistics" }));
     await section.findByText("5");
     fireEvent.click(section.getByRole("button", { name: "View results trend" }));
-    expect(section.getByRole("img", { name: "Cumulative match win rate in selected range: 67%, 50%, 56%" })).toBeInTheDocument();
+    expect(
+      section.getByRole("img", {
+        name: "Cumulative match win rate in selected range: 67%, 50%, 56%",
+      }),
+    ).toBeInTheDocument();
     change("Win rate metric", "set");
-    expect(section.getByText("11")).toBeInTheDocument(); expect(section.getByText("9")).toBeInTheDocument();
-    expect(section.getByRole("img", { name: "Cumulative set win rate in selected range: 67%, 46%, 55%" })).toBeInTheDocument();
-    change("From date", "2026-04-20"); change("To date", "2026-04-21"); change("Win rate metric", "match");
-    expect(section.getByRole("img", { name: "Cumulative match win rate in selected range: 33%, 50%" })).toBeInTheDocument();
+    expect(section.getByText("11")).toBeInTheDocument();
+    expect(section.getByText("9")).toBeInTheDocument();
+    expect(
+      section.getByRole("img", {
+        name: "Cumulative set win rate in selected range: 67%, 46%, 55%",
+      }),
+    ).toBeInTheDocument();
+    change("From date", "2026-04-20");
+    change("To date", "2026-04-21");
+    change("Win rate metric", "match");
+    expect(
+      section.getByRole("img", { name: "Cumulative match win rate in selected range: 33%, 50%" }),
+    ).toBeInTheDocument();
     expect(section.getAllByRole("row")).toHaveLength(7);
-    await waitFor(() => expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, teamId: "team-a", eventId: "event-real", dateFrom: "2026-04-20", dateTo: "2026-04-21" } }));
+    await waitFor(() =>
+      expect(mocks.page).toHaveBeenLastCalledWith({
+        data: {
+          ...defaultRequest,
+          teamId: "team-a",
+          eventId: "event-real",
+          dateFrom: "2026-04-20",
+          dateTo: "2026-04-21",
+        },
+      }),
+    );
   });
   it("expands recorded per-set point scores and clearly explains missing set details", async () => {
-    mocks.page.mockResolvedValue({ matches: [match({ sets: [{a:25,b:20},{a:18,b:25},{a:15,b:12}] }), match({id:"aggregate-only"})], total: 2 });
-    renderPage(); await screen.findByText("Page 1 of 1");
+    mocks.page.mockResolvedValue({
+      matches: [
+        match({
+          sets: [
+            { a: 25, b: 20 },
+            { a: 18, b: 25 },
+            { a: 15, b: 12 },
+          ],
+        }),
+        match({ id: "aggregate-only" }),
+      ],
+      total: 2,
+    });
+    renderPage();
+    await screen.findByText("Page 1 of 1");
     const rows = screen.getAllByRole("listitem");
     fireEvent.click(within(rows[0]!).getByText("Set details"));
     expect(within(rows[0]!).getByRole("table")).toHaveTextContent("25");
@@ -552,14 +770,27 @@ describe("Results history page", () => {
   });
 
   it("freezes public pagination against late household team/event defaults", async () => {
-    mocks.role = "general_user"; mocks.householdLoaded = false;
-    mocks.page.mockImplementation(async ({ data }: { data: { page: number; teamId?: string } }) => ({
-      matches: data.teamId ? (data.page > 1 ? [] : [match()]) : Array.from({length: data.page === 1 ? 6 : 1}, (_, i) => match({ id: `public-${data.page}-${i}` })), total: data.teamId ? 1 : 7,
-    }));
-    renderPage(); await loaded();
+    mocks.role = "general_user";
+    mocks.householdLoaded = false;
+    mocks.page.mockImplementation(
+      async ({ data }: { data: { page: number; teamId?: string } }) => ({
+        matches: data.teamId
+          ? data.page > 1
+            ? []
+            : [match()]
+          : Array.from({ length: data.page === 1 ? 6 : 1 }, (_, i) =>
+              match({ id: `public-${data.page}-${i}` }),
+            ),
+        total: data.teamId ? 1 : 7,
+      }),
+    );
+    renderPage();
+    await loaded();
     fireEvent.click(screen.getByRole("button", { name: "Next results page" }));
     await screen.findByText("Page 2 of 2");
-    mocks.role = "coach"; mocks.householdLoaded = true; rerenderPage();
+    mocks.role = "coach";
+    mocks.householdLoaded = true;
+    rerenderPage();
     await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue(""));
     expect(screen.getByLabelText("Event")).toHaveValue("");
     expect(mocks.history).not.toHaveBeenCalled();
@@ -568,6 +799,4 @@ describe("Results history page", () => {
     const [, current, total] = marker.textContent!.match(/Page (\d+) of (\d+)/)!;
     expect(Number(current)).toBeLessThanOrEqual(Number(total));
   });
-
 });
-
