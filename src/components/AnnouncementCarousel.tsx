@@ -48,6 +48,6 @@ export function AnnouncementCarousel({ items }: { items: CompetitionData['announ
    onScroll={e=>setActive(Math.round(e.currentTarget.scrollLeft/e.currentTarget.clientWidth))} className={`flex select-none overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${dragging?'cursor-grabbing snap-none':'cursor-grab snap-x snap-mandatory'}`}>
    {items.map((a,i)=><div key={a.id} className="w-full shrink-0 snap-start" role="group" aria-label={`${i+1} of ${items.length}`}><AnnouncementCard a={a} active={i===active}/></div>)}
   </div>
-  {items.length>1&&<div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-2">{items.map((a,i)=><span key={a.id} className={`size-2 rounded-full ${i===active?'bg-primary':'bg-muted-foreground'}`}/>)}</div>
+  {items.length>1&&<div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-2">{items.map((a,i)=><span key={a.id} className={`size-2 rounded-full ${i===active?'bg-primary':'bg-muted-foreground'}`}/>)}</div>}
  </div>;
 }
