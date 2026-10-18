@@ -1,4 +1,5 @@
 # OVA modular build
+- [ ] Align YouTube channel to the right of OVA TV like Streams; enlarge and shift only the Player portrait left to three-quarters panel height; verify mobile/desktop presentation.
 - [x] Update player celebration silhouette, crop transparent margins from all three portraits, size portraits to two-thirds of Information height and remove Family note. Visual mock checks at 390/588/1280 show no overflow or text overlap; real role sessions remain unverified.
 - [x] Use uniform 12rem black homepage announcement previews with clipped two-line titles/body and existing full-content links; access and carousel gestures unchanged.
 - [x] Add root-mounted 2.7s brand-green logo/volleyball curtain launch alongside page loading; 450ms reduced-motion fallback. Browser checks at 390/1280 confirm completed transition, no navigation replay, no overflow or page errors; 98 offline tests pass, database integration excluded, preview build OK. Complete mobile launch recording provided; real identities and physical-device safe areas remain unverified.
