@@ -27,7 +27,7 @@ export const Route = createFileRoute("/staff")({
 });
 
 function Staff() {
-  const { user, ready } = useSessionUser();
+  const { user, ready, signOut } = useSessionUser();
   const hh = useQuery(myHouseholdQuery(user?.id));
   const { data: comp } = useSuspenseQuery(competitionQuery);
   const coachRequests = useQuery({ queryKey:["staff-coach-requests",user?.id],enabled:!!user,queryFn:async()=>{const {data,error}=await supabase.from("coach_requests").select("*").eq("status","pending");if(error)throw error;return data??[];} });
@@ -39,7 +39,7 @@ function Staff() {
 
   if (!ready || hh.isLoading) return <AppShell title="Staff"><p>Loading…</p></AppShell>;
   if (!user || (!staff && !hh.data?.managedTeams.length))
-    return <AppShell title="Staff">{!user?<StaffSignIn/>:<Card><p className="text-xl font-semibold">OVA Staff channel</p><p className="mt-2">Staff access has not been granted to this account.</p><Button className="mt-4" variant="outline" onClick={async()=>{await qc.cancelQueries();qc.clear();await supabase.auth.signOut();}}>Sign out</Button></Card>}</AppShell>;
+    return <AppShell title="Staff">{!user?<StaffSignIn/>:<Card><p className="text-xl font-semibold">OVA Staff channel</p><p className="mt-2">Staff access has not been granted to this account.</p><Button className="mt-4" variant="outline" onClick={async()=>{try{await signOut();}catch{toast.error('Signed out of this page. Server sign-out could not be confirmed.');}}}>Sign out</Button></Card>}</AppShell>;
 
   const pending = (hh.data?.visiblePlayers ?? []).filter((p) => p.status === "pending");
   const teamName = (id: string | null) => comp.teams.find((t) => t.id === id)?.name ?? "—";
