@@ -1,3 +1,6 @@
+vi.mock("@/hooks/use-team-announcements", () => ({
+  useTeamAnnouncements: () => ({ data: [], isError: false }),
+}));
 vi.mock("@/hooks/use-home-data-mode", () => ({
   useHomeDataMode: () => ({ mode: mocks.homeMode, setMode: vi.fn(), ready: true }),
 }));
@@ -41,7 +44,15 @@ vi.mock("@tanstack/react-query", () => ({
           : []),
       ],
       events: [{ id: "event", name: "Actual event" }],
-      venues: [{ id: "known-venue", name: "Known venue", address: "Recorded address" }],
+      venues: [
+        { id: "known-venue", name: "Known venue", address: "Recorded address" },
+        {
+          id: "demo-venue",
+          name: "Demo venue",
+          address: "Recorded demo address",
+          data_mode: "synthetic",
+        },
+      ],
       matches: mocks.matches,
       announcements: [],
       rankings: [],
@@ -266,5 +277,36 @@ it("shows source-linked Fan event overviews without any match records or team se
   expect(events.getByText(/not the complete OVA calendar/)).toBeInTheDocument();
   expect(screen.getByRole("region", { name: "Upcoming matches" })).toHaveTextContent(
     "No upcoming match is published.",
+  );
+});
+
+it("keeps a clearly marked Demo venue directory when next-match order is ambiguous, without inventing the next location", () => {
+  vi.setSystemTime(new Date("2026-10-18T02:00:00Z"));
+  mocks.role = "general_user";
+  mocks.homeMode = "synthetic";
+  mocks.matches = [
+    match({
+      id: "known",
+      data_mode: "synthetic",
+      venue_id: "demo-venue",
+      starts_at: "2026-10-18T13:00:00Z",
+    }),
+    match({ id: "unknown-time", data_mode: "synthetic", source_date: "2026-10-18" }),
+  ];
+  render(<Home />);
+  const venue = within(screen.getByRole("region", { name: "Venue" }));
+  expect(venue.getByText(/do not confirm the venue of your next match/)).toBeInTheDocument();
+  expect(venue.getByRole("link")).toHaveAttribute("href", "/venue/demo-venue");
+  expect(venue.getByText("Demo venue · Illustrative record")).toBeInTheDocument();
+});
+it("preserves the recorded Demo venue directory after all simulated fixtures are past", () => {
+  vi.setSystemTime(new Date("2026-12-18T12:00:00Z"));
+  mocks.role = "general_user";
+  mocks.homeMode = "synthetic";
+  mocks.matches = [];
+  render(<Home />);
+  expect(within(screen.getByRole("region", { name: "Venue" })).getByRole("link")).toHaveAttribute(
+    "href",
+    "/venue/demo-venue",
   );
 });
