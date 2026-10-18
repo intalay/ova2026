@@ -64,3 +64,5 @@
 - [x] Players 页面配色改为品牌绿大底（Amanda，仅改色：黑白绿+深绿辅助，不动布局/功能/结构）；通过角色作用域 `.player-green` 实现：绿色大底 var(--logo-green)、白色信息卡、黑/深绿公告卡、黑色标题、数据点黑点；390/1280 视觉夹具无横向溢出，99 项测试通过，build OK；真实 Player 会话仍未验证。
 - [ ] Players 页面配色用真实 Player 账号验证（沙盒无法铸造 player 会话，需预览确认）。
 - [x] Announcement 卡仅调整间距：内边距 24px（上/左/右）+ 底部 40px，圆点 bottom-4 且与正文保持 ≥12px，箭头 top-5 right-5，标题行与卡片 12px，图标与文字 gap-4、标题与副标题 gap-1；每张幻灯片同一套内边距，切换不位移。390/1280 实测无裁切、无重叠、无横向溢出，99 项测试通过，build OK。
+- [x] Coach Information 卡片渐变再调柔和：绿色浓度降低、范围铺满全卡、noise 频率提高且更细；393/1280 夹具与真实 Coach 会话卡片实测平滑无色带，build OK。
+- [x] 首页 "Recent Competition Results" 展示最近一场比赛：DEV-only 本地夹具（demo-sand 最新一场 2–0、含逐局比分与 "Synthetic preview · Not saved"），有真实/数据库结果时优先显示真实数据；Results 对手名改用同一 helper 保持同步。真实 Coach 会话 393/1280 实测区块完整、无溢出、无控制台错误；20 项相关测试通过、tsgo 与 build OK。Player/Friends and Family 会话仍无法铸造，需预览确认。
