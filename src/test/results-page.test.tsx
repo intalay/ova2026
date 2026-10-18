@@ -190,6 +190,20 @@ function renderPage(seedDefault = false) {
   return client;
 }
 function change(label: string, value: string) {
+  if (label === "Browse team") {
+    if (!value) {
+      fireEvent.click(screen.getByRole("button", { name: "All teams" }));
+      return;
+    }
+    const entry = metadata.teams.find((t) => t.id === value)!;
+    fireEvent.change(screen.getByLabelText("Search teams"), { target: { value: entry.name } });
+    const options = within(screen.getByRole("listbox", { name: "Matching teams" })).getAllByRole(
+      "option",
+    );
+    const sameName = metadata.teams.filter((t) => t.name === entry.name && t.data_mode === "real");
+    fireEvent.click(options[sameName.findIndex((t) => t.id === value)]!);
+    return;
+  }
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 }
 async function loaded() {
@@ -246,7 +260,12 @@ describe("Results history page", () => {
     mocks.contextSearch = { player: "child-b", team: "team-b" };
     renderPage();
     await loaded();
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-b"));
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-b",
+      ),
+    );
     expect(screen.getByText(/Linked player: Blair/)).toBeInTheDocument();
     expect(mocks.history).toHaveBeenLastCalledWith({
       data: { teamId: "team-b", dataMode: "real" },
@@ -257,7 +276,12 @@ describe("Results history page", () => {
         name: /Alpha.*May historical/,
       }),
     );
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-c",
+      ),
+    );
     expect(mocks.contextSearch).toEqual({ player: "child-b", team: "team-b" });
   });
   it("keeps an invalid child-team parameter unassociated while allowing explicit public browsing", async () => {
@@ -269,10 +293,15 @@ describe("Results history page", () => {
     expect(
       screen.getByText(/This player or team selection is no longer available/),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText("Browse team")).toHaveValue("");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute("data-team-id", "");
     expect(mocks.history).not.toHaveBeenCalled();
     change("Browse team", "team-c");
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-c",
+      ),
+    );
   });
 
   it("never displays synthetic rows returned alongside recorded public results", async () => {
@@ -296,14 +325,24 @@ describe("Results history page", () => {
       renderPage();
       await loaded();
       change("Browse team", "team-a");
-      await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-a"));
+      await waitFor(() =>
+        expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+          "data-team-id",
+          "team-a",
+        ),
+      );
       change("Search teams", "Beta");
       fireEvent.keyDown(screen.getByLabelText("Search teams"), { key });
       expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
       expect(
-        screen.getByText("Choose a search result to change teams. Results below still show Alpha."),
+        within(screen.getByRole("group", { name: "Browse team" })).getByText("Alpha", {
+          exact: true,
+        }),
       ).toBeInTheDocument();
-      expect(screen.getByLabelText("Browse team")).toHaveValue("team-a");
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-a",
+      );
       expect(screen.getByLabelText("Search teams")).toHaveValue("Beta");
     },
   );
@@ -315,18 +354,19 @@ describe("Results history page", () => {
     const input = screen.getByLabelText("Search teams");
     expect(input).toHaveAttribute("role", "combobox");
     expect(input).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("listbox", { name: "Matching teams" })).toHaveClass(
-      "bg-white",
-      "overflow-y-auto",
-    );
+    expect(screen.getByRole("listbox", { name: "Matching teams" })).toBeInTheDocument();
     fireEvent.keyDown(input, { key: "ArrowDown" });
-    expect(input).toHaveAttribute("aria-activedescendant", "team-search-option-1");
+    expect(input).toHaveAttribute("aria-activedescendant", expect.stringMatching(/-teams-0$/));
     fireEvent.keyDown(input, { key: "ArrowUp" });
-    expect(input).toHaveAttribute("aria-activedescendant", "team-search-option-0");
-    fireEvent.keyDown(input, { key: "ArrowDown" });
+    expect(input).toHaveAttribute("aria-activedescendant", expect.stringMatching(/-teams-1$/));
     fireEvent.keyDown(input, { key: "Enter" });
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
-    expect(input).toHaveValue("Alpha");
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-c",
+      ),
+    );
+    expect(input).toHaveValue("");
     expect(input).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
   });
@@ -336,11 +376,16 @@ describe("Results history page", () => {
     await loaded();
     change("Search teams", "  ALPHA   u16  ");
     const suggestions = screen.getByRole("listbox", { name: "Matching teams" });
-    expect(within(suggestions).getByRole("status")).toHaveTextContent("2 teams match");
+    expect(screen.getByText("2 results · Showing 1–2")).toBeInTheDocument();
     expect(within(suggestions).getAllByRole("option")).toHaveLength(2);
     fireEvent.click(within(suggestions).getByRole("option", { name: /May historical event/ }));
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
-    expect(screen.getByLabelText("Search teams")).toHaveValue("Alpha");
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-c",
+      ),
+    );
+    expect(screen.getByLabelText("Search teams")).toHaveValue("");
     await waitFor(() =>
       expect(mocks.history).toHaveBeenLastCalledWith({
         data: { teamId: "team-c", dataMode: "real" },
@@ -351,14 +396,23 @@ describe("Results history page", () => {
     renderPage();
     await loaded();
     change("Search teams", "beta");
+    fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "ArrowDown" });
     fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "Enter" });
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-b"));
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "team-b",
+      ),
+    );
     change("Search teams", "not-a-recorded-team");
     const suggestions = screen.getByRole("listbox", { name: "Matching teams" });
-    expect(within(suggestions).getByRole("status")).toHaveTextContent("No teams match");
+    expect(screen.getByText(/No teams found/)).toBeInTheDocument();
     expect(within(suggestions).queryByRole("option")).not.toBeInTheDocument();
     fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "Enter" });
-    expect(screen.getByLabelText("Browse team")).toHaveValue("team-b");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+      "data-team-id",
+      "team-b",
+    );
     fireEvent.keyDown(screen.getByLabelText("Search teams"), { key: "Escape" });
     expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
   });
@@ -371,7 +425,10 @@ describe("Results history page", () => {
     }));
     renderPage();
     await loaded();
-    expect(screen.getByLabelText("Browse team")).toHaveValue("team-a");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+      "data-team-id",
+      "team-a",
+    );
     expect(screen.getByLabelText("Event")).toHaveValue("event-real");
     change("Browse team", "team-c");
     await waitFor(() =>
@@ -408,9 +465,7 @@ describe("Results history page", () => {
       screen.queryByRole("option", { name: /Local synthetic preview/ }),
     ).not.toBeInTheDocument();
     change("Search teams", "Demonstration");
-    expect(screen.getByRole("listbox", { name: "Matching teams" })).toHaveTextContent(
-      "No teams match",
-    );
+    expect(screen.getByText(/No teams found/)).toBeInTheDocument();
     expect(mocks.filters).toHaveBeenCalledWith({ data: { dataMode: "real" } });
   });
 
@@ -429,18 +484,10 @@ describe("Results history page", () => {
     expect(result.getByText(/March historical event · .*Mar 15, 2026/)).toBeInTheDocument();
     expect(result.getAllByText(/Mar 15, 2026/)).toHaveLength(1);
     expect(screen.getByText("Real source", { selector: "span" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("option", { name: "Alpha · U18 · Demonstration event · Synthetic demo" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("listbox", { name: "Matching teams" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Previous results page")).toBeDisabled();
     expect(screen.queryByRole("region", { name: "Team statistics" })).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Browse team")).toHaveValue("");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute("data-team-id", "");
     expect(mocks.history).not.toHaveBeenCalled();
   });
 
@@ -513,13 +560,10 @@ describe("Results history page", () => {
   it("keeps same-name source IDs distinct while searching team, event and division labels", async () => {
     renderPage();
     await loaded();
-    const teams = within(screen.getByLabelText("Browse team"));
-    expect(
-      teams.getByRole("option", { name: "Alpha · U16 · March historical event · Real source" }),
-    ).toHaveValue("team-a");
-    expect(
-      teams.getByRole("option", { name: "Alpha · U16 · May historical event · Real source" }),
-    ).toHaveValue("team-c");
+    change("Search teams", "Alpha");
+    const teams = within(screen.getByRole("listbox", { name: "Matching teams" }));
+    expect(teams.getByRole("option", { name: /Alpha.*March historical/ })).toBeInTheDocument();
+    expect(teams.getByRole("option", { name: /Alpha.*May historical/ })).toBeInTheDocument();
     change("Search teams", "May historical");
     expect(teams.queryByRole("option", { name: /March historical/ })).not.toBeInTheDocument();
     change("Browse team", "team-c");
@@ -534,7 +578,10 @@ describe("Results history page", () => {
         data: { ...defaultRequest, eventId: "event-later", teamId: "team-c" },
       }),
     );
-    expect(screen.getByLabelText("Browse team")).toHaveValue("team-c");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+      "data-team-id",
+      "team-c",
+    );
     expect(teams.queryByRole("option", { name: /Synthetic demo/ })).not.toBeInTheDocument();
   });
 
@@ -575,10 +622,18 @@ describe("Results history page", () => {
     try {
       renderPage();
       await loaded();
-      expect(screen.getByLabelText("Browse team")).toHaveValue("");
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "",
+      );
       expect(screen.queryByRole("region", { name: "Team statistics" })).not.toBeInTheDocument();
       change("Browse team", "team-c");
-      await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue("team-c"));
+      await waitFor(() =>
+        expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+          "data-team-id",
+          "team-c",
+        ),
+      );
     } finally {
       metadata.teams.splice(0, metadata.teams.length, ...original);
     }
@@ -620,7 +675,11 @@ describe("Results history page", () => {
     renderPage();
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not load results.");
     expect(screen.queryByText(/No recorded/)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    fireEvent.click(
+      within(screen.getByRole("region", { name: "All results" })).getByRole("button", {
+        name: "Try again",
+      }),
+    );
     await loaded();
     expect(mocks.page).toHaveBeenCalledTimes(2);
   });
@@ -634,7 +693,11 @@ describe("Results history page", () => {
     expect(screen.queryByText(/March historical event/, { selector: "p" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Event")).toBeDisabled();
     mocks.filters.mockResolvedValue(metadata);
-    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    fireEvent.click(
+      within(screen.getByRole("region", { name: "All results" })).getByRole("button", {
+        name: "Try again",
+      }),
+    );
     await loaded();
     expect(screen.getByText(/March historical event/, { selector: "p" })).toBeInTheDocument();
   });
@@ -714,13 +777,16 @@ describe("Results history page", () => {
     mocks.householdLoaded = false;
     renderPage();
     await loaded();
-    expect(screen.getByLabelText("Browse team")).toHaveValue("");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute("data-team-id", "");
     change("Browse team", "team-c");
     change("Event", "event-later");
     change("From date", "2026-05-01");
     mocks.householdLoaded = true;
     rerenderPage();
-    expect(screen.getByLabelText("Browse team")).toHaveValue("team-c");
+    expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+      "data-team-id",
+      "team-c",
+    );
     expect(screen.getByLabelText("Event")).toHaveValue("event-later");
     expect(screen.getByLabelText("From date")).toHaveValue("2026-05-01");
     await waitFor(() =>
@@ -843,7 +909,12 @@ describe("Results history page", () => {
     mocks.role = "coach";
     mocks.householdLoaded = true;
     rerenderPage();
-    await waitFor(() => expect(screen.getByLabelText("Browse team")).toHaveValue(""));
+    await waitFor(() =>
+      expect(screen.getByRole("group", { name: "Browse team" })).toHaveAttribute(
+        "data-team-id",
+        "",
+      ),
+    );
     expect(screen.getByLabelText("Event")).toHaveValue("");
     expect(mocks.history).not.toHaveBeenCalled();
     expect(mocks.page).toHaveBeenLastCalledWith({ data: { ...defaultRequest, page: 2 } });
