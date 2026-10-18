@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { ResultsTrend } from "@/components/ResultsTrend";
 import { cumulativeWinTrend, resultStats } from "@/lib/results";
@@ -68,23 +68,11 @@ it("defaults to nine cumulative record points with honest ordering, team, event,
   expect(screen.getByRole("heading", { name: "Hurricanes Category 3 Blue" })).toBeInTheDocument();
   expect(screen.getByText("2026 Ontario Championships")).toBeInTheDocument();
   expect(screen.getByText("04/19/2026 – 04/21/2026")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Per-match cumulative · 9" })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
+  expect(screen.getByRole("heading", { name: "Cumulative win rate" })).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Daily cumulative" })).not.toBeInTheDocument();
   expect(
     screen.getByRole("img", { name: /Cumulative match win rate by displayed record:/ }),
   ).toBeInTheDocument();
-  expect(screen.getByText(/same-day playing order are unconfirmed/)).toBeInTheDocument();
+  expect(screen.getByText(/same-day match order is unconfirmed/)).toBeInTheDocument();
   expect(screen.getByText("56%")).toBeInTheDocument();
-});
-it("retains the original date-aggregated 67/50/56 cumulative view separately", () => {
-  view();
-  fireEvent.click(screen.getByRole("button", { name: "Daily cumulative" }));
-  expect(
-    screen.getByRole("img", { name: "Cumulative match win rate in selected range: 67%, 50%, 56%" }),
-  ).toBeInTheDocument();
-  expect(
-    screen.queryByRole("img", { name: /Cumulative match win rate by displayed record/ }),
-  ).not.toBeInTheDocument();
 });

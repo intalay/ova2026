@@ -749,8 +749,7 @@ describe("Results history page", () => {
       await section.findByText("No recorded matches for this team in the selected range."),
     ).toBeInTheDocument();
     fireEvent.click(section.getByRole("button", { name: "View results trend" }));
-    fireEvent.click(section.getByRole("button", { name: "Daily cumulative" }));
-    expect(section.getByText(/No dated, decided results/)).toBeInTheDocument();
+    expect(section.getByText(/No decided scores in this range/)).toBeInTheDocument();
     expect(section.getByText(/No confirmed final placements/)).toBeInTheDocument();
     expect(section.queryByRole("img", { name: /Cumulative/ })).not.toBeInTheDocument();
   });
@@ -827,10 +826,9 @@ describe("Results history page", () => {
     expect(
       section.getByRole("img", { name: /Cumulative match win rate by displayed record:/ }),
     ).toBeInTheDocument();
-    fireEvent.click(section.getByRole("button", { name: "Daily cumulative" }));
     expect(
       section.getByRole("img", {
-        name: "Cumulative match win rate in selected range: 67%, 50%, 56%",
+        name: "Cumulative match win rate by displayed record: 0%, 50%, 67%, 75%, 60%, 50%, 57%, 50%, 56%",
       }),
     ).toBeInTheDocument();
     change("Win rate metric", "set");
@@ -838,14 +836,16 @@ describe("Results history page", () => {
     expect(section.getByText("9")).toBeInTheDocument();
     expect(
       section.getByRole("img", {
-        name: "Cumulative set win rate in selected range: 67%, 46%, 55%",
+        name: /Cumulative set win rate by displayed record:/,
       }),
     ).toBeInTheDocument();
     change("From date", "2026-04-20");
     change("To date", "2026-04-21");
     change("Win rate metric", "match");
     expect(
-      section.getByRole("img", { name: "Cumulative match win rate in selected range: 33%, 50%" }),
+      section.getByRole("img", {
+        name: "Cumulative match win rate by displayed record: 100%, 50%, 33%, 50%, 40%, 50%",
+      }),
     ).toBeInTheDocument();
     expect(section.getAllByRole("row")).toHaveLength(7);
     await waitFor(() =>
