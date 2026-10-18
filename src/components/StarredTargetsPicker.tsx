@@ -12,6 +12,7 @@ import {
 
 export type StarredTargetsPickerProps = {
   dataMode?: "real" | "synthetic";
+  disabled?: boolean;
   teams: readonly DisplayTeam[];
   divisions: readonly StarredDivision[];
   context: TeamDisplayContext;
@@ -22,6 +23,7 @@ export type StarredTargetsPickerProps = {
 // Controlled stars: persistence stays with the existing Schedule callback.
 export function StarredTargetsPicker({
   dataMode = "real",
+  disabled = false,
   teams,
   divisions,
   context,
@@ -74,7 +76,7 @@ export function StarredTargetsPicker({
     setFailed(false);
   }
   async function toggle(target: StarredTarget, button: HTMLButtonElement) {
-    if (busy) return;
+    if (busy || disabled) return;
     const key = `${target.kind}:${target.id}`;
     if (document.activeElement === button) toggledFocus.current = key;
     setBusy(key);
@@ -210,7 +212,7 @@ export function StarredTargetsPicker({
                 type="button"
                 data-star-target={key}
                 aria-pressed={starred}
-                disabled={busy !== null}
+                disabled={busy !== null || disabled}
                 className="flex min-h-16 w-full min-w-0 items-start justify-between gap-3 rounded-lg bg-card px-3 py-3 text-left text-foreground hover:bg-secondary disabled:opacity-60"
                 onClick={(event) => {
                   void toggle(target, event.currentTarget);

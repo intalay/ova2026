@@ -44,22 +44,9 @@ export function DemoTeamTrend({ data }: { data: CompetitionData | undefined }) {
       aria-label="Alex demo team trend"
     >
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-        Independent Demo team · Not real Results
+        Demo
       </p>
       <h2 className="mt-2 text-2xl font-semibold">Alex · {team.name}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Demo only. Separate from the real team search, historical results and statistics above.
-      </p>
-      {usingFixtures && (
-        <p className="mt-2 text-sm text-muted-foreground">
-          Demo preview · 4 existing fixture matches. No completed team records are stored yet; this
-          illustrative trend uses the existing preview fixtures, not actual competition results.
-        </p>
-      )}
-      <p className="mt-4 font-semibold">
-        {finals.length} completed matches ·{" "}
-        {records.filter((match) => match.status === "scheduled").length} scheduled records
-      </p>
       {stats.played > 0 ? (
         <div className="mt-5">
           <ResultsTrend
