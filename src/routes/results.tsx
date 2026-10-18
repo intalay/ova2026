@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, queryOptions } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ChartNoAxesCombined } from "lucide-react";
@@ -27,6 +27,8 @@ import {
   RESULTS_PAGE_SIZE,
 } from "@/lib/results";
 import { useRole } from "@/hooks/use-role";
+import { useParentContext } from "@/hooks/use-parent-context";
+import { validateBrowseSearch } from "@/lib/parent-context";
 import { formatDate, formatDateMDY, formatDateTime, formatMonthDay } from "@/lib/format";
 
 type DataMode = "real";
@@ -73,6 +75,7 @@ const sourceLabel = (mode: string) =>
   mode === "real" ? "Real source" : mode === "synthetic" ? "Synthetic demo" : "Source unknown";
 
 export const Route = createFileRoute("/results")({
+  validateSearch: validateBrowseSearch,
   head: () => ({
     meta: [
       { title: "Results — OVA Companion" },
@@ -103,9 +106,8 @@ export const Route = createFileRoute("/results")({
 });
 
 function Results() {
-  const { role, household } = useRole();
+  const identity = useRole();
   const competition = useQuery(competitionQuery);
-  const hh = household.data;
   const loaded = Route.useLoaderData();
   const developmentPreview = import.meta.env.DEV && import.meta.env.MODE !== "test";
   const [draft, setSelection] = useState(initialSelection);
@@ -131,19 +133,13 @@ function Results() {
   });
   // Only exact public source IDs may seed the browsing context. Async identity
   // reads never replace a team or filter the person has already chosen.
-  const householdIds =
-    role === "coach"
-      ? (hh?.managedTeams ?? [])
-      : role === "player"
-        ? hh?.self?.team_id
-          ? [hh.self.team_id]
-          : []
-        : role === "family_friends"
-          ? (hh?.linkedPlayers.flatMap((player) => (player.team_id ? [player.team_id] : [])) ?? [])
-          : [];
-  const mappedTeam = householdIds.find((id) =>
-    filters.data?.teams.some((team) => team.id === id && team.data_mode === draft.dataMode),
-  );
+  const parentContext = useParentContext(identity, filters.data?.teams ?? []);
+  const mappedTeam =
+    parentContext.pending || parentContext.invalid
+      ? undefined
+      : filters.data?.teams.find(
+          (option) => option.id === parentContext.teamId && option.data_mode === "real",
+        )?.id;
   const team = draft.teamId || (!teamChosen ? (mappedTeam ?? "") : "");
   const teamRecord = filters.data?.teams.find(
     (option) => option.id === team && option.data_mode === draft.dataMode,
@@ -281,6 +277,30 @@ function Results() {
 
   return (
     <AppShell title="Results" sourceLabel="Sources labeled per result">
+      <div className="flex flex-wrap gap-3 text-sm font-semibold">
+        <Link to="/" search={parentContext.search}>
+          Back to homepage
+        </Link>
+        <Link to="/announcements" search={parentContext.search}>
+          Announcements
+        </Link>
+      </div>
+      {parentContext.invalid && (
+        <p role="status">
+          This player or team selection is no longer available. Choose an approved player or team.
+        </p>
+      )}
+      {parentContext.player && (
+        <p className="text-sm">
+          Linked player: {parentContext.player.display_name}. Public results below use Browse team.
+        </p>
+      )}
+      {!parentContext.pending && !parentContext.invalid && parentContext.teamId && !mappedTeam && (
+        <p role="status">
+          Your linked team has no public recorded results. You can browse recorded public teams
+          below.
+        </p>
+      )}
       <Section title="Browse results">
         <Popover open={searchOpen} onOpenChange={setSearchOpen}>
           <PopoverAnchor asChild>

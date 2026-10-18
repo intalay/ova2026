@@ -1,17 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppShell, Section, Card, btn } from "@/components/AppShell";
 import { MatchCard } from "@/components/MatchCard";
 import { publicCompetition } from "@/lib/public-competition";
-import { competitionQuery, myHouseholdQuery } from "@/lib/queries";
+import { competitionQuery } from "@/lib/queries";
 import { calendarMonths, TZ } from "@/lib/format";
-import { useSessionUser } from "@/hooks/use-session";
+import { useRole } from "@/hooks/use-role";
+import { useParentContext } from "@/hooks/use-parent-context";
+import { validateBrowseSearch } from "@/lib/parent-context";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/schedule")({
+  validateSearch: validateBrowseSearch,
   head: () => ({
     meta: [
       { title: "Schedule — OVA Companion" },
@@ -31,21 +34,27 @@ const dayKey = (iso: string) => new Intl.DateTimeFormat("en-CA", { timeZone: TZ,
 function Schedule() {
   const { data: storedCompetition } = useSuspenseQuery(competitionQuery);
   const data = publicCompetition(storedCompetition);
-  const { user } = useSessionUser();
-  const hh = useQuery(myHouseholdQuery(user?.id));
+  const identity = useRole();
+  const { user } = identity;
+  const hh = identity.household;
+  const parentContext = useParentContext(identity, data.teams);
   const qc = useQueryClient();
   const [guestStars, setGuestStars] = useState<string[]>([]);
   useEffect(() => { try { setGuestStars(JSON.parse(localStorage.getItem("ova-guest-stars") ?? "[]")); } catch { /* ignore */ } }, []);
   const followed = new Set(user ? (hh.data?.follows ?? []).map((f) => `${f.target_type}:${f.target_id}`) : guestStars);
-  const [filter, setFilter] = useState<"all" | "following">("all");
+  const [filter, setFilter] = useState<"context" | "all" | "following">("context");
   const [monthIndex, setMonthIndex] = useState(0);
   const months = calendarMonths();
   const month = months[monthIndex] ?? months[0];
   const monthPrefix = `${month?.year}-${String(month?.month).padStart(2, "0")}`;
   const [selected, setSelected] = useState<string | null>(null);
 
+  useEffect(() => { setSelected(null); }, [parentContext.teamId]);
+  const contextual = filter === "context" && (parentContext.pending || parentContext.invalid || !!parentContext.teamId);
   const scheduled = data.matches.filter((m) => m.status === "scheduled");
-  const visible = scheduled.filter((m) => filter === "all" || followed.has(`team:${m.team_a_id}`) || followed.has(`team:${m.team_b_id}`) || followed.has(`division:${m.division_id}`));
+  const visible = scheduled.filter((m) => contextual
+    ? !!parentContext.teamId && (m.team_a_id === parentContext.teamId || m.team_b_id === parentContext.teamId)
+    : filter !== "following" || followed.has(`team:${m.team_a_id}`) || followed.has(`team:${m.team_b_id}`) || followed.has(`division:${m.division_id}`));
   const byDay = useMemo(() => {
     const map = new Map<string, number>();
     for (const m of visible) { const k = m.starts_at ? dayKey(m.starts_at) : m.source_date; if (k) map.set(k, (map.get(k) ?? 0) + 1); }
@@ -68,9 +77,14 @@ function Schedule() {
 
   return (
     <AppShell title="Schedule">
+      <div className="flex flex-wrap gap-3 text-sm font-semibold"><Link to="/" search={parentContext.search}>Back to homepage</Link><Link to="/announcements" search={parentContext.search}>Announcements</Link></div>
+      {parentContext.invalid && <p role="status">This player or team selection is no longer available. Choose an approved player or team.</p>}
+      {parentContext.pending && <p role="status">Loading your selected team…</p>}
+      {parentContext.player && <p className="text-sm">Linked player: {parentContext.player.display_name} · {data.teams.find((team) => team.id === parentContext.teamId)?.name ?? "Team to be determined"}</p>}
       <div role="group" aria-label="Show matches" className="flex gap-2">
+        {parentContext.teamId && <Button aria-pressed={filter === "context"} onClick={() => { setFilter("context"); setSelected(null); }}>Current team</Button>}
         {(["all", "following"] as const).map((f) => (
-          <Button key={f} aria-pressed={filter === f} aria-controls={f === "following" ? "starred-team-filters" : undefined} onClick={() => { setFilter(f); setSelected(null); }} className={filter === f ? btn.primary : btn.secondary}>
+          <Button key={f} aria-pressed={filter === f || (f === "all" && filter === "context" && !contextual)} aria-controls={f === "following" ? "starred-team-filters" : undefined} onClick={() => { setFilter(f); setSelected(null); }} className={filter === f ? btn.primary : btn.secondary}>
             {f === "all" ? "All matches" : "Starred Team"}
           </Button>
         ))}
