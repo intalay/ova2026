@@ -454,7 +454,7 @@ body, body * { font-weight: 500 !important; }
 /* Player homepage: brand-green stage with white info cards, isolated under the role-gated wrapper */
 .player-green {
   --home-background: var(--logo-green);
-  --home-glass: linear-gradient(125deg, var(--paper-base), var(--card) 70%, color-mix(in oklab, var(--card) 96%, var(--accent)));
+  --home-glass: linear-gradient(100deg, var(--paper-base), color-mix(in oklab, var(--card) 97%, var(--accent)));
   --home-glass-border: color-mix(in oklab, var(--ink-base) 14%, transparent);
   --home-shadow: 0 2px 4px color-mix(in oklab, var(--ink-base) 8%, transparent), 0 10px 28px color-mix(in oklab, var(--ink-base) 16%, transparent);
   --home-shadow-pressed: 0 2px 8px color-mix(in oklab, var(--ink-base) 22%, transparent);
