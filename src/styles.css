@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "./assets/fonts/unsii.css";
+@import "./coach-home.css";
 
 @custom-variant dark (&:is(.dark *));
 
