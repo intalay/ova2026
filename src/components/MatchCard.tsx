@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin, ArrowUpRight } from "lucide-react";
 import type { Match } from "@/lib/queries";
-import { formatDateTime, teamLabel, TBD } from "@/lib/format";
+import { formatDateTime, formatDateTimeShort, teamLabel, teamLabelShort, TBD_SHORT } from "@/lib/format";
 import { Card, Tbd } from "./AppShell";
 import { HomeLine } from './HomeLine';
 
@@ -18,13 +18,13 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
     <Card className={`home-match${fullSchedule ? " home-match--linked" : ""}`}>
       {event && <HomeLine className="home-match-event">{event}</HomeLine>}
       <HomeLine className="home-match-teams">
-        {name(m.team_a_id) ?? <span className="home-unknown">{teamLabel(null)}</span>}
+        {name(m.team_a_id) ?? <span className="home-unknown">{teamLabelShort(null)}</span>}
         <span className="home-match-versus"> vs </span>
-        {name(m.team_b_id) ?? <span className="home-unknown">{teamLabel(null)}</span>}
+        {name(m.team_b_id) ?? <span className="home-unknown">{teamLabelShort(null)}</span>}
       </HomeLine>
-      <HomeLine className={`home-match-date ${m.starts_at ? '' : 'home-unknown'}`}>{formatDateTime(m.starts_at, m.source_date)}</HomeLine>
+      <HomeLine className={`home-match-date ${m.starts_at ? '' : 'home-unknown'}`}>{formatDateTimeShort(m.starts_at, m.source_date)}</HomeLine>
       <div className="home-match-location"><MapPin aria-hidden className="size-4 shrink-0"/>
-        <HomeLine>{venue ? <Link to="/venue/$id" params={{id:venue.id}} className="font-semibold underline underline-offset-4">{venue.name}{m.court ? ` · ${m.court}` : ''}</Link> : <span className="home-unknown">Venue {TBD.toLowerCase()}</span>}</HomeLine>
+        <HomeLine>{venue ? <Link to="/venue/$id" params={{id:venue.id}} className="font-semibold underline underline-offset-4">{venue.name}{m.court ? ` · ${m.court}` : ''}</Link> : <span className="home-unknown">Venue {TBD_SHORT}</span>}</HomeLine>
       </div>
       {fullSchedule && <Link to="/schedule" className="home-match-full">Full schedule<ArrowUpRight aria-hidden className="size-4 shrink-0"/></Link>}
     </Card>
@@ -35,7 +35,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
       <p className="match-teams mt-1 text-xl font-bold">
         {name(m.team_a_id)} <span className="font-bold text-muted-foreground">vs</span>{" "}
 
-        {m.team_b_id ? name(m.team_b_id) : <Tbd>{teamLabel(null)}</Tbd>}
+        {m.team_b_id ? name(m.team_b_id) : <Tbd>{teamLabelShort(null)}</Tbd>}
       </p>
       {final ? (
         <p className="mt-1 text-lg">
@@ -44,7 +44,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
           {m.sets && <span className="ml-2 text-muted-foreground">({m.sets.map((s) => `${s.a}-${s.b}`).join(", ")})</span>}
         </p>
       ) : (
-        <p className="match-date mt-1 text-lg">{m.starts_at ? formatDateTime(m.starts_at) : <Tbd>{formatDateTime(null, m.source_date)}</Tbd>}</p>
+        <p className="match-date mt-1 text-lg">{m.starts_at ? formatDateTime(m.starts_at) : <Tbd>{formatDateTimeShort(null, m.source_date)}</Tbd>}</p>
       )}
       {!final && (
         <p className="mt-1 flex items-center gap-1.5 text-base">
@@ -53,7 +53,7 @@ export function MatchCard({ m, data, focusTeam, compact = false, fullSchedule = 
             <Link to="/venue/$id" params={{ id: venue.id }} className="font-semibold text-primary underline underline-offset-4">
               {venue.name}{m.court ? ` · ${m.court}` : ""}
             </Link>
-          ) : <Tbd>Venue {TBD.toLowerCase()}</Tbd>}
+          ) : <Tbd>Venue {TBD_SHORT}</Tbd>}
         </p>
       )}
     </Card>
